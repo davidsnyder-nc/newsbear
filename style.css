@@ -14,33 +14,18 @@
     animation: spin 1s linear infinite;
 }
 
-/* Blue pulsing animation for generate button */
-@keyframes pulse-blue {
-    0% { 
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
-        background-color: #2563eb;
-        transform: scale(1);
+/* Simple blue pulse animation */
+@keyframes pulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
     }
     50% { 
-        box-shadow: 0 0 0 30px rgba(59, 130, 246, 0);
-        background-color: #1e40af;
-        transform: scale(1.05);
-    }
-    100% { 
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-        background-color: #2563eb;
-        transform: scale(1);
+        box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
     }
 }
 
-.pulse-blue {
-    animation: pulse-blue 2s infinite !important;
-    position: relative;
-    z-index: 1;
-}
-
-#generate-btn.pulse-blue {
-    animation: pulse-blue 2s infinite !important;
+#generate-btn {
+    animation: pulse 2s infinite;
 }
 
 /* Processing state for generate button */

@@ -357,20 +357,16 @@ class NewsBriefApp {
     }
 
     switchToRedLogo() {
-        const logoImg = document.querySelector('img[src*="newsbear_brown_logo.png"], img[src*="newsbear_red_logo.png"]');
+        const logoImg = document.querySelector('img[alt="NewsBear Logo"]');
         if (logoImg) {
-            logoImg.src = 'attached_assets/newsbear_red_logo.png';
-            // Force browser to reload the image to avoid caching issues
-            logoImg.src = logoImg.src + '?t=' + Date.now();
+            logoImg.src = 'attached_assets/newsbear_red_logo.png?t=' + Date.now();
         }
     }
 
     switchToBrownLogo() {
-        const logoImg = document.querySelector('img[src*="newsbear_brown_logo.png"], img[src*="newsbear_red_logo.png"]');
+        const logoImg = document.querySelector('img[alt="NewsBear Logo"]');
         if (logoImg) {
-            logoImg.src = 'attached_assets/newsbear_brown_logo.png';
-            // Force browser to reload the image to avoid caching issues
-            logoImg.src = logoImg.src + '?t=' + Date.now();
+            logoImg.src = 'attached_assets/newsbear_brown_logo.png?t=' + Date.now();
         }
     }
 
