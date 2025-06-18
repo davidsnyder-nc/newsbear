@@ -155,13 +155,13 @@ function isCategoryChecked($category) {
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                     <i class="fas fa-cog mr-2"></i>Settings
                 </h1>
-                <button type="button" onclick="saveAndGoHome()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md">
+                <button type="button" onclick="saveAndGoHome()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm sm:text-base">
                     <i class="fas fa-save mr-2"></i>Save and Back to Home
                 </button>
             </div>
@@ -175,31 +175,45 @@ function isCategoryChecked($category) {
             </div>
             <?php endif; ?>
             
-            <!-- Tab Navigation -->
+            <!-- Tab Navigation - Mobile Responsive -->
             <div class="border-b border-gray-200 mb-6">
-                <nav class="-mb-px flex space-x-8" role="tablist">
-                    <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600" role="tab">
-                        <i class="fas fa-cog mr-2"></i>Basic Settings
-                    </button>
-                    <button type="button" onclick="showTab('content')" id="content-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
-                        <i class="fas fa-newspaper mr-2"></i>Content & Categories
-                    </button>
-                    <button type="button" onclick="showTab('api')" id="api-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
-                        <i class="fas fa-key mr-2"></i>API Keys
-                    </button>
-                    <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
-                        <i class="fas fa-robot mr-2"></i>AI Services
-                    </button>
-                    <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
-                        <i class="fas fa-sliders-h mr-2"></i>Advanced
-                    </button>
+                <!-- Mobile dropdown for tabs -->
+                <div class="sm:hidden mb-4">
+                    <select id="mobile-tab-select" onchange="showTab(this.value)" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="basic">🔧 Basic Settings</option>
+                        <option value="content">📰 Content & Categories</option>
+                        <option value="api">🔑 API Keys</option>
+                        <option value="ai">🤖 AI Services</option>
+                        <option value="advanced">⚙️ Advanced</option>
+                    </select>
+                </div>
+                
+                <!-- Desktop tabs -->
+                <nav class="hidden sm:flex -mb-px overflow-x-auto" role="tablist">
+                    <div class="flex space-x-2 lg:space-x-8 min-w-max">
+                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-2 px-2 lg:px-4 border-b-2 border-blue-500 font-medium text-xs lg:text-sm text-blue-600 whitespace-nowrap" role="tab">
+                            <i class="fas fa-cog mr-1 lg:mr-2"></i><span class="hidden md:inline">Basic Settings</span><span class="md:hidden">Basic</span>
+                        </button>
+                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-newspaper mr-1 lg:mr-2"></i><span class="hidden md:inline">Content & Categories</span><span class="md:hidden">Content</span>
+                        </button>
+                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-key mr-1 lg:mr-2"></i><span class="hidden md:inline">API Keys</span><span class="md:hidden">API</span>
+                        </button>
+                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-robot mr-1 lg:mr-2"></i><span class="hidden md:inline">AI Services</span><span class="md:hidden">AI</span>
+                        </button>
+                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-sliders-h mr-1 lg:mr-2"></i><span class="hidden md:inline">Advanced</span><span class="md:hidden">Adv</span>
+                        </button>
+                    </div>
                 </nav>
             </div>
 
             <form method="POST" class="space-y-8">
                 <!-- Basic Settings Tab -->
                 <div id="basic-content" class="tab-content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                         <div class="space-y-6">
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-800 border-b pb-2">General Settings</h3>
@@ -289,7 +303,7 @@ function isCategoryChecked($category) {
                 
                 <!-- Content & Categories Tab -->
                 <div id="content-content" class="tab-content hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                         <div class="space-y-6">
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-800 border-b pb-2">News Categories</h3>
@@ -347,7 +361,7 @@ function isCategoryChecked($category) {
                 
                 <!-- API Keys Tab -->
                 <div id="api-content" class="tab-content hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                         <div class="space-y-6">
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-800 border-b pb-2">News API Keys</h3>
@@ -577,6 +591,12 @@ function showTab(tabName) {
     if (selectedTab) {
         selectedTab.classList.remove('border-transparent', 'text-gray-500');
         selectedTab.classList.add('border-blue-500', 'text-blue-600');
+    }
+    
+    // Update mobile dropdown to match
+    const mobileSelect = document.getElementById('mobile-tab-select');
+    if (mobileSelect) {
+        mobileSelect.value = tabName;
     }
 }
 
