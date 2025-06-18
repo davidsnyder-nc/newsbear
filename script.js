@@ -162,6 +162,9 @@ class NewsBriefApp {
         document.getElementById('status-container').classList.remove('hidden');
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
+        // Hide the generate button during generation
+        document.getElementById('generate-btn').style.display = 'none';
+        document.getElementById('demo-btn').style.display = 'none';
         this.startWittyMessages();
         this.switchToRedLogo();
     }
@@ -208,6 +211,9 @@ class NewsBriefApp {
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
         document.getElementById('success-container').classList.remove('hidden');
+        // Show buttons again after successful generation
+        document.getElementById('generate-btn').style.display = 'flex';
+        document.getElementById('demo-btn').style.display = 'block';
 
         const downloadSection = document.getElementById('download-section');
         const briefingTextSection = document.getElementById('briefing-text-section');
@@ -249,6 +255,9 @@ class NewsBriefApp {
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.remove('hidden');
         document.getElementById('error-text').textContent = message;
+        // Show buttons again after error
+        document.getElementById('generate-btn').style.display = 'flex';
+        document.getElementById('demo-btn').style.display = 'block';
     }
 
     hideResults() {

@@ -56,10 +56,7 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Progress bar animation */
-#progress-bar {
-    transition: width 0.5s ease-in-out;
-}
+/* Progress bar removed - no longer needed */
 
 /* Custom checkbox styles */
 input[type="checkbox"] {
