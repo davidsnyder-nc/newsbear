@@ -222,13 +222,32 @@ class NewsAPI {
     private function fetchFromNYT($categories) {
         $news = [];
         
+        if (!$this->nytKey) {
+            error_log("NYT API key is missing or empty");
+            return $news;
+        }
+        
+        error_log("NYT API Key present: " . substr($this->nytKey, 0, 10) . "...");
+        
         foreach ($categories as $category) {
             $section = $this->mapCategoryToNYTSection($category);
             $url = "https://api.nytimes.com/svc/topstories/v2/{$section}.json?" . http_build_query([
                 'api-key' => $this->nytKey
             ]);
             
+            error_log("NYT API URL: " . $url);
             $response = $this->makeRequest($url);
+            
+            if ($response) {
+                error_log("NYT API Response received: " . json_encode(array_keys($response)));
+                if (isset($response['results'])) {
+                    error_log("NYT API found " . count($response['results']) . " results");
+                } else {
+                    error_log("NYT API response missing 'results' key");
+                }
+            } else {
+                error_log("NYT API response is null or false");
+            }
             
             if ($response && isset($response['results'])) {
                 $count = 0;
