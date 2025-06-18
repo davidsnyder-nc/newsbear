@@ -276,6 +276,9 @@ class BriefingHistory {
         // Save updated briefings
         file_put_contents($this->briefingsFile, json_encode($briefings, JSON_PRETTY_PRINT));
         
+        // Clean up orphaned files after individual deletion
+        $this->cleanupOrphanedFiles();
+        
         return true;
     }
     
@@ -304,6 +307,9 @@ class BriefingHistory {
         // Save updated briefings
         file_put_contents($this->briefingsFile, json_encode($briefings, JSON_PRETTY_PRINT));
         
+        // Clean up orphaned files
+        $this->cleanupOrphanedFiles();
+        
         return $deletedCount;
     }
     
@@ -324,7 +330,64 @@ class BriefingHistory {
         // Clear briefings file
         file_put_contents($this->briefingsFile, json_encode([], JSON_PRETTY_PRINT));
         
+        // Clean up orphaned files in downloads directory
+        $this->cleanupOrphanedFiles();
+        
         return $deletedCount;
+    }
+
+    /**
+     * Clean up orphaned files in downloads directory
+     */
+    public function cleanupOrphanedFiles() {
+        $downloadsDir = __DIR__ . '/../downloads';
+        if (!is_dir($downloadsDir)) {
+            return;
+        }
+
+        $briefings = $this->getAllBriefings();
+        $validFiles = [];
+        
+        // Collect all valid audio file names from current briefings
+        foreach ($briefings as $briefing) {
+            if (!empty($briefing['audio_file'])) {
+                $validFiles[] = basename($briefing['audio_file']);
+            }
+        }
+        
+        // Get all files in downloads directory
+        $files = glob($downloadsDir . '/*');
+        
+        foreach ($files as $file) {
+            $filename = basename($file);
+            
+            // Skip if it's a valid audio file from current briefings
+            if (in_array($filename, $validFiles)) {
+                continue;
+            }
+            
+            // Delete orphaned status files
+            if (preg_match('/^status_briefing_[a-f0-9]+\.[0-9]+\.json$/', $filename)) {
+                unlink($file);
+                continue;
+            }
+            
+            // Delete old audio/text files that don't match current briefings
+            if (preg_match('/\.(mp3|txt)$/', $filename)) {
+                // Check if this file is referenced by any current briefing
+                $isReferenced = false;
+                foreach ($briefings as $briefing) {
+                    if (!empty($briefing['audio_file']) && basename($briefing['audio_file']) === $filename) {
+                        $isReferenced = true;
+                        break;
+                    }
+                }
+                
+                if (!$isReferenced) {
+                    unlink($file);
+                }
+            }
+        }
     }
     
     /**

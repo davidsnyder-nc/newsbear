@@ -20,6 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'clear_all') {
         $count = $history->clearAllBriefings();
         $message = "Deleted all {$count} briefings.";
+    } elseif ($action === 'cleanup') {
+        $history->cleanupOrphanedFiles();
+        $message = "Cleaned up orphaned files in downloads folder.";
     }
     
     // Redirect to prevent form resubmission
