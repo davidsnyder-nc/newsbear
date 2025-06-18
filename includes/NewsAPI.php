@@ -80,29 +80,27 @@ class NewsAPI {
             throw new Exception("GNews API key is not configured");
         }
         
-        foreach ($categories as $category) {
-            $url = "https://gnews.io/api/v4/top-headlines?" . http_build_query([
-                'category' => $category,
-                'lang' => 'en',
-                'country' => 'us',
-                'max' => 10,
-                'apikey' => $this->gnewsKey
-            ]);
-            
-            error_log("GNews URL: " . $url);
-            $response = $this->makeRequest($url);
-            
-            if ($response && isset($response['articles'])) {
-                foreach ($response['articles'] as $article) {
-                    $news[] = [
-                        'title' => $article['title'],
-                        'content' => $article['description'] ?? '',
-                        'category' => $category,
-                        'source' => $article['source']['name'] ?? 'GNews',
-                        'publishedAt' => $article['publishedAt'] ?? date('c'),
-                        'url' => $article['url'] ?? ''
-                    ];
-                }
+        // Use only one request to get general news to reduce API calls
+        $url = "https://gnews.io/api/v4/top-headlines?" . http_build_query([
+            'lang' => 'en',
+            'country' => 'us',
+            'max' => 30, // Get more articles in one request
+            'apikey' => $this->gnewsKey
+        ]);
+        
+        error_log("GNews URL: " . $url);
+        $response = $this->makeRequest($url);
+        
+        if ($response && isset($response['articles'])) {
+            foreach ($response['articles'] as $article) {
+                $news[] = [
+                    'title' => $article['title'],
+                    'content' => $article['description'] ?? '',
+                    'category' => 'general', // Assign general category
+                    'source' => $article['source']['name'] ?? 'GNews',
+                    'publishedAt' => $article['publishedAt'] ?? date('c'),
+                    'url' => $article['url'] ?? ''
+                ];
             }
         }
         
