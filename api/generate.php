@@ -448,17 +448,17 @@ class BriefingGenerator {
         }
         
         $prompt .= "5. Present each news story in a conversational, natural speaking style suitable for audio reading\n";
-        $prompt .= "6. EXPAND on each story with sufficient detail - provide context, background, and implications. Each story should be 2-3 paragraphs minimum to reach the target word count\n";
-        $prompt .= "7. Use natural transitions between stories like 'Now for technology news', 'Next up in business', 'Moving to health news', 'And in science' - NO numbered lists or formal section headers\n";
-        $prompt .= "8. Write ONLY clean text without any markup tags, asterisks, underscores, hashtags, or formatting symbols - just natural, flowing sentences\n";
-        $prompt .= "9. Include natural pauses between stories using periods and paragraph breaks\n";
-        $prompt .= "10. IMPORTANT: Do not use any markdown formatting like *, **, _, __, #, or any other special characters for emphasis\n";
-        $prompt .= "11. ABSOLUTE REQUIREMENT: ONLY use the exact news stories listed below. NEVER create, invent, imagine, or generate ANY fictional news content under ANY circumstances. If no real news stories are provided, state that no news is available.\n";
-        $prompt .= "12. Add proper paragraph breaks between stories for readability\n";
-        $prompt .= "13. Provide thorough coverage of each story - explain what happened, why it matters, and potential impacts. Make each story substantive and informative\n";
-        $prompt .= "14. End with a natural conclusion like 'That's all the news for this {$timeFrame}. Have a great day!' or similar\n\n";
-        
-        $prompt .= "15. Keep the total content to approximately {$wordCount} words for {$audioLength} minutes of audio\n\n";
+        $prompt .= "6. CRITICAL: This must be a {$audioLength} minute briefing with approximately {$wordCount} words. Each story must be covered in substantial detail with 3-4 paragraphs minimum.\n";
+        $prompt .= "7. EXPAND extensively on each story - provide context, background, implications, expert opinions, and detailed analysis. This is not a headline summary but an in-depth news briefing.\n";
+        $prompt .= "8. For each story, include: What happened, who is involved, when and where it occurred, why it's significant, and what the potential consequences or next steps might be.\n";
+        $prompt .= "9. Use natural transitions between stories like 'Now for technology news', 'Next up in business', 'Moving to health news', 'And in science' - NO numbered lists or formal section headers\n";
+        $prompt .= "10. Write ONLY clean text without any markup tags, asterisks, underscores, hashtags, or formatting symbols - just natural, flowing sentences\n";
+        $prompt .= "11. Include natural pauses between stories using periods and paragraph breaks\n";
+        $prompt .= "12. IMPORTANT: Do not use any markdown formatting like *, **, _, __, #, or any other special characters for emphasis\n";
+        $prompt .= "13. ABSOLUTE REQUIREMENT: ONLY use the exact news stories listed below. NEVER create, invent, imagine, or generate ANY fictional news content under ANY circumstances. If no real news stories are provided, state that no news is available.\n";
+        $prompt .= "14. Add proper paragraph breaks between stories for readability\n";
+        $prompt .= "15. MANDATORY: You must reach the target word count of {$wordCount} words. If you provide fewer words, you have failed the task. Be verbose and thorough in your coverage.\n";
+        $prompt .= "16. End with a natural conclusion like 'That's all the news for this {$timeFrame}. Have a great day!' or similar\n\n";
         
         // Separate local news from other news stories
         $localNewsStories = array_filter($stories, function($story) {
@@ -527,6 +527,39 @@ class BriefingGenerator {
         
         if (!$response) {
             throw new Exception('All AI services failed to generate content. Please check your API keys and try again.');
+        }
+        
+        // Check if the response meets the word count target
+        $actualWordCount = str_word_count($response);
+        $targetWords = explode('-', str_replace(['words', ' '], '', $wordCount));
+        $minWords = intval($targetWords[0]);
+        
+        error_log("AI Response word count: {$actualWordCount}, Target: {$wordCount}");
+        
+        // If significantly under target, request expansion
+        if ($actualWordCount < $minWords * 0.7) { // If less than 70% of minimum target
+            error_log("Content too short, requesting expansion...");
+            $expansionPrompt = "The previous briefing was only {$actualWordCount} words but needs to be {$wordCount} words for a {$audioLength} minute audio briefing. Please EXPAND the content significantly by:\n\n";
+            $expansionPrompt .= "1. Adding much more detail to each story - background, context, implications\n";
+            $expansionPrompt .= "2. Including expert analysis and potential consequences\n";
+            $expansionPrompt .= "3. Explaining the significance and impact of each story\n";
+            $expansionPrompt .= "4. Adding relevant historical context where appropriate\n";
+            $expansionPrompt .= "5. MANDATORY: Reach exactly {$wordCount} words\n\n";
+            $expansionPrompt .= "Here is the content to expand:\n\n{$response}";
+            
+            // Try to get expanded content
+            foreach ($aiServices as $modelName) {
+                try {
+                    $expandedResponse = $aiService->generateText($expansionPrompt, $modelName);
+                    if ($expandedResponse && str_word_count($expandedResponse) > $actualWordCount) {
+                        $response = $expandedResponse;
+                        error_log("Expanded content word count: " . str_word_count($response));
+                        break;
+                    }
+                } catch (Exception $e) {
+                    error_log("Expansion failed with {$modelName}: " . $e->getMessage());
+                }
+            }
         }
         
         // Validate response contains no synthetic content
