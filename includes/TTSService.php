@@ -2,12 +2,15 @@
 
 class TTSService {
     private $apiKey;
+    private $voiceSelection;
     
     public function __construct($settings = null) {
         if ($settings) {
             $this->apiKey = ($settings['googleTtsEnabled'] ?? true) ? ($settings['googleTtsApiKey'] ?: getenv('GOOGLE_TTS_API_KEY')) : null;
+            $this->voiceSelection = $settings['voiceSelection'] ?? 'en-US-Neural2-D';
         } else {
             $this->apiKey = getenv('GOOGLE_TTS_API_KEY');
+            $this->voiceSelection = 'en-US-Neural2-D';
         }
     }
     
@@ -59,22 +62,25 @@ class TTSService {
     private function synthesizeSingleChunk($ssmlText, $saveFile = true) {
         $url = "https://texttospeech.googleapis.com/v1/text:synthesize?key={$this->apiKey}";
         
+        // Get voice configuration based on selection
+        $voiceConfig = $this->getVoiceConfiguration($this->voiceSelection);
+        
         $data = [
             'input' => [
                 'ssml' => $ssmlText
             ],
             'voice' => [
-                'languageCode' => 'en-US',
-                'name' => 'en-US-Neural2-D', // Best quality neural male voice
-                'ssmlGender' => 'MALE'
+                'languageCode' => $voiceConfig['languageCode'],
+                'name' => $this->voiceSelection,
+                'ssmlGender' => $voiceConfig['gender']
             ],
             'audioConfig' => [
                 'audioEncoding' => 'MP3',
-                'speakingRate' => 0.9, // Professional news anchor pace
-                'pitch' => -2.0, // Deep, authoritative tone
-                'volumeGainDb' => 3.0, // Clear volume level
-                'sampleRateHertz' => 24000, // Studio quality
-                'effectsProfileId' => ['headphone-class-device'] // Premium audio profile
+                'speakingRate' => $voiceConfig['speakingRate'],
+                'pitch' => $voiceConfig['pitch'],
+                'volumeGainDb' => $voiceConfig['volumeGain'],
+                'sampleRateHertz' => $voiceConfig['sampleRate'],
+                'effectsProfileId' => $voiceConfig['effectsProfile']
             ]
         ];
         
@@ -222,6 +228,129 @@ class TTSService {
         $ssml = preg_replace('/rate=(["\'])([^"\']*?)\1/', 'rate="$2"', $ssml);
         
         return $ssml;
+    }
+    
+    private function getVoiceConfiguration($voiceSelection) {
+        $voiceConfigs = [
+            // American Male Voices
+            'en-US-Neural2-D' => [
+                'languageCode' => 'en-US',
+                'gender' => 'MALE',
+                'speakingRate' => 0.9,
+                'pitch' => -2.0,
+                'volumeGain' => 3.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-US-Neural2-J' => [
+                'languageCode' => 'en-US',
+                'gender' => 'MALE',
+                'speakingRate' => 0.85,
+                'pitch' => -3.0,
+                'volumeGain' => 4.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-US-Studio-M' => [
+                'languageCode' => 'en-US',
+                'gender' => 'MALE',
+                'speakingRate' => 0.9,
+                'pitch' => -1.5,
+                'volumeGain' => 5.0,
+                'sampleRate' => 48000,
+                'effectsProfile' => ['large-home-entertainment-class-device']
+            ],
+            
+            // British Male Voices
+            'en-GB-Neural2-D' => [
+                'languageCode' => 'en-GB',
+                'gender' => 'MALE',
+                'speakingRate' => 0.9,
+                'pitch' => -1.5,
+                'volumeGain' => 3.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-GB-Neural2-B' => [
+                'languageCode' => 'en-GB',
+                'gender' => 'MALE',
+                'speakingRate' => 0.85,
+                'pitch' => -2.5,
+                'volumeGain' => 4.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-GB-Studio-M' => [
+                'languageCode' => 'en-GB',
+                'gender' => 'MALE',
+                'speakingRate' => 0.9,
+                'pitch' => -1.0,
+                'volumeGain' => 5.0,
+                'sampleRate' => 48000,
+                'effectsProfile' => ['large-home-entertainment-class-device']
+            ],
+            
+            // Australian Male Voices
+            'en-AU-Neural2-D' => [
+                'languageCode' => 'en-AU',
+                'gender' => 'MALE',
+                'speakingRate' => 0.9,
+                'pitch' => -1.8,
+                'volumeGain' => 3.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-AU-Neural2-B' => [
+                'languageCode' => 'en-AU',
+                'gender' => 'MALE',
+                'speakingRate' => 0.85,
+                'pitch' => -2.8,
+                'volumeGain' => 4.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-AU-Studio-M' => [
+                'languageCode' => 'en-AU',
+                'gender' => 'MALE',
+                'speakingRate' => 0.9,
+                'pitch' => -1.2,
+                'volumeGain' => 5.0,
+                'sampleRate' => 48000,
+                'effectsProfile' => ['large-home-entertainment-class-device']
+            ],
+            
+            // Female Voices
+            'en-US-Neural2-F' => [
+                'languageCode' => 'en-US',
+                'gender' => 'FEMALE',
+                'speakingRate' => 0.9,
+                'pitch' => 0.0,
+                'volumeGain' => 3.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-GB-Neural2-F' => [
+                'languageCode' => 'en-GB',
+                'gender' => 'FEMALE',
+                'speakingRate' => 0.9,
+                'pitch' => 0.5,
+                'volumeGain' => 3.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ],
+            'en-AU-Neural2-A' => [
+                'languageCode' => 'en-AU',
+                'gender' => 'FEMALE',
+                'speakingRate' => 0.9,
+                'pitch' => 0.2,
+                'volumeGain' => 3.0,
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
+            ]
+        ];
+        
+        // Return configuration for selected voice, fallback to default if not found
+        return $voiceConfigs[$voiceSelection] ?? $voiceConfigs['en-US-Neural2-D'];
     }
 }
 ?>

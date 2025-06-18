@@ -30,6 +30,7 @@ if ($_POST) {
         'claudeApiKey' => $_POST['claudeApiKey'] ?? '',
         'claudePrompt' => $_POST['claudePrompt'] ?? 'Generate news briefing script.',
         'googleTtsApiKey' => $_POST['googleTtsApiKey'] ?? '',
+        'voiceSelection' => $_POST['voiceSelection'] ?? 'en-US-Neural2-D',
         'gnewsEnabled' => isset($_POST['gnewsEnabled']) ? true : false,
         'newsApiEnabled' => isset($_POST['newsApiEnabled']) ? true : false,
         'guardianEnabled' => isset($_POST['guardianEnabled']) ? true : false,
@@ -83,6 +84,7 @@ $defaults = [
     'claudeApiKey' => '',
     'claudePrompt' => 'Generate a comprehensive news briefing script from the provided articles.',
     'googleTtsApiKey' => '',
+    'voiceSelection' => 'en-US-Neural2-D',
     'gnewsEnabled' => true,
     'newsApiEnabled' => true,
     'guardianEnabled' => true,
@@ -180,6 +182,33 @@ function isCategoryChecked($category) {
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
                                     <input type="text" name="zipCode" value="<?= getValue('zipCode') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Enter ZIP code for local news">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Voice Selection</label>
+                                    <select name="voiceSelection" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                        <optgroup label="American Male Voices">
+                                            <option value="en-US-Neural2-D" <?= isSelected('voiceSelection', 'en-US-Neural2-D') ?>>David - Standard American ($)</option>
+                                            <option value="en-US-Neural2-J" <?= isSelected('voiceSelection', 'en-US-Neural2-J') ?>>John - Deep American ($$)</option>
+                                            <option value="en-US-Studio-M" <?= isSelected('voiceSelection', 'en-US-Studio-M') ?>>Michael - Studio Quality ($$$)</option>
+                                        </optgroup>
+                                        <optgroup label="British Male Voices">
+                                            <option value="en-GB-Neural2-D" <?= isSelected('voiceSelection', 'en-GB-Neural2-D') ?>>Daniel - Standard British ($)</option>
+                                            <option value="en-GB-Neural2-B" <?= isSelected('voiceSelection', 'en-GB-Neural2-B') ?>>Benjamin - Refined British ($$)</option>
+                                            <option value="en-GB-Studio-M" <?= isSelected('voiceSelection', 'en-GB-Studio-M') ?>>Marcus - Premium British ($$$)</option>
+                                        </optgroup>
+                                        <optgroup label="Australian Male Voices">
+                                            <option value="en-AU-Neural2-D" <?= isSelected('voiceSelection', 'en-AU-Neural2-D') ?>>Dylan - Standard Australian ($)</option>
+                                            <option value="en-AU-Neural2-B" <?= isSelected('voiceSelection', 'en-AU-Neural2-B') ?>>Blake - Deep Australian ($$)</option>
+                                            <option value="en-AU-Studio-M" <?= isSelected('voiceSelection', 'en-AU-Studio-M') ?>>Maxwell - Premium Australian ($$$)</option>
+                                        </optgroup>
+                                        <optgroup label="Female Voices">
+                                            <option value="en-US-Neural2-F" <?= isSelected('voiceSelection', 'en-US-Neural2-F') ?>>Fiona - American Female ($)</option>
+                                            <option value="en-GB-Neural2-F" <?= isSelected('voiceSelection', 'en-GB-Neural2-F') ?>>Victoria - British Female ($)</option>
+                                            <option value="en-AU-Neural2-A" <?= isSelected('voiceSelection', 'en-AU-Neural2-A') ?>>Olivia - Australian Female ($)</option>
+                                        </optgroup>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
                                 </div>
                                 
                                 <div class="space-y-3">
