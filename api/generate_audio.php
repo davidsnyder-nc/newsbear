@@ -53,6 +53,11 @@ try {
         throw new Exception('Failed to generate audio file');
     }
     
+    // Verify the file was actually created
+    if (!file_exists($audioFile)) {
+        throw new Exception('Audio file was not saved properly');
+    }
+    
     // Update briefing record with audio file
     $allBriefings = $history->getAllBriefings();
     foreach ($allBriefings as &$b) {
