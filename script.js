@@ -246,45 +246,57 @@ class NewsBriefApp {
         } while (newIndex === this.currentMessageIndex && this.wittyMessages.length > 1);
         
         this.currentMessageIndex = newIndex;
-        document.getElementById('status-text').textContent = this.wittyMessages[this.currentMessageIndex];
+        const statusText = document.getElementById('status-text');
+        if (statusText) {
+            statusText.textContent = this.wittyMessages[this.currentMessageIndex];
+        }
     }
 
     showSuccess(downloadUrl, briefingText = null) {
         this.stopWittyMessages();
         this.switchToBrownLogo();
-        document.getElementById('status-container').classList.add('hidden');
-        document.getElementById('error-container').classList.add('hidden');
-        document.getElementById('success-container').classList.remove('hidden');
-        // Show buttons again after successful generation
-        document.getElementById('generate-btn').style.display = 'flex';
-        document.getElementById('demo-btn').style.display = 'block';
+        
+        const statusContainer = document.getElementById('status-container');
+        const errorContainer = document.getElementById('error-container');
+        const successContainer = document.getElementById('success-container');
+        const generateBtn = document.getElementById('generate-btn');
+        const demoBtn = document.getElementById('demo-btn');
+        
+        if (statusContainer) statusContainer.classList.add('hidden');
+        if (errorContainer) errorContainer.classList.add('hidden');
+        if (successContainer) successContainer.classList.remove('hidden');
+        if (generateBtn) generateBtn.style.display = 'flex';
+        if (demoBtn) demoBtn.style.display = 'block';
 
         const downloadSection = document.getElementById('download-section');
-        const briefingTextSection = document.getElementById('briefing-text-section');
+        const briefingTextSection = document.getElementById('text-section');
 
-        if (downloadUrl) {
+        if (downloadUrl && downloadSection) {
             // Show download section for MP3 files - set up audio player and download
             const audioPlayer = document.getElementById('briefing-player');
             const audioSource = document.getElementById('audio-source');
             const downloadLink = document.getElementById('download-link');
             
-            audioSource.src = downloadUrl;
-            audioPlayer.load();
-            downloadLink.href = 'download.php?file=' + encodeURIComponent(downloadUrl);
+            if (audioSource) audioSource.src = downloadUrl;
+            if (audioPlayer) audioPlayer.load();
+            if (downloadLink) downloadLink.href = 'download.php?file=' + encodeURIComponent(downloadUrl);
+            
             downloadSection.classList.remove('hidden');
-            briefingTextSection.classList.add('hidden');
+            if (briefingTextSection) briefingTextSection.classList.add('hidden');
             
             // Initialize custom audio player for main page
             this.initializeMainAudioPlayer();
-        } else if (briefingText) {
+        } else if (briefingText && briefingTextSection) {
             // Show text section when no MP3 is generated
-            document.getElementById('briefing-text').textContent = briefingText;
-            downloadSection.classList.add('hidden');
+            const briefingTextElement = document.getElementById('briefing-text');
+            if (briefingTextElement) briefingTextElement.textContent = briefingText;
+            
+            if (downloadSection) downloadSection.classList.add('hidden');
             briefingTextSection.classList.remove('hidden');
         } else {
             // Hide both if neither is available
-            downloadSection.classList.add('hidden');
-            briefingTextSection.classList.add('hidden');
+            if (downloadSection) downloadSection.classList.add('hidden');
+            if (briefingTextSection) briefingTextSection.classList.add('hidden');
         }
 
         // Hide generate button and show new button
