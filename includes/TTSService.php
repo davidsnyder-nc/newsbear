@@ -15,6 +15,48 @@ class TTSService {
         // Clean up the SSML text
         $ssmlText = $this->cleanSSML($ssmlText);
         
+        // Check if text exceeds Google's 5000 byte limit
+        if (strlen($ssmlText) > 4500) { // Leave buffer for SSML tags
+            return $this->synthesizeLongSpeech($ssmlText);
+        }
+        
+        return $this->synthesizeSingleChunk($ssmlText);
+    }
+    
+    private function synthesizeLongSpeech($ssmlText) {
+        // Split text into chunks that fit within the limit
+        $chunks = $this->splitTextIntoChunks($ssmlText, 4000);
+        $audioSegments = [];
+        
+        foreach ($chunks as $i => $chunk) {
+            $audioData = $this->synthesizeSingleChunk($chunk, false);
+            $audioSegments[] = $audioData;
+        }
+        
+        // Combine all audio segments
+        $combinedAudio = $this->combineAudioSegments($audioSegments);
+        
+        // Generate unique filename with timestamp
+        $timeFrame = $this->getTimeFrame();
+        $date = date('Y-m-d');
+        $timestamp = date('His');
+        $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
+        $filepath = __DIR__ . "/../data/history/{$filename}";
+        
+        // Ensure history directory exists
+        $historyDir = __DIR__ . "/../data/history";
+        if (!is_dir($historyDir)) {
+            mkdir($historyDir, 0755, true);
+        }
+        
+        // Save combined audio file
+        file_put_contents($filepath, $combinedAudio);
+        
+        // Return relative path from web root
+        return "data/history/{$filename}";
+    }
+    
+    private function synthesizeSingleChunk($ssmlText, $saveFile = true) {
         $url = "https://texttospeech.googleapis.com/v1/text:synthesize?key={$this->apiKey}";
         
         $data = [
@@ -70,24 +112,68 @@ class TTSService {
         
         $audioData = base64_decode($responseData['audioContent']);
         
-        // Generate unique filename with timestamp
-        $timeFrame = $this->getTimeFrame();
-        $date = date('Y-m-d');
-        $timestamp = date('His');
-        $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
-        $filepath = __DIR__ . "/../data/history/{$filename}";
-        
-        // Ensure history directory exists
-        $historyDir = __DIR__ . "/../data/history";
-        if (!is_dir($historyDir)) {
-            mkdir($historyDir, 0755, true);
+        if ($saveFile) {
+            // Generate unique filename with timestamp
+            $timeFrame = $this->getTimeFrame();
+            $date = date('Y-m-d');
+            $timestamp = date('His');
+            $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
+            $filepath = __DIR__ . "/../data/history/{$filename}";
+            
+            // Ensure history directory exists
+            $historyDir = __DIR__ . "/../data/history";
+            if (!is_dir($historyDir)) {
+                mkdir($historyDir, 0755, true);
+            }
+            
+            // Save audio file
+            file_put_contents($filepath, $audioData);
+            
+            // Return relative path from web root
+            return "data/history/{$filename}";
         }
         
-        // Save audio file
-        file_put_contents($filepath, $audioData);
+        return $audioData;
+    }
+    
+    private function splitTextIntoChunks($text, $maxChunkSize) {
+        // Remove SSML wrapper if present
+        $innerText = $text;
+        if (strpos($text, '<speak>') !== false) {
+            $innerText = preg_replace('/<speak>(.*?)<\/speak>/s', '$1', $text);
+        }
         
-        // Return relative path from web root
-        return "data/history/{$filename}";
+        // Split by sentences to maintain natural breaks
+        $sentences = preg_split('/(?<=[.!?])\s+/', $innerText, -1, PREG_SPLIT_NO_EMPTY);
+        
+        $chunks = [];
+        $currentChunk = '';
+        
+        foreach ($sentences as $sentence) {
+            $testChunk = $currentChunk . ($currentChunk ? ' ' : '') . $sentence;
+            $testChunkWithSSML = "<speak>{$testChunk}</speak>";
+            
+            if (strlen($testChunkWithSSML) > $maxChunkSize && !empty($currentChunk)) {
+                // Current chunk is full, start new one
+                $chunks[] = "<speak>{$currentChunk}</speak>";
+                $currentChunk = $sentence;
+            } else {
+                $currentChunk = $testChunk;
+            }
+        }
+        
+        // Add the last chunk
+        if (!empty($currentChunk)) {
+            $chunks[] = "<speak>{$currentChunk}</speak>";
+        }
+        
+        return $chunks;
+    }
+    
+    private function combineAudioSegments($segments) {
+        // For MP3 files, we can simply concatenate the binary data
+        // This works because MP3 is a stream format
+        return implode('', $segments);
     }
     
     private function getTimeFrame() {
