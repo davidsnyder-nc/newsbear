@@ -96,9 +96,7 @@ $defaults = [
     'openaiEnabled' => true,
     'geminiEnabled' => true,
     'claudeEnabled' => true,
-    'googleTtsEnabled' => true,
-    'debugMode' => false,
-    'verboseLogging' => false
+    'googleTtsEnabled' => true
 ];
 
 $settings = array_merge($defaults, $settings);
@@ -181,6 +179,8 @@ function isCategoryChecked($category) {
                         <div class="space-y-6">
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-800 border-b pb-2">General Settings</h3>
+                            
+                            <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Time Frame</label>
                                     <select name="timeFrame" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
@@ -204,34 +204,6 @@ function isCategoryChecked($category) {
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
                                     <input type="text" name="zipCode" value="<?= getValue('zipCode') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Enter ZIP code for local news">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-6">
-                            <div class="space-y-4">
-                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Features</h3>
-                                <div class="space-y-3">
-                                    <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="generateMp3" <?= isChecked('generateMp3') ?> class="mr-3 h-4 w-4">
-                                        Generate MP3 Audio File
-                                    </label>
-                                    <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="includeWeather" <?= isChecked('includeWeather') ?> class="mr-3 h-4 w-4">
-                                        Include Weather
-                                    </label>
-                                    <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="includeLocal" <?= isChecked('includeLocal') ?> class="mr-3 h-4 w-4">
-                                        Include Local News
-                                    </label>
-                                    <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="includeTV" <?= isChecked('includeTV') ?> class="mr-3 h-4 w-4">
-                                        Include TV Shows/Movies
-                                    </label>
-                                    <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="darkTheme" <?= isChecked('darkTheme') ?> class="mr-3 h-4 w-4">
-                                        Dark Theme
-                                    </label>
                                 </div>
                                 
                                 <div>
@@ -259,6 +231,35 @@ function isCategoryChecked($category) {
                                         </optgroup>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Features</h3>
+                                <div class="space-y-3">
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="generateMp3" <?= isChecked('generateMp3') ?> class="mr-3 h-4 w-4">
+                                        Generate MP3 Audio File
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="includeWeather" <?= isChecked('includeWeather') ?> class="mr-3 h-4 w-4">
+                                        Include Weather
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="includeLocal" <?= isChecked('includeLocal') ?> class="mr-3 h-4 w-4">
+                                        Include Local News
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="includeTV" <?= isChecked('includeTV') ?> class="mr-3 h-4 w-4">
+                                        Include TV Shows/Movies
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="darkTheme" <?= isChecked('darkTheme') ?> class="mr-3 h-4 w-4">
+                                        Dark Theme
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -317,6 +318,43 @@ function isCategoryChecked($category) {
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Custom Header</label>
                                     <input type="text" name="customHeader" value="<?= getValue('customHeader') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Custom briefing header text">
                                     <p class="text-xs text-gray-500 mt-1">Optional custom introduction for your briefings</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- API Keys Tab -->
+                <div id="api-content" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Voice Settings</h3>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Voice Selection</label>
+                                    <select name="voiceSelection" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                        <optgroup label="American Male Voices">
+                                            <option value="en-US-Neural2-D" <?= isSelected('voiceSelection', 'en-US-Neural2-D') ?>>David - Standard American ($)</option>
+                                            <option value="en-US-Neural2-J" <?= isSelected('voiceSelection', 'en-US-Neural2-J') ?>>John - Deep American ($$)</option>
+                                            <option value="en-US-Wavenet-D" <?= isSelected('voiceSelection', 'en-US-Wavenet-D') ?>>Oliver - Studio Quality ($$$)</option>
+                                        </optgroup>
+                                        <optgroup label="British Male Voices">
+                                            <option value="en-GB-Neural2-D" <?= isSelected('voiceSelection', 'en-GB-Neural2-D') ?>>Daniel - Standard British ($)</option>
+                                            <option value="en-GB-Neural2-B" <?= isSelected('voiceSelection', 'en-GB-Neural2-B') ?>>Benjamin - Refined British ($$)</option>
+                                            <option value="en-GB-Standard-D" <?= isSelected('voiceSelection', 'en-GB-Standard-D') ?>>David - Premium British ($$$)</option>
+                                        </optgroup>
+                                        <optgroup label="Australian Male Voices">
+                                            <option value="en-AU-Neural2-D" <?= isSelected('voiceSelection', 'en-AU-Neural2-D') ?>>Dylan - Standard Australian ($)</option>
+                                            <option value="en-AU-Neural2-B" <?= isSelected('voiceSelection', 'en-AU-Neural2-B') ?>>Blake - Deep Australian ($$)</option>
+                                            <option value="en-AU-Standard-D" <?= isSelected('voiceSelection', 'en-AU-Standard-D') ?>>David - Premium Australian ($$$)</option>
+                                        </optgroup>
+                                        <optgroup label="Female Voices">
+                                            <option value="en-US-Neural2-F" <?= isSelected('voiceSelection', 'en-US-Neural2-F') ?>>Fiona - American Female ($)</option>
+                                            <option value="en-GB-Neural2-F" <?= isSelected('voiceSelection', 'en-GB-Neural2-F') ?>>Victoria - British Female ($)</option>
+                                            <option value="en-AU-Neural2-A" <?= isSelected('voiceSelection', 'en-AU-Neural2-A') ?>>Olivia - Australian Female ($)</option>
+                                        </optgroup>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
                                 </div>
                             </div>
                         </div>
