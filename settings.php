@@ -30,7 +30,7 @@ function processRssFeeds($rssFeeds) {
 }
 
 function getRssFeeds() {
-    require_once 'includes/RSSFeedHandler.php';
+    require_once __DIR__ . '/includes/RSSFeedHandler.php';
     $rssHandler = new RSSFeedHandler();
     return $rssHandler->getRssFeeds();
 }
@@ -160,7 +160,7 @@ function isCategoryChecked($category) {
 
 function getRssCustomCategories() {
     try {
-        require_once 'includes/RSSFeedHandler.php';
+        require_once __DIR__ . '/includes/RSSFeedHandler.php';
         $rssHandler = new RSSFeedHandler();
         return $rssHandler->getCustomCategories();
     } catch (Exception $e) {

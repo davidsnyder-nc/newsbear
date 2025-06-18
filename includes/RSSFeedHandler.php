@@ -3,7 +3,13 @@
 class RSSFeedHandler {
     private $configFile;
     
-    public function __construct($configFile = 'config/user_settings.json') {
+    public function __construct($configFile = null) {
+        if ($configFile === null) {
+            // Determine correct path based on current directory
+            $configFile = file_exists('config/user_settings.json') 
+                ? 'config/user_settings.json' 
+                : '../config/user_settings.json';
+        }
         $this->configFile = $configFile;
     }
     

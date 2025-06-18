@@ -25,10 +25,11 @@ class NewsAPI {
         
         // Fetch from RSS feeds first
         try {
-            require_once 'includes/RSSFeedHandler.php';
+            require_once __DIR__ . '/RSSFeedHandler.php';
             $rssHandler = new RSSFeedHandler();
             $rssNews = $rssHandler->getAllRssArticles(10);
             $allNews = array_merge($allNews, $rssNews);
+            error_log("RSS fetch: Found " . count($rssNews) . " articles from RSS feeds");
         } catch (Exception $e) {
             error_log("RSS feed fetch error: " . $e->getMessage());
         }
