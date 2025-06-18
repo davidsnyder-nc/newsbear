@@ -190,17 +190,17 @@ function isCategoryChecked($category) {
                                         <optgroup label="American Male Voices">
                                             <option value="en-US-Neural2-D" <?= isSelected('voiceSelection', 'en-US-Neural2-D') ?>>David - Standard American ($)</option>
                                             <option value="en-US-Neural2-J" <?= isSelected('voiceSelection', 'en-US-Neural2-J') ?>>John - Deep American ($$)</option>
-                                            <option value="en-US-Studio-M" <?= isSelected('voiceSelection', 'en-US-Studio-M') ?>>Michael - Studio Quality ($$$)</option>
+                                            <option value="en-US-Studio-O" <?= isSelected('voiceSelection', 'en-US-Studio-O') ?>>Oliver - Studio Quality ($$$)</option>
                                         </optgroup>
                                         <optgroup label="British Male Voices">
                                             <option value="en-GB-Neural2-D" <?= isSelected('voiceSelection', 'en-GB-Neural2-D') ?>>Daniel - Standard British ($)</option>
                                             <option value="en-GB-Neural2-B" <?= isSelected('voiceSelection', 'en-GB-Neural2-B') ?>>Benjamin - Refined British ($$)</option>
-                                            <option value="en-GB-Studio-M" <?= isSelected('voiceSelection', 'en-GB-Studio-M') ?>>Marcus - Premium British ($$$)</option>
+                                            <option value="en-GB-Studio-D" <?= isSelected('voiceSelection', 'en-GB-Studio-D') ?>>David - Premium British ($$$)</option>
                                         </optgroup>
                                         <optgroup label="Australian Male Voices">
                                             <option value="en-AU-Neural2-D" <?= isSelected('voiceSelection', 'en-AU-Neural2-D') ?>>Dylan - Standard Australian ($)</option>
                                             <option value="en-AU-Neural2-B" <?= isSelected('voiceSelection', 'en-AU-Neural2-B') ?>>Blake - Deep Australian ($$)</option>
-                                            <option value="en-AU-Studio-M" <?= isSelected('voiceSelection', 'en-AU-Studio-M') ?>>Maxwell - Premium Australian ($$$)</option>
+                                            <option value="en-AU-Standard-D" <?= isSelected('voiceSelection', 'en-AU-Standard-D') ?>>David - Premium Australian ($$$)</option>
                                         </optgroup>
                                         <optgroup label="Female Voices">
                                             <option value="en-US-Neural2-F" <?= isSelected('voiceSelection', 'en-US-Neural2-F') ?>>Fiona - American Female ($)</option>

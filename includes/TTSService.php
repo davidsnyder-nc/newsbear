@@ -251,7 +251,7 @@ class TTSService {
                 'sampleRate' => 24000,
                 'effectsProfile' => ['headphone-class-device']
             ],
-            'en-US-Studio-M' => [
+            'en-US-Studio-O' => [
                 'languageCode' => 'en-US',
                 'gender' => 'MALE',
                 'speakingRate' => 0.9,
@@ -280,7 +280,7 @@ class TTSService {
                 'sampleRate' => 24000,
                 'effectsProfile' => ['headphone-class-device']
             ],
-            'en-GB-Studio-M' => [
+            'en-GB-Studio-D' => [
                 'languageCode' => 'en-GB',
                 'gender' => 'MALE',
                 'speakingRate' => 0.9,
@@ -309,14 +309,14 @@ class TTSService {
                 'sampleRate' => 24000,
                 'effectsProfile' => ['headphone-class-device']
             ],
-            'en-AU-Studio-M' => [
+            'en-AU-Standard-D' => [
                 'languageCode' => 'en-AU',
                 'gender' => 'MALE',
                 'speakingRate' => 0.9,
                 'pitch' => -1.2,
                 'volumeGain' => 5.0,
-                'sampleRate' => 48000,
-                'effectsProfile' => ['large-home-entertainment-class-device']
+                'sampleRate' => 22050,
+                'effectsProfile' => ['headphone-class-device']
             ],
             
             // Female Voices
