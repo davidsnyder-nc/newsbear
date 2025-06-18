@@ -338,7 +338,9 @@ class BriefingGenerator {
         foreach ($selectedIndexes as $index) {
             $arrayIndex = intval($index) - 1;
             if (isset($newsItems[$arrayIndex])) {
-                $selectedStories[] = $newsItems[$arrayIndex];
+                $story = $newsItems[$arrayIndex];
+                error_log("Selected story " . $index . ": [" . ($story['source'] ?? 'Unknown') . "] " . $story['title']);
+                $selectedStories[] = $story;
             }
         }
         
