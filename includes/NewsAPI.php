@@ -5,8 +5,10 @@ class NewsAPI {
     private $newsApiKey;
     private $guardianKey;
     private $nytKey;
+    private $settings;
     
     public function __construct($settings = null) {
+        $this->settings = $settings;
         if ($settings) {
             $this->gnewsKey = ($settings['gnewsEnabled'] ?? true) ? ($settings['gnewsApiKey'] ?: getenv('GNEWS_API_KEY')) : null;
             $this->newsApiKey = ($settings['newsApiEnabled'] ?? true) ? ($settings['newsApiKey'] ?: getenv('NEWSAPI_KEY')) : null;
@@ -77,6 +79,16 @@ class NewsAPI {
             } catch (Exception $e) {
                 error_log("NYT fetch error: " . $e->getMessage());
             }
+        }
+        
+        // Use AI to classify articles that came in as "general"
+        try {
+            require_once __DIR__ . '/CategoryClassifier.php';
+            $classifier = new CategoryClassifier($this->settings);
+            $allNews = $classifier->classifyArticles($allNews);
+            error_log("Applied AI categorization to news articles");
+        } catch (Exception $e) {
+            error_log("Category classification error: " . $e->getMessage());
         }
         
         error_log("Total news articles before return: " . count($allNews));

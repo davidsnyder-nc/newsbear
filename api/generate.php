@@ -345,12 +345,7 @@ class BriefingGenerator {
                 continue;
             }
             
-            // If user selected only custom categories, exclude all standard "general" news
-            $userSelectedOnlyCustomCategories = !empty(array_diff($normalizedSelected, $standardCategories));
-            if ($userSelectedOnlyCustomCategories && $normalizedItemCategory === 'general') {
-                error_log("EXCLUDING 'general' article '{$item['title']}' - user selected only custom categories");
-                continue;
-            }
+            // No need to exclude general articles anymore since they'll be properly categorized by AI
             
             error_log("EXCLUDING article '{$item['title']}' - category '$itemCategory' not in selected: " . implode(', ', $selectedCategories));
         }

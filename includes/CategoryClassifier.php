@@ -112,14 +112,35 @@ class CategoryClassifier {
     }
     
     private function buildClassificationPrompt($articles, $categories) {
-        $categoriesText = implode(', ', $categories);
+        $prompt = "You are a news categorization expert. Classify each news article into the most appropriate category.\n\n";
         
-        $prompt = "Classify each news article into the most appropriate category from this list: $categoriesText\n\n";
-        $prompt .= "Available categories:\n";
-        foreach ($categories as $cat) {
-            $prompt .= "- $cat\n";
+        $prompt .= "AVAILABLE CATEGORIES (use exactly these names):\n";
+        
+        // Group categories for better understanding
+        $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics', 'world'];
+        $customCategories = array_diff($categories, $standardCategories);
+        
+        $prompt .= "Standard categories:\n";
+        foreach ($standardCategories as $cat) {
+            if (in_array($cat, $categories)) {
+                $prompt .= "- $cat: " . $this->getCategoryDescription($cat) . "\n";
+            }
         }
-        $prompt .= "\nArticles to classify:\n";
+        
+        if (!empty($customCategories)) {
+            $prompt .= "\nCustom categories (user-defined):\n";
+            foreach ($customCategories as $cat) {
+                $prompt .= "- $cat: Content specifically related to $cat topics\n";
+            }
+        }
+        
+        $prompt .= "\nCLASSIFICATION RULES:\n";
+        $prompt .= "1. Choose the MOST SPECIFIC category that fits the article\n";
+        $prompt .= "2. Use 'general' only if no other category fits\n";
+        $prompt .= "3. Custom categories take priority when content clearly matches\n";
+        $prompt .= "4. Use exact category names as listed above (lowercase)\n\n";
+        
+        $prompt .= "ARTICLES TO CLASSIFY:\n";
         
         foreach ($articles as $article) {
             $prompt .= "ID {$article['id']}: {$article['title']}\n";
@@ -150,5 +171,21 @@ class CategoryClassifier {
         }
         
         return $classifications;
+    }
+    
+    private function getCategoryDescription($category) {
+        $descriptions = [
+            'general' => 'General news and current events that don\'t fit other categories',
+            'business' => 'Business, finance, economics, markets, corporate news',
+            'entertainment' => 'Movies, TV shows, music, celebrities, pop culture',
+            'health' => 'Medical news, healthcare, wellness, disease, research',
+            'science' => 'Scientific research, discoveries, space, environment',
+            'sports' => 'All sports, athletes, games, competitions',
+            'technology' => 'Tech companies, gadgets, software, AI, innovation',
+            'politics' => 'Government, elections, policy, political figures',
+            'world' => 'International news, global events, foreign affairs'
+        ];
+        
+        return $descriptions[$category] ?? 'News related to ' . $category;
     }
 }
