@@ -132,6 +132,27 @@ function isCategoryChecked($category) {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
+    <script>
+    // Apply dark theme immediately to prevent flash
+    (function() {
+        const savedTheme = localStorage.getItem('darkTheme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+            document.documentElement.classList.add('dark-theme-loading');
+        }
+    })();
+    </script>
+    <style>
+    .dark-theme-loading {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+    }
+    .dark-theme-loading * {
+        background-color: inherit !important;
+        color: inherit !important;
+    }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -575,24 +596,20 @@ function toggleDarkThemeFromSettings() {
     }
 }
 
-// Initialize dark theme immediately to prevent flash
-(function() {
-    const savedTheme = localStorage.getItem('darkTheme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
-        document.body.classList.add('dark-theme');
-    }
-})();
-
-// Initialize dark theme and tabs
+// Transition from loading theme to proper dark theme
 document.addEventListener('DOMContentLoaded', function() {
     showTab('basic');
     
-    // Update toggle switch state based on current theme
+    const savedTheme = localStorage.getItem('darkTheme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const darkThemeToggle = document.getElementById('darkTheme');
-    if (darkThemeToggle && document.body.classList.contains('dark-theme')) {
-        darkThemeToggle.checked = true;
+    
+    if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+        document.documentElement.classList.remove('dark-theme-loading');
+        document.body.classList.add('dark-theme');
+        if (darkThemeToggle) {
+            darkThemeToggle.checked = true;
+        }
     }
 });
 </script>

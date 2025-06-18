@@ -20,6 +20,27 @@ if (file_exists($settingsFile)) {
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <script>
+    // Apply dark theme immediately to prevent flash
+    (function() {
+        const savedTheme = localStorage.getItem('darkTheme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+            document.documentElement.classList.add('dark-theme-loading');
+        }
+    })();
+    </script>
+    <style>
+    .dark-theme-loading {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+    }
+    .dark-theme-loading * {
+        background-color: inherit !important;
+        color: inherit !important;
+    }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -171,15 +192,16 @@ if (file_exists($settingsFile)) {
 
     <script src="script.js?v=<?php echo time(); ?>"></script>
     <script>
-    // Initialize dark theme immediately to prevent flash
-    (function() {
+    // Transition from loading theme to proper dark theme
+    document.addEventListener('DOMContentLoaded', function() {
         const savedTheme = localStorage.getItem('darkTheme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
         if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+            document.documentElement.classList.remove('dark-theme-loading');
             document.body.classList.add('dark-theme');
         }
-    })();
+    });
     </script>
 </body>
 </html>

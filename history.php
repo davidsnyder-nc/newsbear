@@ -58,6 +58,27 @@ $todaysTopics = $history->getTodaysTopics();
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script>
+    // Apply dark theme immediately to prevent flash
+    (function() {
+        const savedTheme = localStorage.getItem('darkTheme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+            document.documentElement.classList.add('dark-theme-loading');
+        }
+    })();
+    </script>
+    <style>
+    .dark-theme-loading {
+        background-color: #1a1a1a !important;
+        color: #e0e0e0 !important;
+    }
+    .dark-theme-loading * {
+        background-color: inherit !important;
+        color: inherit !important;
+    }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-4 md:py-8">
@@ -707,12 +728,13 @@ $todaysTopics = $history->getTodaysTopics();
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
         
-        // Initialize dark theme immediately to prevent flash
+        // Transition from loading theme to proper dark theme
         (function() {
             const savedTheme = localStorage.getItem('darkTheme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             
             if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+                document.documentElement.classList.remove('dark-theme-loading');
                 document.body.classList.add('dark-theme');
             }
         })();
