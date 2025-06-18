@@ -16,7 +16,7 @@ if (file_exists($settingsFile)) {
     <title>NewsBear - Personalized News Brief</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="style.css?v=1750271000" rel="stylesheet">
+    <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -153,33 +153,21 @@ if (file_exists($settingsFile)) {
                 <p class="text-gray-500 max-w-md mx-auto">News tailored to your preferences, delivered in seconds.</p>
             </div>
 
-            <!-- Generate Buttons -->
-            <div class="flex flex-col items-center space-y-6">
+            <!-- Generate Button -->
+            <div class="flex justify-center">
                 <button 
                     id="generate-btn" 
-                    class="bg-blue-600 text-white font-bold text-lg shadow-2xl hover:border-4 hover:border-blue-300 flex flex-col items-center justify-center"
+                    class="bg-blue-600 text-white font-bold text-lg shadow-2xl pulse-blue flex flex-col items-center justify-center"
                     style="width: 192px; height: 192px; border-radius: 50%; min-width: 192px; min-height: 192px; max-width: 192px; max-height: 192px;"
                 >
                     <i class="fas fa-play text-3xl"></i>
                     <span class="text-center leading-tight">Generate<br>News Briefing</span>
                 </button>
-                
-                <button 
-                    id="demo-btn" 
-                    class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-colors w-full"
-                >
-                    <i class="fas fa-eye mr-2"></i>
-                    Try Demo Mode
-                </button>
             </div>
-
-            <p class="text-gray-400 text-xs mt-2">
-                Demo mode shows the process without requiring API keys
-            </p>
         </div>
         </div>
     </div>
 
-    <script src="script.js?v=1750271000"></script>
+    <script src="script.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

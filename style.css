@@ -24,6 +24,10 @@
     }
 }
 
+.pulse-blue {
+    animation: pulse 2s infinite;
+}
+
 #generate-btn {
     animation: pulse 2s infinite;
 }
