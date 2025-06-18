@@ -118,8 +118,7 @@ if (file_exists($settingsFile)) {
 
             <!-- Simple Description -->
             <div class="text-center mb-12">
-                <h2 class="text-2xl font-light text-gray-700 mb-4">Get your personalized news briefing</h2>
-                <p class="text-gray-500 max-w-md mx-auto">Powered by AI, tailored to your preferences, delivered in minutes.</p>
+                <p class="text-gray-500 max-w-md mx-auto">Powered by AI, tailored to your preferences, delivered in seconds.</p>
             </div>
 
             <!-- Generate Button -->
