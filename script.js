@@ -242,7 +242,7 @@ class NewsBriefApp {
 
     showError(message) {
         this.stopWittyMessages();
-        this.switchToBlueLogo();
+        this.switchToBrownLogo();
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.remove('hidden');
@@ -335,7 +335,7 @@ class NewsBriefApp {
         this.showGenerateButton();
         this.hideNewButton();
         this.enableButton();
-        this.switchToBlueLogo();
+        this.switchToBrownLogo();
         
         // Reset any form state if needed
         this.isGenerating = false;
