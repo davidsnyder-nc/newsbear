@@ -1,254 +1,248 @@
 # NewsBear 🐻 - AI-Powered News Briefing Application
 
-NewsBear is a cutting-edge personalized news briefing application that leverages advanced AI technologies to create intelligent, adaptive audio and text reports tailored to user preferences.
+A cutting-edge personalized news briefing application that leverages advanced AI technologies to create intelligent, adaptive audio and text reports tailored to user preferences.
 
-## Features
+![NewsBear Logo](attached_assets/newsbear_brown_logo.png)
 
-### 🎯 Core Functionality
-- **Personalized News Briefings**: Generate custom news reports based on your preferences
-- **Audio Generation**: Convert text briefings to high-quality MP3 audio files
-- **Multi-Source Integration**: Aggregate news from multiple authentic sources
-- **Smart Content Filtering**: AI-powered article selection and relevance ranking
-- **Local News Integration**: Automatic local news from RSS feeds based on ZIP code
-- **Weather Integration**: Current weather conditions and forecasts
-- **Entertainment Content**: TV shows, movies, and entertainment news
+## ✨ Features
 
-### 🤖 AI-Powered Features
-- **Zero Synthetic Content Policy**: All news content sourced from authentic APIs only
-- **Intelligent Article Selection**: AI chooses the most relevant stories
-- **Natural Language Generation**: Professional news script creation
-- **Smart Briefing History**: Prevents topic repetition across time periods
-- **Fuzzy Matching**: Advanced local news story matching and selection
+### Core Functionality
+- **AI-Powered Content Generation**: Uses OpenAI, Gemini, or Claude for intelligent news curation and script generation
+- **Multi-Source News Integration**: Aggregates from GNews, NewsAPI, Guardian, NY Times, and more
+- **Audio Report Generation**: Text-to-Speech with multiple voice options (American, British, Australian)
+- **Personalized Briefings**: Customizable length (3-20 minutes), categories, and content filters
+- **Weather Integration**: Local weather reports included in briefings
+- **Entertainment Content**: TV shows and movie updates via TMDB API
+- **Local News**: ZIP code-based local news integration
 
-### 🎵 Audio Features
-- **High-Quality TTS**: Google Text-to-Speech integration with Neural2-D voice
-- **Professional Audio Settings**: 24kHz sample rate, optimized for news delivery
-- **In-Browser Playback**: Built-in audio player for immediate listening
-- **Downloadable MP3s**: Save briefings for offline listening
-- **Retroactive Audio Generation**: Convert existing text briefings to audio
+### Technical Features
+- **Tabbed Settings Interface**: Organized configuration across Basic, Content, API, AI Services, and Advanced tabs
+- **Briefing History**: Access and replay previous news briefings
+- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- **Content Filtering**: Block unwanted terms and customize content
+- **Multiple AI Providers**: Fallback support across different AI services
 
-### 📱 User Interface
-- **Responsive Design**: Works seamlessly on desktop and mobile
-- **Clean, Modern Interface**: Tailwind CSS with NewsBear branding
-- **Intuitive Navigation**: Easy-to-use settings and history management
-- **Progress Tracking**: Real-time generation status with progress indicators
-- **Smart Button Management**: Dynamic interface based on content state
+## 🚀 Quick Start
 
-## Supported APIs
+### Prerequisites
+- PHP 8.0 or higher
+- Web server (Apache, Nginx, or PHP built-in server)
+- API keys for desired services (see Configuration section)
 
-### News Sources
-- **GNews API**: Global news aggregation
-- **NewsAPI.org**: Comprehensive news source
-- **The Guardian API**: Quality journalism
-- **New York Times API**: Premium news content
-- **Local RSS Feeds**: Automatic local news discovery
-
-### AI Services
-- **OpenAI GPT**: Advanced language processing
-- **Google Gemini**: Intelligent content generation
-- **Claude (Anthropic)**: Professional text generation
-
-### Other Integrations
-- **OpenWeatherMap**: Weather data and forecasts
-- **TMDB (The Movie Database)**: Entertainment content
-- **Google Text-to-Speech**: High-quality audio generation
-
-## Installation
+### Installation
 
 1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/newsbear.git
-cd newsbear
-```
+   ```bash
+   git clone https://github.com/yourusername/newsbear.git
+   cd newsbear
+   ```
 
-2. **Set up a PHP server**
-```bash
-# Using PHP built-in server
-php -S 0.0.0.0:5000
+2. **Set up directories**
+   ```bash
+   mkdir -p config data/history downloads
+   chmod 755 config data downloads
+   ```
 
-# Or use Apache/Nginx with document root pointing to project directory
-```
+3. **Start the server**
+   ```bash
+   php -S 0.0.0.0:5000 -t .
+   ```
 
-3. **Configure directories**
-Ensure these directories exist and are writable:
-```
-data/
-data/history/
-downloads/
-config/
-```
+4. **Access the application**
+   - Open http://localhost:5000 in your browser
+   - Navigate to Settings to configure your API keys
 
-4. **Set up API keys**
-Navigate to Settings and configure your API keys for the services you want to use.
-
-## Configuration
+## ⚙️ Configuration
 
 ### Required API Keys
-To use NewsBear, you'll need API keys from the services you want to enable:
 
-#### News APIs (choose one or more)
-- **GNews**: Free tier available at [gnews.io](https://gnews.io)
+The application requires API keys for various services. Configure them in the Settings page:
+
+#### News Sources
+- **GNews API**: Free tier available at [gnews.io](https://gnews.io)
 - **NewsAPI**: Free tier at [newsapi.org](https://newsapi.org/register)
-- **Guardian**: Free at [open-platform.theguardian.com](https://open-platform.theguardian.com/access/)
-- **NY Times**: Free tier at [developer.nytimes.com](https://developer.nytimes.com/get-started)
+- **Guardian API**: Free at [open-platform.theguardian.com](https://open-platform.theguardian.com/access/)
+- **NY Times API**: Free tier at [developer.nytimes.com](https://developer.nytimes.com/get-started)
 
-#### AI Services (choose one or more)
-- **OpenAI**: API key from [platform.openai.com](https://platform.openai.com/api-keys)
-- **Google Gemini**: Free API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-- **Claude**: API key from [console.anthropic.com](https://console.anthropic.com/)
+#### AI Services
+- **OpenAI API**: Get key at [platform.openai.com](https://platform.openai.com/api-keys)
+- **Gemini API**: Free tier at [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **Claude API**: Get key at [console.anthropic.com](https://console.anthropic.com/)
 
-#### Optional Services
+#### Additional Services
 - **OpenWeatherMap**: Free tier at [openweathermap.org](https://openweathermap.org/api)
-- **TMDB**: Free at [themoviedb.org](https://www.themoviedb.org/settings/api)
-- **Google TTS**: Use same key as Gemini or separate key
+- **TMDB (Movies/TV)**: Free at [themoviedb.org](https://www.themoviedb.org/settings/api)
+- **Google TTS**: Set up at [Google Cloud Console](https://console.cloud.google.com/)
 
-### Settings Configuration
+### Environment Variables (Alternative)
 
-Access the Settings page to configure:
+Instead of using the settings interface, you can set environment variables:
 
-#### Basic Settings
-- **Time Frame**: Auto, Morning, Afternoon, Evening
-- **Audio Length**: 3-5, 5-10, 10-15, or 15-20 minutes
-- **ZIP Code**: For local news and weather
-- **Content Types**: Weather, Local News, TV/Movies
-- **Audio Generation**: Enable/disable MP3 creation
+```bash
+export OPENAI_API_KEY="your_openai_key"
+export GEMINI_API_KEY="your_gemini_key"
+export GNEWS_API_KEY="your_gnews_key"
+export NEWSAPI_KEY="your_newsapi_key"
+export WEATHER_API_KEY="your_weather_key"
+# ... and so on
+```
 
-#### Advanced Settings
-- **AI Service Selection**: Choose different AI services for article selection vs content generation
-- **Custom Prompts**: Customize AI behavior for each service
-- **Blocked Terms**: Filter out unwanted content
-- **News Categories**: Select preferred news topics
+## 📖 Usage
 
-## Usage
+### Creating Your First Briefing
 
-### Generating a Briefing
+1. **Configure Settings**
+   - Go to Settings → Basic Settings
+   - Set your ZIP code for local news
+   - Choose audio length (3-20 minutes)
+   - Select voice preference
 
-1. **Configure Settings**: Set up your API keys and preferences
-2. **Generate**: Click "Generate News Briefing" on the main page
-3. **Wait**: Watch the progress indicator as content is gathered and processed
-4. **Enjoy**: Listen to your audio briefing or read the text version
+2. **Add API Keys**
+   - Go to Settings → API Keys
+   - Add keys for news sources and AI services
+   - Enable the services you want to use
 
-### Managing History
+3. **Customize Content**
+   - Go to Settings → Content & Categories
+   - Select news categories of interest
+   - Add any terms you want to block
 
-- **View Past Briefings**: Access the History page to see all previous briefings
-- **Replay Audio**: Click play buttons to listen to past briefings
-- **Generate Audio**: Convert text-only briefings to MP3 format
-- **Smart Filtering**: System prevents topic repetition across different time periods
+4. **Generate Briefing**
+   - Click "Create My News Brief" on the homepage
+   - Wait for processing (usually 30-60 seconds)
+   - Download MP3 or read text version
 
-### Starting Fresh
+### Managing Briefings
 
-- **New Button**: After generating a briefing, use the "New" button to start over
-- **Reset Interface**: Automatically returns to the generation interface
+- **History**: Access all previous briefings via the History page
+- **Audio Playback**: Built-in audio player with progress control
+- **Text Export**: Copy briefing text to clipboard
+- **Delete**: Remove unwanted briefings
 
-## File Structure
+## 🏗️ Architecture
+
+### Project Structure
 
 ```
 newsbear/
 ├── api/                    # API endpoints
-│   ├── generate.php       # Main briefing generation
-│   ├── generate_audio.php # Audio-only generation
-│   └── status.php         # Generation status checking
-├── includes/              # Core classes
-│   ├── NewsAPI.php       # News source integration
-│   ├── AIService.php     # AI service management
-│   ├── TMDBService.php   # Entertainment content
-│   ├── TTSService.php    # Text-to-speech conversion
+│   ├── generate.php        # Main briefing generation
+│   └── status.php         # Status checking
+├── includes/              # Core PHP classes
+│   ├── AIService.php      # AI provider integration
+│   ├── NewsAPI.php        # News source aggregation
+│   ├── TTSService.php     # Text-to-speech conversion
+│   ├── WeatherService.php # Weather data integration
+│   ├── TMDBService.php    # Movie/TV data
 │   └── BriefingHistory.php # History management
-├── config/               # Configuration files
-│   └── user_settings.json # User preferences
-├── data/                 # Application data
-│   └── history/          # Briefing history storage
-├── downloads/            # Generated audio files
-├── attached_assets/      # Images and logos
-├── index.php            # Main application page
-├── settings.php         # Settings management
-├── history.php          # History viewer
-├── style.css           # Application styling
-└── script.js           # Frontend JavaScript
+├── config/                # Configuration files
+├── data/                  # Generated briefings and history
+├── attached_assets/       # Logos and static assets
+├── index.php             # Main application
+├── settings.php          # Configuration interface
+├── history.php           # Briefing history
+└── style.css             # Application styling
 ```
 
-## Technical Details
+### Key Components
 
-### Architecture
-- **Backend**: PHP with modular class structure
 - **Frontend**: Vanilla JavaScript with Tailwind CSS
-- **Storage**: Flat file system for simplicity and portability
-- **APIs**: RESTful endpoints for generation and status
+- **Backend**: PHP with modular class structure
+- **AI Integration**: Multi-provider support with fallbacks
+- **Audio Generation**: Google Text-to-Speech integration
+- **Data Storage**: JSON-based file storage
+- **News Aggregation**: Multiple API sources with deduplication
 
-### Data Flow
-1. **Collection**: Gather content from enabled news APIs
-2. **Validation**: Ensure all content is from authentic sources
-3. **Selection**: AI chooses most relevant articles
-4. **Generation**: AI creates natural news script
-5. **Audio**: Convert to speech using Google TTS
-6. **Storage**: Save text and audio with source tracking
+## 🛠️ Development
 
-### Security Features
-- **Source Validation**: Strict checking of content authenticity
-- **API Key Protection**: Secure storage and transmission
-- **Input Sanitization**: Proper handling of user inputs
-- **Rate Limiting**: Respectful API usage patterns
+### Adding New Features
 
-## Development
+1. **New News Source**
+   - Extend `NewsAPI.php` class
+   - Add API integration method
+   - Update settings interface
 
-### Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+2. **New AI Provider**
+   - Extend `AIService.php` class
+   - Implement provider-specific methods
+   - Add to settings configuration
 
-### Code Style
-- Follow PSR-4 autoloading standards
-- Use descriptive variable and function names
-- Comment complex logic thoroughly
-- Maintain the zero synthetic content policy
+3. **New Voice Provider**
+   - Extend `TTSService.php` class
+   - Implement voice generation
+   - Update voice selection options
 
 ### Testing
-- Test with different API key combinations
-- Verify audio generation quality
-- Check responsive design on various devices
-- Validate news source authenticity
 
-## Troubleshooting
+The application includes comprehensive error handling and logging:
+
+- Check PHP error logs for backend issues
+- Use browser console for frontend debugging
+- Enable debug mode in Advanced Settings
+
+## 🔒 Security
+
+### API Key Management
+- API keys are stored in `config/user_settings.json`
+- File is excluded from git via `.gitignore`
+- Environment variables supported as alternative
+- No hardcoded keys in source code
+
+### Content Safety
+- All user inputs are sanitized
+- API responses are validated
+- Content filtering options available
+- News sources are verified and authentic
+
+## 📝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Guidelines
+- Follow PSR-4 autoloading standards
+- Add proper error handling
+- Update documentation for new features
+- Test with multiple API providers
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
 
 ### Common Issues
 
-**No content generated**
-- Check API key configuration
-- Verify internet connectivity
-- Ensure at least one news source is enabled
+**"No API key configured"**
+- Add required API keys in Settings → API Keys
+- Ensure keys are valid and have sufficient quota
 
-**Audio generation fails**
-- Confirm Google TTS API key is valid
-- Check file permissions in downloads directory
-- Verify sufficient disk space
+**"Generation failed"**
+- Check API key validity
+- Verify internet connection
+- Try different AI provider in Settings → AI Services
 
-**Local news not appearing**
-- Ensure ZIP code is configured correctly
-- Check that local news option is enabled
-- Verify RSS feeds are accessible
+**"Audio generation failed"**
+- Ensure Google TTS API key is configured
+- Check TTS service quota
+- Verify voice selection compatibility
 
-### Support
-For issues and questions:
-1. Check the troubleshooting section
-2. Review API documentation for enabled services
-3. Verify all required permissions are set
-4. Check server error logs for detailed information
+### Getting Help
 
-## License
+- Check the Issues page for known problems
+- Create a new issue with detailed error information
+- Include relevant log entries and configuration (without API keys)
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 🙏 Acknowledgments
 
-## Acknowledgments
-
-- **News Providers**: GNews, NewsAPI, The Guardian, NY Times
-- **AI Services**: OpenAI, Google, Anthropic
-- **Weather Data**: OpenWeatherMap
-- **Entertainment**: The Movie Database
-- **Audio**: Google Text-to-Speech
-- **Design**: Tailwind CSS framework
+- OpenAI, Google, and Anthropic for AI services
+- News API providers for reliable news data
+- Tailwind CSS for responsive design
+- Font Awesome for icons
 
 ---
 
-**NewsBear** - Your personalized AI news companion 🐻📰
+Built with ❤️ for informed communities everywhere.

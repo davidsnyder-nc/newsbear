@@ -1,51 +1,38 @@
-# API Keys and Sensitive Configuration
+# Configuration files with API keys
 config/user_settings.json
 
-# Generated Audio Files
-downloads/*.mp3
-downloads/*.wav
-downloads/status_*.json
+# Data and history files
+data/
+downloads/
 
-# History Data (contains potentially sensitive user data)
-data/history/briefings.json
-data/history/topics_*.json
+# Cache and temporary files
+.cache/
+.upm/
+.local/
 
-# Temporary Files
+# Environment files
+.env
+.env.local
+
+# Generated audio files
+*.mp3
+
+# Temporary files
 *.tmp
-*.temp
 *.log
 
-# PHP Temporary Files
-*.php~
+# IDE files
+.vscode/
+.idea/
 
-# System Files
+# OS files
 .DS_Store
 Thumbs.db
 
-# IDE Files
-.vscode/
-.idea/
-*.swp
-*.swo
+# Replit files
+.replit
+replit.nix
 
-# Environment Variables
-.env
-.env.local
-.env.production
-
-# Cache Files
-cache/
-tmp/
-
-# Backup Files
-*.bak
-*.backup
-
-# User Uploads
-uploads/
-user_data/
-
-# Development Files
-test_*.php
-debug_*.php
-*.test.php
+# Backup files
+*_backup.*
+*_broken.*
