@@ -229,7 +229,7 @@ function isCategoryChecked($category) {
                                         Include TV Shows/Movies
                                     </label>
                                     <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="darkTheme" <?= isChecked('darkTheme') ?> class="mr-3 h-4 w-4">
+                                        <input type="checkbox" name="darkTheme" id="darkTheme" <?= isChecked('darkTheme') ?> class="mr-3 h-4 w-4" onchange="toggleDarkThemeFromSettings()">
                                         Dark Theme
                                     </label>
                                 </div>
@@ -563,9 +563,32 @@ function saveAndGoHome() {
     document.querySelector('form').submit();
 }
 
-// Initialize with the basic tab active
+function toggleDarkThemeFromSettings() {
+    const darkThemeToggle = document.getElementById('darkTheme');
+    if (darkThemeToggle.checked) {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('darkTheme', 'true');
+    } else {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('darkTheme', 'false');
+    }
+}
+
+// Initialize dark theme and tabs
 document.addEventListener('DOMContentLoaded', function() {
     showTab('basic');
+    
+    // Initialize dark theme based on saved preference or system setting
+    const savedTheme = localStorage.getItem('darkTheme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const darkThemeToggle = document.getElementById('darkTheme');
+    
+    if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+        document.body.classList.add('dark-theme');
+        if (darkThemeToggle) {
+            darkThemeToggle.checked = true;
+        }
+    }
 });
 </script>
 </body>

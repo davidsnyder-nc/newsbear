@@ -706,6 +706,16 @@ $todaysTopics = $history->getTodaysTopics();
             const remainingSeconds = Math.floor(seconds % 60);
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
+        
+        // Initialize dark theme immediately to prevent flash
+        (function() {
+            const savedTheme = localStorage.getItem('darkTheme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+                document.body.classList.add('dark-theme');
+            }
+        })();
     </script>
 </body>
 </html>

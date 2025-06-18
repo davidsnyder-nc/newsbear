@@ -170,5 +170,16 @@ if (file_exists($settingsFile)) {
     </div>
 
     <script src="script.js?v=<?php echo time(); ?>"></script>
+    <script>
+    // Initialize dark theme immediately to prevent flash
+    (function() {
+        const savedTheme = localStorage.getItem('darkTheme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+            document.body.classList.add('dark-theme');
+        }
+    })();
+    </script>
 </body>
 </html>
