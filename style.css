@@ -66,6 +66,53 @@ input[type="checkbox"] {
     accent-color: #2563eb;
 }
 
+/* Audio player styling for better visibility */
+audio::-webkit-media-controls-panel {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+    color: #374151;
+    font-weight: 500;
+}
+
+audio::-webkit-media-controls-timeline {
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    margin: 0 8px;
+}
+
+audio::-webkit-media-controls-timeline::-webkit-slider-thumb {
+    background-color: #2563eb;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+audio::-webkit-media-controls-timeline::-webkit-slider-runnable-track {
+    background-color: #d1d5db;
+    border-radius: 4px;
+}
+
+/* Firefox audio player styling */
+audio {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+/* Enhanced audio container */
+.audio-container {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
 /* Toggle switch styles */
 .toggle-switch {
     position: relative;

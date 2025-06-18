@@ -240,8 +240,12 @@ $todaysTopics = $history->getTodaysTopics();
                     
                     <!-- Audio Player (Hidden by default) -->
                     <?php if ($briefing['audio_file'] && file_exists($briefing['audio_file'])): ?>
-                    <div id="audio-<?php echo $briefing['id']; ?>" class="hidden mt-4 p-4 bg-gray-50 rounded border">
-                        <audio controls class="w-full">
+                    <div id="audio-<?php echo $briefing['id']; ?>" class="hidden mt-4 audio-container">
+                        <div class="mb-2">
+                            <i class="fas fa-volume-up text-blue-600 mr-2"></i>
+                            <span class="text-sm font-medium text-gray-700">Audio Playback</span>
+                        </div>
+                        <audio controls class="w-full" style="height: 40px;">
                             <source src="<?php echo $briefing['audio_file']; ?>" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
