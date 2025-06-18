@@ -574,20 +574,24 @@ function toggleDarkThemeFromSettings() {
     }
 }
 
+// Initialize dark theme immediately to prevent flash
+(function() {
+    const savedTheme = localStorage.getItem('darkTheme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+        document.body.classList.add('dark-theme');
+    }
+})();
+
 // Initialize dark theme and tabs
 document.addEventListener('DOMContentLoaded', function() {
     showTab('basic');
     
-    // Initialize dark theme based on saved preference or system setting
-    const savedTheme = localStorage.getItem('darkTheme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Update toggle switch state based on current theme
     const darkThemeToggle = document.getElementById('darkTheme');
-    
-    if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
-        document.body.classList.add('dark-theme');
-        if (darkThemeToggle) {
-            darkThemeToggle.checked = true;
-        }
+    if (darkThemeToggle && document.body.classList.contains('dark-theme')) {
+        darkThemeToggle.checked = true;
     }
 });
 </script>
