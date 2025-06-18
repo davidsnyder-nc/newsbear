@@ -131,6 +131,7 @@ function isCategoryChecked($category) {
     <title>Settings - NewsBear</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css?v=<?php echo time(); ?>" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
