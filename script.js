@@ -197,12 +197,18 @@ class NewsBriefApp {
     }
 
     showStatus() {
-        document.getElementById('status-container').classList.remove('hidden');
-        document.getElementById('success-container').classList.add('hidden');
-        document.getElementById('error-container').classList.add('hidden');
-        // Hide the generate button during generation
-        document.getElementById('generate-btn').style.display = 'none';
-        document.getElementById('demo-btn').style.display = 'none';
+        const statusContainer = document.getElementById('status-container');
+        const successContainer = document.getElementById('success-container');
+        const errorContainer = document.getElementById('error-container');
+        const generateBtn = document.getElementById('generate-btn');
+        const demoBtn = document.getElementById('demo-btn');
+        
+        if (statusContainer) statusContainer.classList.remove('hidden');
+        if (successContainer) successContainer.classList.add('hidden');
+        if (errorContainer) errorContainer.classList.add('hidden');
+        if (generateBtn) generateBtn.style.display = 'none';
+        if (demoBtn) demoBtn.style.display = 'none';
+        
         this.startWittyMessages();
         this.switchToRedLogo();
     }
@@ -289,19 +295,30 @@ class NewsBriefApp {
     showError(message) {
         this.stopWittyMessages();
         this.switchToBrownLogo();
-        document.getElementById('status-container').classList.add('hidden');
-        document.getElementById('success-container').classList.add('hidden');
-        document.getElementById('error-container').classList.remove('hidden');
-        document.getElementById('error-text').textContent = message;
-        // Show buttons again after error
-        document.getElementById('generate-btn').style.display = 'flex';
-        document.getElementById('demo-btn').style.display = 'block';
+        
+        const statusContainer = document.getElementById('status-container');
+        const successContainer = document.getElementById('success-container');
+        const errorContainer = document.getElementById('error-container');
+        const errorText = document.getElementById('error-text');
+        const generateBtn = document.getElementById('generate-btn');
+        const demoBtn = document.getElementById('demo-btn');
+        
+        if (statusContainer) statusContainer.classList.add('hidden');
+        if (successContainer) successContainer.classList.add('hidden');
+        if (errorContainer) errorContainer.classList.remove('hidden');
+        if (errorText) errorText.textContent = message;
+        if (generateBtn) generateBtn.style.display = 'flex';
+        if (demoBtn) demoBtn.style.display = 'block';
     }
 
     hideResults() {
-        document.getElementById('status-container').classList.add('hidden');
-        document.getElementById('success-container').classList.add('hidden');
-        document.getElementById('error-container').classList.add('hidden');
+        const statusContainer = document.getElementById('status-container');
+        const successContainer = document.getElementById('success-container');
+        const errorContainer = document.getElementById('error-container');
+        
+        if (statusContainer) statusContainer.classList.add('hidden');
+        if (successContainer) successContainer.classList.add('hidden');
+        if (errorContainer) errorContainer.classList.add('hidden');
     }
 
     disableButton() {
@@ -324,13 +341,16 @@ class NewsBriefApp {
     }
 
     copyBriefingText() {
-        const briefingText = document.getElementById('briefing-text').textContent;
-        if (briefingText) {
-            navigator.clipboard.writeText(briefingText).then(() => {
-                this.showToast('Text copied to clipboard!', 'success');
-            }).catch(() => {
-                this.showToast('Failed to copy text', 'error');
-            });
+        const briefingTextElement = document.getElementById('briefing-text');
+        if (briefingTextElement) {
+            const briefingText = briefingTextElement.textContent;
+            if (briefingText) {
+                navigator.clipboard.writeText(briefingText).then(() => {
+                    this.showToast('Text copied to clipboard!', 'success');
+                }).catch(() => {
+                    this.showToast('Failed to copy text', 'error');
+                });
+            }
         }
     }
 
@@ -548,6 +568,10 @@ class NewsBriefApp {
     }
 
     updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan) {
+        if (!progressContainer || !progressBar || !progressHandle || !currentTimeSpan || !audio) {
+            return;
+        }
+        
         const rect = progressContainer.getBoundingClientRect();
         const pos = (e.clientX - rect.left) / rect.width;
         const clampedPos = Math.max(0, Math.min(1, pos));
@@ -571,7 +595,10 @@ class NewsBriefApp {
     }
 
     updateVolumeIcon(volumeBtn, volume) {
+        if (!volumeBtn) return;
+        
         const icon = volumeBtn.querySelector('i');
+        if (!icon) return;
         
         if (volume === 0) {
             icon.className = 'fas fa-volume-mute';
