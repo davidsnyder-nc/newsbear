@@ -88,7 +88,7 @@ class NewsAPI {
             'apikey' => $this->gnewsKey
         ]);
         
-        error_log("GNews URL: " . $url);
+
         $response = $this->makeRequest($url);
         
         if ($response && isset($response['articles'])) {

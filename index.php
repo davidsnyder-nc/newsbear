@@ -54,8 +54,6 @@ if (file_exists($settingsFile)) {
 
         <!-- Main Content -->
         <div class="relative">
-
-
             <!-- Status Display -->
             <div id="status-container" class="mb-8 hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -118,18 +116,21 @@ if (file_exists($settingsFile)) {
                 </div>
             </div>
 
-            <!-- Generate Buttons -->
-            <div class="flex flex-col items-center space-y-6">
+            <!-- Simple Description -->
+            <div class="text-center mb-12">
+                <h2 class="text-2xl font-light text-gray-700 mb-4">Get your personalized news briefing</h2>
+                <p class="text-gray-500 max-w-md mx-auto">Powered by AI, tailored to your preferences, delivered in minutes.</p>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="flex justify-center">
                 <button 
                     id="generate-btn" 
-                    class="bg-blue-600 text-white font-bold text-lg transition-all duration-300 shadow-2xl border-4 border-blue-300 hover:border-red-400 flex flex-col items-center justify-center"
-                    style="width: 192px; height: 192px; border-radius: 50%; min-width: 192px; min-height: 192px; max-width: 192px; max-height: 192px;"
+                    class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold text-xl px-12 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"
                 >
-                    <i class="fas fa-play text-3xl"></i>
-                    <span class="text-center leading-tight">Generate<br>News Briefing</span>
+                    <i class="fas fa-microphone text-2xl"></i>
+                    <span>Create My News Brief</span>
                 </button>
-                
-
             </div>
         </div>
         </div>
