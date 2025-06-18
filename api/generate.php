@@ -24,11 +24,15 @@ class BriefingGenerator {
     private $sessionId;
     private $settings;
     private $statusFile;
+    private $selectedCategories;
     
     public function __construct($settings) {
         $this->sessionId = uniqid('briefing_', true);
         $this->settings = $settings;
         $this->statusFile = "../downloads/status_{$this->sessionId}.json";
+        
+        // Initialize selected categories from settings
+        $this->selectedCategories = $settings['categories'] ?? ['general'];
         
         // Create downloads directory if it doesn't exist
         if (!is_dir('../downloads')) {
@@ -372,14 +376,32 @@ class BriefingGenerator {
                                ". Prefer fresh stories when possible, but if there's important breaking news on these topics, include it.\n\n";
         }
         
-        $prompt = "Select {$storyCount} of the most important and interesting stories from the following list for a " . 
-                 $this->getTimeFrame() . " news briefing. Always include weather, local news, and entertainment content when available (these don't count toward the {$storyCount} limit). For the remaining slots, prioritize:\n" .
-                 "1. Most newsworthy and impactful stories\n" .
-                 "2. Major news sources like New York Times, Guardian, etc.\n" .
-                 "3. Diverse topics covering world, business, technology, science\n" .
-                 "4. Stories appropriate for the time of day\n\n" .
-                 $excludeTopicsText .
-                 "Available stories:\n";
+        // Build category-aware prompt
+        $selectedCategoriesText = implode(', ', $this->selectedCategories);
+        $isSpecificCategoryOnly = count($this->selectedCategories) == 1 && !in_array('general', $this->selectedCategories);
+        
+        if ($isSpecificCategoryOnly) {
+            $categoryName = $this->selectedCategories[0];
+            $prompt = "You are selecting stories for a specialized {$categoryName} news briefing. The user has specifically chosen ONLY {$categoryName} content.\n\n" .
+                     "IMPORTANT: Select {$storyCount} of the most relevant and interesting {$categoryName} stories from the list below. Do NOT select stories from other categories.\n\n" .
+                     "Focus on:\n" .
+                     "1. Most important {$categoryName} news and developments\n" .
+                     "2. Stories that {$categoryName} enthusiasts would find most interesting\n" .
+                     "3. Recent updates and breaking news in the {$categoryName} space\n" .
+                     "4. Quality sources and well-reported stories\n\n" .
+                     $excludeTopicsText .
+                     "Available {$categoryName} stories:\n";
+        } else {
+            $prompt = "Select {$storyCount} of the most important and interesting stories from the following list for a " . 
+                     $this->getTimeFrame() . " news briefing covering: {$selectedCategoriesText}.\n\n" .
+                     "Prioritize:\n" .
+                     "1. Most newsworthy and impactful stories from selected categories\n" .
+                     "2. Major news sources like New York Times, Guardian, etc.\n" .
+                     "3. Diverse coverage within the selected categories\n" .
+                     "4. Stories appropriate for the time of day\n\n" .
+                     $excludeTopicsText .
+                     "Available stories:\n";
+        }
         
         foreach ($filteredItems as $i => $item) {
             $source = $item['source'] ?? 'Unknown';
@@ -465,16 +487,24 @@ class BriefingGenerator {
             $prompt .= "2. Include this custom message: \"{$this->settings['customHeader']}\"\n\n";
         }
         
-        // Add weather and entertainment sections first
-        $weatherContent = $this->getWeatherContent();
-        $tvContent = $this->getTVContent();
+        // Check if user selected only specific categories (excluding weather/entertainment)
+        $isSpecificCategoryOnly = count($this->selectedCategories) == 1 && !in_array('general', $this->selectedCategories);
+        $selectedCategory = $isSpecificCategoryOnly ? $this->selectedCategories[0] : null;
         
-        if (!empty($weatherContent)) {
-            $prompt .= "3. ALWAYS include weather information first: {$weatherContent}\n\n";
-        }
-        
-        if (!empty($tvContent)) {
-            $prompt .= "4. ALWAYS include entertainment/TV information second: {$tvContent}\n\n";
+        // Only add weather and entertainment if not doing category-specific briefing
+        if (!$isSpecificCategoryOnly) {
+            $weatherContent = $this->getWeatherContent();
+            $tvContent = $this->getTVContent();
+            
+            if (!empty($weatherContent)) {
+                $prompt .= "3. ALWAYS include weather information first: {$weatherContent}\n\n";
+            }
+            
+            if (!empty($tvContent)) {
+                $prompt .= "4. ALWAYS include entertainment/TV information second: {$tvContent}\n\n";
+            }
+        } else {
+            $prompt .= "3. This is a specialized {$selectedCategory} news briefing. Focus ONLY on {$selectedCategory} content. Do NOT include weather, local news, or entertainment sections.\n\n";
         }
         
         $prompt .= "5. Present each news story in a conversational, natural speaking style suitable for audio reading\n";
@@ -504,16 +534,24 @@ class BriefingGenerator {
 
         
         if (empty($localNewsStories) && empty($otherNewsStories)) {
-            $prompt .= "CRITICAL: NO real news stories are available. After weather and entertainment, state 'No additional news is available from our sources at this time' and end with the conclusion. DO NOT create any fictional news content.\n\n";
+            if ($isSpecificCategoryOnly) {
+                $prompt .= "CRITICAL: NO {$selectedCategory} stories are available. State 'No {$selectedCategory} news is available from our sources at this time' and end with the conclusion. DO NOT create any fictional news content.\n\n";
+            } else {
+                $prompt .= "CRITICAL: NO real news stories are available. After weather and entertainment, state 'No additional news is available from our sources at this time' and end with the conclusion. DO NOT create any fictional news content.\n\n";
+            }
         } else {
-            $prompt .= "Real news stories to include after weather and entertainment (ONLY use these exact stories in this exact order):\n\n";
+            if ($isSpecificCategoryOnly) {
+                $prompt .= "Real {$selectedCategory} stories to include (ONLY use these exact stories in this exact order):\n\n";
+            } else {
+                $prompt .= "Real news stories to include after weather and entertainment (ONLY use these exact stories in this exact order):\n\n";
+            }
             
             $storyIndex = 1;
             
-            // Add local news first if available
-            if (!empty($localNewsStories)) {
-                $prompt .= "LOCAL NEWS (present these first after weather/entertainment):\n";
-                foreach ($localNewsStories as $story) {
+            // For category-specific briefings, treat all stories equally
+            if ($isSpecificCategoryOnly) {
+                $allStories = array_merge($localNewsStories, $otherNewsStories);
+                foreach ($allStories as $story) {
                     $prompt .= "{$storyIndex}. {$story['title']}\n";
                     if (!empty($story['content'])) {
                         $prompt .= "   Details: {$story['content']}\n";
@@ -521,18 +559,31 @@ class BriefingGenerator {
                     $prompt .= "\n";
                     $storyIndex++;
                 }
-            }
-            
-            // Add other news stories after local news
-            if (!empty($otherNewsStories)) {
-                $prompt .= "OTHER NEWS (present these after local news):\n";
-                foreach ($otherNewsStories as $story) {
-                    $prompt .= "{$storyIndex}. {$story['title']}\n";
-                    if (!empty($story['content'])) {
-                        $prompt .= "   Details: {$story['content']}\n";
+            } else {
+                // Add local news first if available
+                if (!empty($localNewsStories)) {
+                    $prompt .= "LOCAL NEWS (present these first after weather/entertainment):\n";
+                    foreach ($localNewsStories as $story) {
+                        $prompt .= "{$storyIndex}. {$story['title']}\n";
+                        if (!empty($story['content'])) {
+                            $prompt .= "   Details: {$story['content']}\n";
+                        }
+                        $prompt .= "\n";
+                        $storyIndex++;
                     }
-                    $prompt .= "\n";
-                    $storyIndex++;
+                }
+                
+                // Add other news stories after local news
+                if (!empty($otherNewsStories)) {
+                    $prompt .= "OTHER NEWS (present these after local news):\n";
+                    foreach ($otherNewsStories as $story) {
+                        $prompt .= "{$storyIndex}. {$story['title']}\n";
+                        if (!empty($story['content'])) {
+                            $prompt .= "   Details: {$story['content']}\n";
+                        }
+                        $prompt .= "\n";
+                        $storyIndex++;
+                    }
                 }
             }
         }
