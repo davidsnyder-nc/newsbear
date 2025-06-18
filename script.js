@@ -44,6 +44,30 @@ class NewsBriefApp {
 
     init() {
         this.bindEvents();
+        this.setupErrorHandling();
+    }
+
+    setupErrorHandling() {
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            this.showError('A network error occurred. Please try again.');
+            this.switchToBrownLogo();
+            this.isGenerating = false;
+            this.enableButton();
+            event.preventDefault();
+        });
+        
+        // Handle general JavaScript errors
+        window.addEventListener('error', (event) => {
+            console.error('JavaScript error:', event.error);
+            if (this.isGenerating) {
+                this.showError('An unexpected error occurred. Please refresh the page.');
+                this.switchToBrownLogo();
+                this.isGenerating = false;
+                this.enableButton();
+            }
+        });
     }
 
     bindEvents() {
@@ -83,13 +107,19 @@ class NewsBriefApp {
         try {
             const endpoint = 'api/generate.php';
             
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({})
+                body: JSON.stringify({}),
+                signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -107,7 +137,15 @@ class NewsBriefApp {
 
         } catch (error) {
             console.error('Generation error:', error);
-            this.showError(error.message || 'Failed to generate briefing');
+            if (error.name === 'AbortError') {
+                this.showError('Request timed out. The server may be busy. Please try again.');
+            } else if (error.message.includes('Failed to fetch')) {
+                this.showError('Network error. Please check your connection and try again.');
+            } else {
+                this.showError(error.message || 'Failed to generate briefing');
+            }
+            this.switchToBrownLogo();
+            this.stopWittyMessages();
         } finally {
             this.isGenerating = false;
             this.enableButton();
