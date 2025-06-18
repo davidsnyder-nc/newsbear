@@ -310,6 +310,12 @@ class BriefingGenerator {
             $prompt .= "\n";
         }
         
+        error_log("AI selection prompt includes " . count($newsItems) . " stories");
+        // Log first few story sources to verify NYT is in the list
+        for ($i = 0; $i < min(10, count($newsItems)); $i++) {
+            error_log("Story " . ($i+1) . " for AI: [" . ($newsItems[$i]['source'] ?? 'Unknown') . "] " . $newsItems[$i]['title']);
+        }
+        
         $prompt .= "\nRespond with only the numbers of the selected stories, separated by commas (e.g., 1,3,5,7).";
         
         // Try AI services with fallback
@@ -331,6 +337,7 @@ class BriefingGenerator {
         
         if (!$response) {
             // Fallback: select first stories based on count
+            error_log("AI selection failed - using fallback selection");
             $count = $this->getNumericStoryCount($storyCount);
             return array_slice($newsItems, 0, $count);
         }
