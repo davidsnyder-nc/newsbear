@@ -92,9 +92,17 @@ $todaysTopics = $history->getTodaysTopics();
             </h2>
             <div class="flex flex-wrap gap-2">
                 <?php foreach (array_slice($todaysTopics, 0, 15) as $topic): ?>
+                <?php if (is_array($topic) && !empty($topic['url'])): ?>
+                <a href="<?php echo htmlspecialchars($topic['url']); ?>" target="_blank" rel="noopener noreferrer" 
+                   class="bg-blue-100 hover:bg-blue-200 text-blue-800 hover:text-blue-900 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm transition-colors duration-200 inline-flex items-center group">
+                    <?php echo htmlspecialchars(is_array($topic) ? $topic['title'] : $topic); ?>
+                    <i class="fas fa-external-link-alt ml-1 text-xs opacity-60 group-hover:opacity-100"></i>
+                </a>
+                <?php else: ?>
                 <span class="bg-blue-100 text-blue-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm">
-                    <?php echo htmlspecialchars($topic); ?>
+                    <?php echo htmlspecialchars(is_array($topic) ? $topic['title'] : $topic); ?>
                 </span>
+                <?php endif; ?>
                 <?php endforeach; ?>
                 <?php if (count($todaysTopics) > 15): ?>
                 <span class="text-blue-600 text-xs md:text-sm">+ <?php echo count($todaysTopics) - 15; ?> more</span>

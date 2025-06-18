@@ -68,7 +68,7 @@ class BriefingHistory {
     }
     
     /**
-     * Add topics covered in current briefing with timestamps
+     * Add topics covered in current briefing with timestamps and URLs
      */
     public function addTopics($topics) {
         // Load all topics (not filtered by time)
@@ -78,12 +78,25 @@ class BriefingHistory {
             $allTopics = json_decode($content, true) ?: [];
         }
         
-        // Add new topics with timestamps
+        // Add new topics with timestamps and URLs
         foreach ($topics as $topic) {
-            $allTopics[] = [
-                'title' => $topic,
-                'timestamp' => time()
-            ];
+            if (is_array($topic)) {
+                // New format with URL
+                $allTopics[] = [
+                    'title' => $topic['title'] ?? '',
+                    'url' => $topic['url'] ?? '',
+                    'source' => $topic['source'] ?? '',
+                    'timestamp' => time()
+                ];
+            } else {
+                // Legacy format - just title
+                $allTopics[] = [
+                    'title' => $topic,
+                    'url' => '',
+                    'source' => '',
+                    'timestamp' => time()
+                ];
+            }
         }
         
         file_put_contents($this->dailyTopicsFile, json_encode($allTopics, JSON_PRETTY_PRINT));

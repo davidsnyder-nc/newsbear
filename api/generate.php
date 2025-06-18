@@ -134,8 +134,21 @@ class BriefingGenerator {
             
             $generateMp3 = $this->settings['generateMp3'] ?? true;
             
-            // Extract and save topics covered
-            $coveredTopics = $history->extractTopics($selectedStories);
+            // Extract and save topics covered with URLs
+            $coveredTopics = [];
+            foreach ($selectedStories as $story) {
+                // Skip weather and entertainment sources for topic tracking
+                if (isset($story['source']) && in_array($story['source'], ['Weather Service', 'The Movie Database', 'OpenWeatherMap', 'TMDB'])) {
+                    continue;
+                }
+                if (!empty($story['title']) && !empty($story['url'])) {
+                    $coveredTopics[] = [
+                        'title' => $story['title'],
+                        'url' => $story['url'],
+                        'source' => $story['source'] ?? 'Unknown'
+                    ];
+                }
+            }
             $history->addTopics($coveredTopics);
             
             if ($generateMp3) {
