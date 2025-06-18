@@ -298,16 +298,16 @@ class NewsBriefApp {
     }
 
     hideGenerateButton() {
-        const generateSection = document.querySelector('.text-center');
-        if (generateSection) {
-            generateSection.style.display = 'none';
+        const generateBtn = document.getElementById('generate-btn');
+        if (generateBtn) {
+            generateBtn.style.display = 'none';
         }
     }
 
     showGenerateButton() {
-        const generateSection = document.querySelector('.text-center');
-        if (generateSection) {
-            generateSection.style.display = 'block';
+        const generateBtn = document.getElementById('generate-btn');
+        if (generateBtn) {
+            generateBtn.style.display = 'flex';
         }
     }
 
