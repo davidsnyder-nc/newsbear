@@ -407,9 +407,9 @@ class BriefingGenerator {
             case '3-5':
                 return '5-7';  // More news stories for core content
             case '10-15':
-                return '12-15';
+                return '15-18';
             case '15-20':
-                return '18-22';
+                return '22-25';
             default: // '5-10'
                 return '8-10'; // Increased from 4-6 to ensure more news coverage
         }
@@ -535,14 +535,14 @@ class BriefingGenerator {
     }
     
     private function getWordCountForLength($audioLength) {
-        // AI speaks at ~200 words per minute, so targeting higher word counts
+        // AI speaks at ~180-200 words per minute, targeting higher word counts for longer audio
         switch ($audioLength) {
             case '3-5':
                 return '800-1200';  // 4-6 minutes target
             case '10-15':
-                return '2200-3000'; // 11-15 minutes target
+                return '2500-3200'; // 12-16 minutes target
             case '15-20':
-                return '3200-4000'; // 16-20 minutes target
+                return '3800-4500'; // 19-22 minutes target
             default: // '5-10'
                 return '1200-2000'; // 6-10 minutes target
         }
