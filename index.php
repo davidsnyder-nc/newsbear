@@ -79,15 +79,49 @@ if (file_exists($settingsFile)) {
                     </div>
                     
                     <div id="download-section" class="mb-4 hidden">
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
-                            <div class="flex items-center space-x-4">
-                                <audio id="briefing-player" controls class="flex-1">
-                                    <source id="audio-source" src="" type="audio/mpeg">
-                                    Your browser does not support the audio element.
-                                </audio>
-                                <a id="download-link" href="#" download class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center">
+                        <div class="audio-container">
+                            <div class="mb-3 flex justify-between items-center">
+                                <div>
+                                    <i class="fas fa-volume-up text-blue-600 mr-2"></i>
+                                    <span class="text-sm font-medium text-gray-700">Your News Briefing</span>
+                                </div>
+                                <a id="download-link" href="#" download class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center">
                                     <i class="fas fa-download mr-1"></i>Download
                                 </a>
+                            </div>
+                            
+                            <!-- Enhanced Audio Player -->
+                            <div class="custom-audio-player" id="main-audio-player">
+                                <audio id="briefing-player" preload="metadata" class="hidden">
+                                    <source id="audio-source" src="" type="audio/mpeg">
+                                </audio>
+                                
+                                <!-- Player Controls -->
+                                <div class="flex items-center space-x-3">
+                                    <button class="play-pause-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    
+                                    <div class="flex-1">
+                                        <div class="progress-container bg-gray-300 rounded-full h-3 cursor-pointer relative">
+                                            <div class="progress-bar bg-blue-600 rounded-full h-3 transition-all duration-100" style="width: 0%"></div>
+                                            <div class="progress-handle absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-blue-600 rounded-full shadow-lg cursor-pointer opacity-0 hover:opacity-100 transition-opacity border-2 border-white" style="left: 0%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="time-display text-sm text-gray-600 font-mono min-w-max">
+                                        <span class="current-time">0:00</span> / <span class="duration">0:00</span>
+                                    </div>
+                                    
+                                    <div class="volume-control flex items-center space-x-2 relative">
+                                        <button class="volume-btn text-gray-600 hover:text-blue-600 transition-colors p-1">
+                                            <i class="fas fa-volume-up"></i>
+                                        </button>
+                                        <div class="volume-slider-container hidden absolute right-0 top-8 bg-white border rounded-lg p-2 shadow-lg">
+                                            <input type="range" class="volume-slider" min="0" max="100" value="100" style="width: 80px;">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

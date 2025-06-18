@@ -224,6 +224,9 @@ class NewsBriefApp {
             downloadLink.href = 'download.php?file=' + encodeURIComponent(downloadUrl);
             downloadSection.classList.remove('hidden');
             briefingTextSection.classList.add('hidden');
+            
+            // Initialize custom audio player for main page
+            this.initializeMainAudioPlayer();
         } else if (briefingText) {
             // Show text section when no MP3 is generated
             document.getElementById('briefing-text').textContent = briefingText;
@@ -361,6 +364,132 @@ class NewsBriefApp {
             // Force browser to reload the image to avoid caching issues
             logoImg.src = logoImg.src + '?t=' + Date.now();
         }
+    }
+
+    initializeMainAudioPlayer() {
+        const player = document.getElementById('main-audio-player');
+        if (!player || player.initialized) return;
+        
+        const audio = player.querySelector('audio');
+        const playPauseBtn = player.querySelector('.play-pause-btn');
+        const progressContainer = player.querySelector('.progress-container');
+        const progressBar = player.querySelector('.progress-bar');
+        const progressHandle = player.querySelector('.progress-handle');
+        const currentTimeSpan = player.querySelector('.current-time');
+        const durationSpan = player.querySelector('.duration');
+        const volumeBtn = player.querySelector('.volume-btn');
+        const volumeSlider = player.querySelector('.volume-slider');
+        const volumeContainer = player.querySelector('.volume-slider-container');
+        
+        let isDragging = false;
+        player.initialized = true;
+        
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+        
+        // Update progress and time
+        audio.addEventListener('timeupdate', () => {
+            if (!isDragging) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+                progressHandle.style.left = progress + '%';
+                currentTimeSpan.textContent = this.formatTime(audio.currentTime);
+            }
+        });
+        
+        // Load duration when metadata is loaded
+        audio.addEventListener('loadedmetadata', () => {
+            durationSpan.textContent = this.formatTime(audio.duration);
+        });
+        
+        // Progress bar clicking and dragging
+        progressContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            this.updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan);
+        });
+        
+        progressContainer.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                this.updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+            }
+        });
+        
+        // Volume control
+        volumeBtn.addEventListener('click', () => {
+            volumeContainer.classList.toggle('hidden');
+        });
+        
+        volumeSlider.addEventListener('input', () => {
+            audio.volume = volumeSlider.value / 100;
+            this.updateVolumeIcon(volumeBtn, audio.volume);
+        });
+        
+        // Reset when audio ends
+        audio.addEventListener('ended', () => {
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            progressBar.style.width = '0%';
+            progressHandle.style.left = '0%';
+            currentTimeSpan.textContent = '0:00';
+        });
+        
+        // Show handle on hover
+        progressContainer.addEventListener('mouseenter', () => {
+            progressHandle.style.opacity = '1';
+        });
+        
+        progressContainer.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                progressHandle.style.opacity = '0';
+            }
+        });
+    }
+
+    updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan) {
+        const rect = progressContainer.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        const clampedPos = Math.max(0, Math.min(1, pos));
+        
+        const newTime = clampedPos * audio.duration;
+        audio.currentTime = newTime;
+        
+        const progress = clampedPos * 100;
+        progressBar.style.width = progress + '%';
+        progressHandle.style.left = progress + '%';
+        currentTimeSpan.textContent = this.formatTime(newTime);
+    }
+
+    updateVolumeIcon(volumeBtn, volume) {
+        const icon = volumeBtn.querySelector('i');
+        
+        if (volume === 0) {
+            icon.className = 'fas fa-volume-mute';
+        } else if (volume < 0.5) {
+            icon.className = 'fas fa-volume-down';
+        } else {
+            icon.className = 'fas fa-volume-up';
+        }
+    }
+
+    formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 }
 

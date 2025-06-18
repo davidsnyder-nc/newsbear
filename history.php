@@ -238,17 +238,55 @@ $todaysTopics = $history->getTodaysTopics();
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Audio Player (Hidden by default) -->
+                    <!-- Enhanced Audio Player (Hidden by default) -->
                     <?php if ($briefing['audio_file'] && file_exists($briefing['audio_file'])): ?>
                     <div id="audio-<?php echo $briefing['id']; ?>" class="hidden mt-4 audio-container">
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <i class="fas fa-volume-up text-blue-600 mr-2"></i>
                             <span class="text-sm font-medium text-gray-700">Audio Playback</span>
                         </div>
-                        <audio controls class="w-full" style="height: 40px;">
-                            <source src="<?php echo $briefing['audio_file']; ?>" type="audio/mpeg">
-                            Your browser does not support the audio element.
-                        </audio>
+                        
+                        <!-- Custom Audio Player -->
+                        <div class="custom-audio-player" data-audio-src="<?php echo $briefing['audio_file']; ?>">
+                            <audio preload="metadata" class="hidden">
+                                <source src="<?php echo $briefing['audio_file']; ?>" type="audio/mpeg">
+                            </audio>
+                            
+                            <!-- Player Controls -->
+                            <div class="flex items-center space-x-3 mb-3">
+                                <button class="play-pause-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
+                                    <i class="fas fa-play text-sm"></i>
+                                </button>
+                                
+                                <div class="flex-1">
+                                    <div class="progress-container bg-gray-300 rounded-full h-2 cursor-pointer relative">
+                                        <div class="progress-bar bg-blue-600 rounded-full h-2 transition-all duration-100" style="width: 0%"></div>
+                                        <div class="progress-handle absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-600 rounded-full shadow-md cursor-pointer opacity-0 hover:opacity-100 transition-opacity" style="left: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="time-display text-sm text-gray-600 font-mono min-w-max">
+                                    <span class="current-time">0:00</span> / <span class="duration">0:00</span>
+                                </div>
+                                
+                                <div class="volume-control flex items-center space-x-2">
+                                    <button class="volume-btn text-gray-600 hover:text-blue-600 transition-colors">
+                                        <i class="fas fa-volume-up"></i>
+                                    </button>
+                                    <div class="volume-slider-container hidden">
+                                        <input type="range" class="volume-slider" min="0" max="100" value="100" style="width: 60px;">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Fallback for browsers that don't support custom controls -->
+                            <noscript>
+                                <audio controls class="w-full">
+                                    <source src="<?php echo $briefing['audio_file']; ?>" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                            </noscript>
+                        </div>
                     </div>
                     <?php endif; ?>
                     
@@ -372,11 +410,11 @@ $todaysTopics = $history->getTodaysTopics();
                 const isHidden = audioDiv.classList.contains('hidden');
                 
                 if (isHidden) {
-                    // Show audio player and start playing
+                    // Show audio player
                     audioDiv.classList.remove('hidden');
-                    const audio = audioDiv.querySelector('audio');
-                    if (audio) {
-                        audio.play().catch(e => console.log('Auto-play prevented:', e));
+                    // Initialize the custom player if not already done
+                    if (!audioDiv.querySelector('.custom-audio-player').initialized) {
+                        initializeCustomAudioPlayers();
                     }
                     button.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
                 } else {
@@ -478,36 +516,135 @@ $todaysTopics = $history->getTodaysTopics();
 
         // Initialize audio event listeners when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Add event listeners to all audio elements
-            const audioElements = document.querySelectorAll('audio');
-            audioElements.forEach(audio => {
-                const audioDiv = audio.closest('[id^="audio-"]');
-                const briefingId = audioDiv.id.replace('audio-', '');
-                const playButton = document.querySelector(`button[onclick="toggleAudio('${briefingId}')"]`);
+            initializeCustomAudioPlayers();
+        });
+
+        function initializeCustomAudioPlayers() {
+            const audioPlayers = document.querySelectorAll('.custom-audio-player');
+            
+            audioPlayers.forEach(player => {
+                const audio = player.querySelector('audio');
+                const playPauseBtn = player.querySelector('.play-pause-btn');
+                const progressContainer = player.querySelector('.progress-container');
+                const progressBar = player.querySelector('.progress-bar');
+                const progressHandle = player.querySelector('.progress-handle');
+                const currentTimeSpan = player.querySelector('.current-time');
+                const durationSpan = player.querySelector('.duration');
+                const volumeBtn = player.querySelector('.volume-btn');
+                const volumeSlider = player.querySelector('.volume-slider');
+                const volumeContainer = player.querySelector('.volume-slider-container');
                 
-                // Reset button when audio ends
-                audio.addEventListener('ended', function() {
-                    if (playButton) {
-                        playButton.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+                let isDragging = false;
+                
+                // Play/Pause functionality
+                playPauseBtn.addEventListener('click', () => {
+                    if (audio.paused) {
+                        audio.play();
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause text-sm"></i>';
+                    } else {
+                        audio.pause();
+                        playPauseBtn.innerHTML = '<i class="fas fa-play text-sm"></i>';
                     }
-                    audioDiv.classList.add('hidden');
                 });
                 
-                // Update button when audio starts playing
-                audio.addEventListener('play', function() {
-                    if (playButton) {
-                        playButton.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+                // Update progress and time
+                audio.addEventListener('timeupdate', () => {
+                    if (!isDragging) {
+                        const progress = (audio.currentTime / audio.duration) * 100;
+                        progressBar.style.width = progress + '%';
+                        progressHandle.style.left = progress + '%';
+                        currentTimeSpan.textContent = formatTime(audio.currentTime);
                     }
                 });
                 
-                // Update button when audio is paused
-                audio.addEventListener('pause', function() {
-                    if (playButton) {
-                        playButton.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+                // Load duration when metadata is loaded
+                audio.addEventListener('loadedmetadata', () => {
+                    durationSpan.textContent = formatTime(audio.duration);
+                });
+                
+                // Progress bar clicking and dragging
+                progressContainer.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    updateProgress(e);
+                });
+                
+                progressContainer.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        updateProgress(e);
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                    }
+                });
+                
+                function updateProgress(e) {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const pos = (e.clientX - rect.left) / rect.width;
+                    const clampedPos = Math.max(0, Math.min(1, pos));
+                    
+                    const newTime = clampedPos * audio.duration;
+                    audio.currentTime = newTime;
+                    
+                    const progress = clampedPos * 100;
+                    progressBar.style.width = progress + '%';
+                    progressHandle.style.left = progress + '%';
+                    currentTimeSpan.textContent = formatTime(newTime);
+                }
+                
+                // Volume control
+                volumeBtn.addEventListener('click', () => {
+                    volumeContainer.classList.toggle('hidden');
+                });
+                
+                volumeSlider.addEventListener('input', () => {
+                    audio.volume = volumeSlider.value / 100;
+                    updateVolumeIcon();
+                });
+                
+                function updateVolumeIcon() {
+                    const volume = audio.volume;
+                    const icon = volumeBtn.querySelector('i');
+                    
+                    if (volume === 0) {
+                        icon.className = 'fas fa-volume-mute';
+                    } else if (volume < 0.5) {
+                        icon.className = 'fas fa-volume-down';
+                    } else {
+                        icon.className = 'fas fa-volume-up';
+                    }
+                }
+                
+                // Reset when audio ends
+                audio.addEventListener('ended', () => {
+                    playPauseBtn.innerHTML = '<i class="fas fa-play text-sm"></i>';
+                    progressBar.style.width = '0%';
+                    progressHandle.style.left = '0%';
+                    currentTimeSpan.textContent = '0:00';
+                });
+                
+                // Show handle on hover
+                progressContainer.addEventListener('mouseenter', () => {
+                    progressHandle.style.opacity = '1';
+                });
+                
+                progressContainer.addEventListener('mouseleave', () => {
+                    if (!isDragging) {
+                        progressHandle.style.opacity = '0';
                     }
                 });
             });
-        });
+        }
+        
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
     </script>
 </body>
 </html>
