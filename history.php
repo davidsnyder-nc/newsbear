@@ -112,6 +112,11 @@ $todaysTopics = $history->getTodaysTopics();
                 <button onclick="showClearAllModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm md:text-base">
                     <i class="fas fa-trash-alt mr-2"></i>Clear All Briefings
                 </button>
+                <form method="POST" action="history.php?action=cleanup" class="inline">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm md:text-base">
+                        <i class="fas fa-broom mr-2"></i>Clean Downloads
+                    </button>
+                </form>
             </div>
         </div>
 
