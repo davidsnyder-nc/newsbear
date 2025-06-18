@@ -101,38 +101,40 @@ if (file_exists($settingsFile)) {
                                     </button>
                                     
                                     <div class="flex-1">
-                                        <div class="progress-container bg-gray-300 rounded-full h-3 cursor-pointer relative">
-                                            <div class="progress-bar bg-blue-600 rounded-full h-3 transition-all duration-100" style="width: 0%"></div>
-                                            <div class="progress-handle absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-blue-600 rounded-full shadow-lg cursor-pointer opacity-0 hover:opacity-100 transition-opacity border-2 border-white" style="left: 0%"></div>
+                                        <div class="progress-container bg-gray-200 rounded-full h-2 cursor-pointer">
+                                            <div class="progress-bar bg-blue-600 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
+                                            <div class="progress-handle bg-blue-700 w-4 h-4 rounded-full absolute -top-1 border-2 border-white shadow-md opacity-0 transition-opacity" style="left: 0; margin-left: -8px;"></div>
+                                        </div>
+                                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                            <span class="current-time">0:00</span>
+                                            <span class="duration">0:00</span>
                                         </div>
                                     </div>
                                     
-                                    <div class="time-display text-sm text-gray-600 font-mono min-w-max">
-                                        <span class="current-time">0:00</span> / <span class="duration">0:00</span>
-                                    </div>
-                                    
-                                    <div class="volume-control flex items-center space-x-2 relative">
-                                        <button class="volume-btn text-gray-600 hover:text-blue-600 transition-colors p-1">
+                                    <div class="volume-control flex items-center space-x-2">
+                                        <button class="volume-btn text-gray-600 hover:text-blue-600 transition-colors">
                                             <i class="fas fa-volume-up"></i>
                                         </button>
-                                        <div class="volume-slider-container hidden absolute right-0 top-8 bg-white border rounded-lg p-2 shadow-lg">
-                                            <input type="range" class="volume-slider" min="0" max="100" value="100" style="width: 80px;">
-                                        </div>
+                                        <input type="range" class="volume-slider w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="100">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div id="briefing-text-section" class="hidden">
-                        <div class="bg-white border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto">
-                            <div class="flex justify-between items-center mb-2">
-                                <h4 class="font-medium text-gray-800">Briefing Text:</h4>
-                                <button id="copy-btn" class="text-blue-600 hover:text-blue-800 text-sm">
-                                    <i class="fas fa-copy mr-1"></i>Copy
-                                </button>
+                    <div id="text-section" class="mb-4 hidden">
+                        <div class="mb-3 flex justify-between items-center">
+                            <div>
+                                <i class="fas fa-file-text text-blue-600 mr-2"></i>
+                                <span class="text-sm font-medium text-gray-700">Text Version</span>
                             </div>
-                            <div id="briefing-text" class="text-sm text-gray-700 whitespace-pre-wrap"></div>
+                            <button id="copy-text-btn" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm flex items-center">
+                                <i class="fas fa-copy mr-1"></i>Copy
+                            </button>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-4 max-h-96 overflow-y-auto border border-gray-200">
+                            <pre id="briefing-text" class="whitespace-pre-wrap text-sm text-gray-800"></pre>
                         </div>
                     </div>
                 </div>
@@ -142,7 +144,7 @@ if (file_exists($settingsFile)) {
             <div id="error-container" class="mb-8 hidden">
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                     <div class="flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-3"></i>
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl mr-2"></i>
                         <span id="error-text" class="text-red-800 font-medium">An error occurred</span>
                     </div>
                 </div>
@@ -157,11 +159,10 @@ if (file_exists($settingsFile)) {
             <div class="flex justify-center">
                 <button 
                     id="generate-btn" 
-                    class="bg-blue-600 text-white font-bold text-lg shadow-2xl pulse-blue flex flex-col items-center justify-center"
-                    style="width: 192px; height: 192px; border-radius: 50%; min-width: 192px; min-height: 192px; max-width: 192px; max-height: 192px;"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
                 >
-                    <i class="fas fa-play text-3xl"></i>
-                    <span class="text-center leading-tight">Generate<br>News Briefing</span>
+                    <i class="fas fa-microphone text-2xl"></i>
+                    <span>Create My News Brief</span>
                 </button>
             </div>
         </div>
