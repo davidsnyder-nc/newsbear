@@ -1,0 +1,24 @@
+DEMO MODE - News Briefing Script
+=====================================
+
+Good afternoon. Here's your afternoon news briefing for June 18, 2025.
+
+The current temperature in your area is 72 degrees with partly cloudy skies. For more detailed weather information, check your weather app.
+
+In trending television, We Were Liars, The Buccaneers, and FUBAR are capturing audiences today. Tonight, Coronation Street premieres with new episodes. In theaters and streaming, Final Destination Bloodlines, The Amateur, and STRAW continue to draw viewers. Coming soon to theaters: Shadow Force on May 1 and The Ugly Stepsister on Mar 7.
+
+In local news from your local area, Helene is now a strengthening hurricane. Here's what it could mean for Wilmington, Genetic testing shows shrimp fraud in Wilmington restaurants, and Wilmington police add jiu-jitsu to officers' training are among today's top stories.
+
+Now for the technology news. Major tech companies announce new AI developments that could reshape various industries.
+
+Next up in business. Market updates show continued growth in renewable energy sectors as investment increases.
+
+Moving to health news. New research findings reveal important insights about maintaining wellness.
+
+And in science. Scientists make breakthrough discovery that advances our understanding of climate patterns.
+
+That concludes your afternoon news briefing. Stay informed and have a great day!
+
+=====================================
+This is a demo version. To generate actual audio briefings with real news,
+please configure your API keys in the settings panel.

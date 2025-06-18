@@ -1,0 +1,321 @@
+/* Custom styles for News Brief app */
+
+.container {
+    max-width: 1200px;
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Blue pulsing animation for generate button */
+@keyframes pulse-blue {
+    0% { 
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        background-color: #2563eb;
+    }
+    50% { 
+        box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+        background-color: #1d4ed8;
+    }
+    100% { 
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        background-color: #2563eb;
+    }
+}
+
+.pulse-blue {
+    animation: pulse-blue 1.5s infinite;
+}
+
+/* Processing state for generate button */
+.generate-processing {
+    animation: pulse-blue 1.5s infinite;
+    cursor: not-allowed;
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input, select, textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Custom focus styles */
+input:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Hover effects for cards */
+.bg-white:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Progress bar animation */
+#progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+/* Custom checkbox styles */
+input[type="checkbox"] {
+    accent-color: #2563eb;
+}
+
+/* Toggle switch styles */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2563eb;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Dark theme styles */
+body.dark-theme {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0;
+}
+
+body.dark-theme,
+body.dark-theme * {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme .min-h-screen,
+body.dark-theme .bg-gray-100 {
+    background-color: #1a1a1a !important;
+}
+
+body.dark-theme .bg-white {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0;
+}
+
+body.dark-theme .text-gray-700,
+body.dark-theme .text-gray-600,
+body.dark-theme .text-gray-800 {
+    color: #d0d0d0 !important;
+}
+
+body.dark-theme .text-gray-500 {
+    color: #a0a0a0 !important;
+}
+
+body.dark-theme .text-gray-400 {
+    color: #808080 !important;
+}
+
+body.dark-theme .border-gray-300 {
+    border-color: #4a4a4a !important;
+}
+
+body.dark-theme .border-gray-200 {
+    border-color: #3a3a3a !important;
+}
+
+body.dark-theme input[type="text"],
+body.dark-theme input[type="password"],
+body.dark-theme input[type="number"],
+body.dark-theme textarea,
+body.dark-theme select {
+    background-color: #3a3a3a !important;
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+}
+
+body.dark-theme input[type="text"]:focus,
+body.dark-theme input[type="password"]:focus,
+body.dark-theme input[type="number"]:focus,
+body.dark-theme textarea:focus,
+body.dark-theme select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+body.dark-theme .bg-blue-50 {
+    background-color: #1e3a8a !important;
+}
+
+body.dark-theme .bg-green-50 {
+    background-color: #166534 !important;
+}
+
+body.dark-theme .bg-red-50 {
+    background-color: #991b1b !important;
+}
+
+body.dark-theme .border-blue-200 {
+    border-color: #1e40af !important;
+}
+
+body.dark-theme .border-green-200 {
+    border-color: #15803d !important;
+}
+
+body.dark-theme .border-red-200 {
+    border-color: #dc2626 !important;
+}
+
+body.dark-theme .text-blue-800 {
+    color: #93c5fd !important;
+}
+
+body.dark-theme .text-green-800 {
+    color: #86efac !important;
+}
+
+body.dark-theme .text-red-800 {
+    color: #fca5a5 !important;
+}
+
+body.dark-theme .text-blue-600 {
+    color: #60a5fa !important;
+}
+
+body.dark-theme .text-green-600 {
+    color: #4ade80 !important;
+}
+
+body.dark-theme .text-red-600 {
+    color: #f87171 !important;
+}
+
+body.dark-theme #settings-toggle:hover {
+    background-color: #404040 !important;
+    border-color: #555 !important;
+}
+
+body.dark-theme .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Status container animations */
+#status-container, #success-container, #error-container {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Button hover effects */
+#generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Advanced settings toggle animation */
+#advanced-settings {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    #generate-btn {
+        width: 100%;
+        padding: 1rem 2rem;
+    }
+    
+    .text-4xl {
+        font-size: 2rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+}
+
+/* Loading state styles */
+.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Success message styling */
+.success-message {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+/* Error message styling */
+.error-message {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

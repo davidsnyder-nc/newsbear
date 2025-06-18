@@ -1,0 +1,540 @@
+<?php
+
+class NewsAPI {
+    private $gnewsKey;
+    private $newsApiKey;
+    private $guardianKey;
+    private $nytKey;
+    
+    public function __construct($settings = null) {
+        if ($settings) {
+            $this->gnewsKey = ($settings['gnewsEnabled'] ?? true) ? ($settings['gnewsApiKey'] ?: getenv('GNEWS_API_KEY')) : null;
+            $this->newsApiKey = ($settings['newsApiEnabled'] ?? true) ? ($settings['newsApiKey'] ?: getenv('NEWSAPI_KEY')) : null;
+            $this->guardianKey = ($settings['guardianEnabled'] ?? true) ? ($settings['guardianApiKey'] ?: getenv('GUARDIAN_API_KEY')) : null;
+            $this->nytKey = ($settings['nytEnabled'] ?? true) ? ($settings['nytApiKey'] ?: getenv('NYT_API_KEY')) : null;
+        } else {
+            $this->gnewsKey = getenv('GNEWS_API_KEY');
+            $this->newsApiKey = getenv('NEWSAPI_KEY');
+            $this->guardianKey = getenv('GUARDIAN_API_KEY');
+            $this->nytKey = getenv('NYT_API_KEY');
+        }
+    }
+    
+    public function fetchFromAllSources($categories, $zipCode = null, $includeLocal = false) {
+        $allNews = [];
+        
+        // Fetch local news if requested and zip code provided
+        if ($includeLocal && $zipCode) {
+            try {
+                    $localNews = $this->fetchLocalNewsFromRSS($zipCode);
+                $allNews = array_merge($allNews, $localNews);
+            } catch (Exception $e) {
+                error_log("Local news fetch error: " . $e->getMessage());
+            }
+        }
+        
+        // Fetch from each enabled source
+        if ($this->gnewsKey) {
+            try {
+                $allNews = array_merge($allNews, $this->fetchFromGNews($categories));
+            } catch (Exception $e) {
+                error_log("GNews fetch error: " . $e->getMessage());
+            }
+        }
+        
+        if ($this->newsApiKey) {
+            try {
+                $allNews = array_merge($allNews, $this->fetchFromNewsAPI($categories));
+            } catch (Exception $e) {
+                error_log("NewsAPI fetch error: " . $e->getMessage());
+            }
+        }
+        
+        if ($this->guardianKey) {
+            try {
+                $allNews = array_merge($allNews, $this->fetchFromGuardian($categories));
+            } catch (Exception $e) {
+                error_log("Guardian fetch error: " . $e->getMessage());
+            }
+        }
+        
+        if ($this->nytKey) {
+            try {
+                $allNews = array_merge($allNews, $this->fetchFromNYT($categories));
+            } catch (Exception $e) {
+                error_log("NYT fetch error: " . $e->getMessage());
+            }
+        }
+        
+        return $allNews;
+    }
+    
+    private function fetchFromGNews($categories) {
+        $news = [];
+        
+        foreach ($categories as $category) {
+            $url = "https://gnews.io/api/v4/top-headlines?" . http_build_query([
+                'category' => $category,
+                'lang' => 'en',
+                'country' => 'us',
+                'max' => 10,
+                'apikey' => $this->gnewsKey
+            ]);
+            
+            $response = $this->makeRequest($url);
+            
+            if ($response && isset($response['articles'])) {
+                foreach ($response['articles'] as $article) {
+                    $news[] = [
+                        'title' => $article['title'],
+                        'content' => $article['description'] ?? '',
+                        'category' => $category,
+                        'source' => $article['source']['name'] ?? 'GNews',
+                        'publishedAt' => $article['publishedAt'] ?? date('c'),
+                        'url' => $article['url'] ?? ''
+                    ];
+                }
+            }
+        }
+        
+        return $news;
+    }
+    
+    private function fetchLocalNews($zipCode) {
+        $news = [];
+        
+        // Convert zip code to city name for better search results
+        $cityName = $this->zipCodeToCity($zipCode);
+        $searchQuery = $cityName ? "$cityName local news" : "$zipCode local news";
+        
+        $url = "https://gnews.io/api/v4/search?" . http_build_query([
+            'q' => $searchQuery,
+            'lang' => 'en',
+            'country' => 'us',
+            'max' => 5,
+            'apikey' => $this->gnewsKey
+        ]);
+        
+        $response = $this->makeRequest($url);
+        
+        if ($response && isset($response['articles'])) {
+            foreach ($response['articles'] as $article) {
+                $news[] = [
+                    'title' => $article['title'],
+                    'content' => $article['description'] ?? '',
+                    'category' => 'local',
+                    'source' => $article['source']['name'] ?? 'Local News',
+                    'publishedAt' => $article['publishedAt'] ?? date('c'),
+                    'url' => $article['url'] ?? ''
+                ];
+            }
+        }
+        
+        return $news;
+    }
+    
+    private function zipCodeToCity($zipCode) {
+        // Simple zip code to city mapping for major US cities
+        $zipCityMap = [
+            '10001' => 'New York',
+            '90210' => 'Beverly Hills',
+            '60601' => 'Chicago',
+            '77001' => 'Houston',
+            '85001' => 'Phoenix',
+            '19101' => 'Philadelphia',
+            '78701' => 'Austin',
+            '94101' => 'San Francisco',
+            '98101' => 'Seattle',
+            '80201' => 'Denver',
+            '33101' => 'Miami',
+            '30301' => 'Atlanta',
+            '02101' => 'Boston',
+            '89101' => 'Las Vegas',
+            '20001' => 'Washington DC'
+        ];
+        
+        // Return mapped city or null for generic search
+        return $zipCityMap[$zipCode] ?? null;
+    }
+    
+    private function fetchFromNewsAPI($categories) {
+        $news = [];
+        
+        foreach ($categories as $category) {
+            $url = "https://newsapi.org/v2/top-headlines?" . http_build_query([
+                'category' => $category,
+                'language' => 'en',
+                'country' => 'us',
+                'pageSize' => 10,
+                'apiKey' => $this->newsApiKey
+            ]);
+            
+            $response = $this->makeRequest($url);
+            
+            if ($response && isset($response['articles'])) {
+                foreach ($response['articles'] as $article) {
+                    $news[] = [
+                        'title' => $article['title'],
+                        'content' => $article['description'] ?? '',
+                        'category' => $category,
+                        'source' => $article['source']['name'] ?? 'NewsAPI',
+                        'publishedAt' => $article['publishedAt'] ?? date('c'),
+                        'url' => $article['url'] ?? ''
+                    ];
+                }
+            }
+        }
+        
+        return $news;
+    }
+    
+    private function fetchFromGuardian($categories) {
+        $news = [];
+        
+        foreach ($categories as $category) {
+            $section = $this->mapCategoryToGuardianSection($category);
+            $url = "https://content.guardianapis.com/search?" . http_build_query([
+                'section' => $section,
+                'show-fields' => 'headline,trailText,bodyText',
+                'page-size' => 10,
+                'api-key' => $this->guardianKey
+            ]);
+            
+            $response = $this->makeRequest($url);
+            
+            if ($response && isset($response['response']['results'])) {
+                foreach ($response['response']['results'] as $article) {
+                    $news[] = [
+                        'title' => $article['webTitle'],
+                        'content' => $article['fields']['trailText'] ?? '',
+                        'category' => $category,
+                        'source' => 'The Guardian',
+                        'publishedAt' => $article['webPublicationDate'] ?? date('c'),
+                        'url' => $article['webUrl'] ?? ''
+                    ];
+                }
+            }
+        }
+        
+        return $news;
+    }
+    
+    private function fetchFromNYT($categories) {
+        $news = [];
+        
+        foreach ($categories as $category) {
+            $section = $this->mapCategoryToNYTSection($category);
+            $url = "https://api.nytimes.com/svc/topstories/v2/{$section}.json?" . http_build_query([
+                'api-key' => $this->nytKey
+            ]);
+            
+            $response = $this->makeRequest($url);
+            
+            if ($response && isset($response['results'])) {
+                $count = 0;
+                foreach ($response['results'] as $article) {
+                    if ($count >= 10) break;
+                    
+                    $news[] = [
+                        'title' => $article['title'],
+                        'content' => $article['abstract'] ?? '',
+                        'category' => $category,
+                        'source' => 'New York Times',
+                        'publishedAt' => $article['published_date'] ?? date('c'),
+                        'url' => $article['url'] ?? ''
+                    ];
+                    $count++;
+                }
+            }
+        }
+        
+        return $news;
+    }
+    
+    private function mapCategoryToGuardianSection($category) {
+        $mapping = [
+            'general' => 'world',
+            'business' => 'business',
+            'entertainment' => 'culture',
+            'health' => 'society',
+            'science' => 'science',
+            'sports' => 'sport',
+            'technology' => 'technology'
+        ];
+        
+        return $mapping[$category] ?? 'world';
+    }
+    
+    private function mapCategoryToNYTSection($category) {
+        $mapping = [
+            'general' => 'world',
+            'business' => 'business',
+            'entertainment' => 'arts',
+            'health' => 'health',
+            'science' => 'science',
+            'sports' => 'sports',
+            'technology' => 'technology'
+        ];
+        
+        return $mapping[$category] ?? 'world';
+    }
+    
+    private function fetchLocalNewsFromRSS($zipCode) {
+        try {
+            $cityName = $this->getCityFromZip($zipCode);
+            $searchQuery = $cityName ? "$cityName local news" : "$zipCode local news";
+            
+            $encodedQuery = urlencode($searchQuery);
+            $rssUrl = "https://news.google.com/rss/search?q={$encodedQuery}&hl=en-US&gl=US&ceid=US:en";
+            
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 10,
+                    'user_agent' => 'Mozilla/5.0 (compatible; NewsBot/1.0)'
+                ]
+            ]);
+            
+            $rssContent = @file_get_contents($rssUrl, false, $context);
+            
+            if ($rssContent === false) {
+                error_log("Failed to fetch RSS content from: $rssUrl");
+                return [];
+            }
+            
+            libxml_use_internal_errors(true);
+            
+            $xml = @simplexml_load_string($rssContent);
+            
+            // Handle both RSS and Atom formats
+            $items = [];
+            if ($xml) {
+                if (isset($xml->channel->item)) {
+                    $items = $xml->channel->item;
+                } else if (isset($xml->entry)) {
+                    $items = $xml->entry;
+                }
+            }
+            
+            if (empty($items)) {
+                return [];
+            }
+            
+            $allStories = [];
+            
+            foreach ($items as $item) {
+                $title = isset($item->title) ? (string)$item->title : '';
+                $url = '';
+                
+                // Extract URL
+                if (isset($item->link)) {
+                    $url = (string)$item->link;
+                } else if (isset($item->guid)) {
+                    $url = (string)$item->guid;
+                }
+                
+                // Skip weather-only entries and very short titles
+                if (stripos($title, 'weather') !== false && strlen($title) < 25) {
+                    continue;
+                }
+                
+                // Skip old articles based on content analysis - but be less aggressive
+                $isOldNews = false;
+                $oldNewsPatterns = [
+                    'hurricane florence', 'florence.*flooding', 'cut off.*flooding.*florence',
+                    '\b201[0-8]\b', '\b2019\b', '\b2020\b', '\b2021\b', '\b2022\b', '\b2023\b',
+                    'years? ago', 'last year', 'previous year'
+                ];
+                
+                foreach ($oldNewsPatterns as $pattern) {
+                    if (preg_match('/' . $pattern . '/i', $title)) {
+                        $isOldNews = true;
+                        break;
+                    }
+                }
+                
+                if ($isOldNews) {
+                    continue;
+                }
+                
+                // Clean up title and remove news source patterns
+                $title = trim($title);
+                $title = preg_replace('/ - [A-Za-z\s]+News[A-Za-z\s]*$/', '', $title);
+                $title = preg_replace('/ - [A-Za-z\s]+Star[A-Za-z\s]*$/', '', $title);
+                $title = preg_replace('/ - [A-Za-z\s]+Times[A-Za-z\s]*$/', '', $title);
+                $title = preg_replace('/ - [A-Za-z\s]+Post[A-Za-z\s]*$/', '', $title);
+                $title = preg_replace('/ - [A-Za-z\s]+Herald[A-Za-z\s]*$/', '', $title);
+                $title = preg_replace('/ - [A-Za-z\s]+Gazette[A-Za-z\s]*$/', '', $title);
+                
+                // Extract meaningful stories with URLs
+                if (strlen($title) > 20) {
+                    $allStories[] = [
+                        'title' => $title,
+                        'url' => $url
+                    ];
+                }
+            }
+            
+            // Use AI to select the most relevant local news stories
+            $selectedStories = $this->selectLocalNewsWithAI($allStories, $cityName);
+            
+            // Convert to news format
+            $news = [];
+            foreach ($selectedStories as $index => $story) {
+                $news[] = [
+                    'title' => $story['title'],
+                    'content' => $story['title'],
+                    'category' => 'local',
+                    'source' => 'Local News',
+                    'publishedAt' => date('c'),
+                    'url' => $story['url']
+                ];
+                
+                if ($index >= 4) break; // Increase limit to 5 stories
+            }
+            
+            return $news;
+            
+        } catch (Exception $e) {
+            error_log("Local news fetch error: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    private function selectLocalNewsWithAI($allStories, $cityName) {
+        if (empty($allStories)) {
+            return [];
+        }
+        
+        if (count($allStories) >= 1) {
+            // Load settings for AI service
+            $settings = [];
+            if (file_exists('../config/user_settings.json')) {
+                $settingsJson = file_get_contents('../config/user_settings.json');
+                $settings = json_decode($settingsJson, true) ?: [];
+            } else if (file_exists('config/user_settings.json')) {
+                $settingsJson = file_get_contents('config/user_settings.json');
+                $settings = json_decode($settingsJson, true) ?: [];
+            }
+            
+            // Initialize AI service with fallback priority
+            $aiServices = [];
+            if (!empty($settings['geminiApiKey']) && $settings['geminiEnabled']) {
+                $aiServices[] = 'gemini';
+            }
+            if (!empty($settings['openaiApiKey']) && $settings['openaiEnabled']) {
+                $aiServices[] = 'openai';
+            }
+            
+            if (!empty($aiServices)) {
+                require_once 'AIService.php';
+                $aiService = new AIService($settings);
+                
+                // Extract titles for AI selection - take more stories
+                $titles = array_map(function($story) { return $story['title']; }, array_slice($allStories, 0, 20));
+                $newsListText = implode("\n", $titles);
+                $location = $cityName ?: "your local area";
+                
+                $prompt = "From this list of local news headlines for {$location}, select the 5 most important and relevant LOCAL news stories. Return only the selected headlines, one per line, without numbering or additional text:\n\n{$newsListText}";
+                
+                // Try each AI service until one works
+                foreach ($aiServices as $modelName) {
+                    try {
+                        $aiResponse = $aiService->generateText($prompt, $modelName);
+                        if ($aiResponse) {
+                            $selectedTitles = array_filter(explode("\n", trim($aiResponse)));
+                            if (count($selectedTitles) >= 1) {
+                                // Map selected titles back to story objects with URLs
+                                $selectedStories = [];
+                                foreach ($selectedTitles as $selectedTitle) {
+                                    $selectedTitle = trim($selectedTitle);
+                                    $found = false;
+                                    
+                                    // First try exact match
+                                    foreach ($allStories as $story) {
+                                        if (trim(strtolower($story['title'])) === trim(strtolower($selectedTitle))) {
+                                            $selectedStories[] = $story;
+                                            $found = true;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    // If no exact match, try partial matching
+                                    if (!$found) {
+                                        foreach ($allStories as $story) {
+                                            $storyTitle = trim(strtolower($story['title']));
+                                            $searchTitle = trim(strtolower($selectedTitle));
+                                            
+                                            // Check if 80% of the words match
+                                            $storyWords = explode(' ', $storyTitle);
+                                            $searchWords = explode(' ', $searchTitle);
+                                            $matches = 0;
+                                            
+                                            foreach ($searchWords as $word) {
+                                                if (strlen($word) > 3 && in_array($word, $storyWords)) {
+                                                    $matches++;
+                                                }
+                                            }
+                                            
+                                            if (count($searchWords) > 0 && ($matches / count($searchWords)) >= 0.6) {
+                                                $selectedStories[] = $story;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                return array_slice($selectedStories, 0, 5);
+                            }
+                        }
+                    } catch (Exception $e) {
+                        // Continue to next AI service
+                    }
+                }
+            }
+        }
+        
+        // Fallback to first 3 stories if AI fails
+        return array_slice($allStories, 0, 3);
+    }
+    
+    private function getCityFromZip($zipCode) {
+        $zipCityMap = [
+            '10001' => 'New York',
+            '90210' => 'Beverly Hills',
+            '60601' => 'Chicago',
+            '77001' => 'Houston',
+            '85001' => 'Phoenix',
+            '19101' => 'Philadelphia',
+            '78701' => 'Austin',
+            '94101' => 'San Francisco',
+            '98101' => 'Seattle',
+            '80201' => 'Denver',
+            '33101' => 'Miami',
+            '30301' => 'Atlanta',
+            '02101' => 'Boston',
+            '89101' => 'Las Vegas',
+            '20001' => 'Washington DC',
+            '28411' => 'Wilmington'
+        ];
+        
+        return $zipCityMap[$zipCode] ?? null;
+    }
+
+    private function makeRequest($url) {
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 30,
+                'user_agent' => 'NewsBot/1.0'
+            ]
+        ]);
+        
+        $response = file_get_contents($url, false, $context);
+        
+        if ($response === false) {
+            throw new Exception("Failed to fetch from URL: $url");
+        }
+        
+        return json_decode($response, true);
+    }
+}
+?>
