@@ -149,14 +149,34 @@ function isCategoryChecked($category) {
             </div>
             <?php endif; ?>
             
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="-mb-px flex space-x-8" role="tablist">
+                    <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600" role="tab">
+                        <i class="fas fa-cog mr-2"></i>Basic Settings
+                    </button>
+                    <button type="button" onclick="showTab('content')" id="content-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
+                        <i class="fas fa-newspaper mr-2"></i>Content & Categories
+                    </button>
+                    <button type="button" onclick="showTab('api')" id="api-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
+                        <i class="fas fa-key mr-2"></i>API Keys
+                    </button>
+                    <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
+                        <i class="fas fa-robot mr-2"></i>AI Services
+                    </button>
+                    <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab">
+                        <i class="fas fa-sliders-h mr-2"></i>Advanced
+                    </button>
+                </nav>
+            </div>
+
             <form method="POST" class="space-y-8">
-                <!-- Settings Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                    <!-- Left Column -->
-                    <div class="space-y-6 md:space-y-8">
-                        <!-- Basic Settings -->
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Basic Settings</h3>
+                <!-- Basic Settings Tab -->
+                <div id="basic-content" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">General Settings</h3>
                             
                             <div class="space-y-4">
                                 <div>
@@ -211,7 +231,17 @@ function isCategoryChecked($category) {
                                     <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
                                 </div>
                                 
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Features</h3>
                                 <div class="space-y-3">
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="generateMp3" <?= isChecked('generateMp3') ?> class="mr-3 h-4 w-4">
+                                        Generate MP3 Audio File
+                                    </label>
                                     <label class="flex items-center text-sm">
                                         <input type="checkbox" name="includeWeather" <?= isChecked('includeWeather') ?> class="mr-3 h-4 w-4">
                                         Include Weather
@@ -225,58 +255,79 @@ function isCategoryChecked($category) {
                                         Include TV Shows/Movies
                                     </label>
                                     <label class="flex items-center text-sm">
-                                        <input type="checkbox" name="generateMp3" <?= isChecked('generateMp3') ?> class="mr-3 h-4 w-4">
-                                        Generate MP3 Audio File
-                                    </label>
-                                    <label class="flex items-center text-sm">
                                         <input type="checkbox" name="darkTheme" <?= isChecked('darkTheme') ?> class="mr-3 h-4 w-4">
                                         Dark Theme
                                     </label>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Content & Categories Tab -->
+                <div id="content-content" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">News Categories</h3>
+                                <div class="space-y-3">
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="general" <?= isCategoryChecked('general') ?> class="mr-3 h-4 w-4">
+                                        General
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="technology" <?= isCategoryChecked('technology') ?> class="mr-3 h-4 w-4">
+                                        Technology
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="science" <?= isCategoryChecked('science') ?> class="mr-3 h-4 w-4">
+                                        Science
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="health" <?= isCategoryChecked('health') ?> class="mr-3 h-4 w-4">
+                                        Health
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="entertainment" <?= isCategoryChecked('entertainment') ?> class="mr-3 h-4 w-4">
+                                        Entertainment
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="business" <?= isCategoryChecked('business') ?> class="mr-3 h-4 w-4">
+                                        Business
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="categories[]" value="sports" <?= isCategoryChecked('sports') ?> class="mr-3 h-4 w-4">
+                                        Sports
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                         
-                        <!-- News Categories -->
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-800 border-b pb-2">News Categories</h3>
-                            <div class="grid grid-cols-2 gap-2 md:grid-cols-1 md:gap-2">
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="general" <?= isCategoryChecked('general') ?> class="mr-3 h-4 w-4">
-                                    General
-                                </label>
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="technology" <?= isCategoryChecked('technology') ?> class="mr-3 h-4 w-4">
-                                    Technology
-                                </label>
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="science" <?= isCategoryChecked('science') ?> class="mr-3 h-4 w-4">
-                                    Science
-                                </label>
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="health" <?= isCategoryChecked('health') ?> class="mr-3 h-4 w-4">
-                                    Health
-                                </label>
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="entertainment" <?= isCategoryChecked('entertainment') ?> class="mr-3 h-4 w-4">
-                                    Entertainment
-                                </label>
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="business" <?= isCategoryChecked('business') ?> class="mr-3 h-4 w-4">
-                                    Business
-                                </label>
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="categories[]" value="sports" <?= isCategoryChecked('sports') ?> class="mr-3 h-4 w-4">
-                                    Sports
-                                </label>
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Content Filters</h3>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Blocked Terms</label>
+                                    <textarea name="blockedTerms" rows="4" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Enter terms to block, separated by commas"><?= getValue('blockedTerms') ?></textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Articles containing these terms will be excluded</p>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Custom Header</label>
+                                    <input type="text" name="customHeader" value="<?= getValue('customHeader') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Custom briefing header text">
+                                    <p class="text-xs text-gray-500 mt-1">Optional custom introduction for your briefings</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Right Column -->
-                    <div class="space-y-6 md:space-y-8">
-                        <!-- API Keys -->
-                        <div class="space-y-4">
-                            <h3 class="text-lg font-medium text-gray-800 border-b pb-2">API Keys</h3>
+                </div>
+                
+                <!-- API Keys Tab -->
+                <div id="api-content" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">News API Keys</h3>
                             
                             <div class="space-y-4">
                                 <div>
@@ -323,76 +374,110 @@ function isCategoryChecked($category) {
                                     <input type="password" name="guardianApiKey" value="<?= getValue('guardianApiKey') ?>" placeholder="Guardian API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                                     <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://open-platform.theguardian.com/access/" target="_blank" class="text-blue-600 hover:underline">theguardian.com</a></p>
                                 </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="nytEnabled" <?= isChecked('nytEnabled') ?> class="mr-2">
-                            NY Times API
-                        </label>
-                        <input type="password" name="nytApiKey" value="<?= getValue('nytApiKey') ?>" placeholder="NY Times API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://developer.nytimes.com/get-started" target="_blank" class="text-blue-600 hover:underline">developer.nytimes.com</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="geminiEnabled" <?= isChecked('geminiEnabled') ?> class="mr-2">
-                            Gemini API
-                        </label>
-                        <input type="password" name="geminiApiKey" value="<?= getValue('geminiApiKey') ?>" placeholder="Gemini API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 hover:underline">Google AI Studio</a></p>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="nytEnabled" <?= isChecked('nytEnabled') ?> class="mr-3 h-4 w-4">
+                                        NY Times API
+                                    </label>
+                                    <input type="password" name="nytApiKey" value="<?= getValue('nytApiKey') ?>" placeholder="NY Times API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://developer.nytimes.com/get-started" target="_blank" class="text-blue-600 hover:underline">developer.nytimes.com</a></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Other APIs</h3>
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="weatherEnabled" <?= isChecked('weatherEnabled') ?> class="mr-3 h-4 w-4">
+                                        OpenWeatherMap API
+                                    </label>
+                                    <input type="password" name="weatherApiKey" value="<?= getValue('weatherApiKey') ?>" placeholder="OpenWeatherMap API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://openweathermap.org/api" target="_blank" class="text-blue-600 hover:underline">openweathermap.org</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="tmdbEnabled" <?= isChecked('tmdbEnabled') ?> class="mr-3 h-4 w-4">
+                                        TMDB (TV/Movies)
+                                    </label>
+                                    <input type="password" name="tmdbApiKey" value="<?= getValue('tmdbApiKey') ?>" placeholder="TMDB API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-blue-600 hover:underline">themoviedb.org</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="googleTtsEnabled" <?= isChecked('googleTtsEnabled') ?> class="mr-3 h-4 w-4">
+                                        Google Text-to-Speech
+                                    </label>
+                                    <input type="password" name="googleTtsApiKey" value="<?= getValue('googleTtsApiKey') ?>" placeholder="Google TTS API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.cloud.google.com/" target="_blank" class="text-blue-600 hover:underline">Google Cloud Console</a></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- AI Service Selection -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-medium text-gray-800 border-b pb-2">AI Service Configuration</h3>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">AI for Article Selection</label>
-                        <select name="aiSelection" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                            <option value="openai" <?= isSelected('aiSelection', 'openai') ?>>OpenAI</option>
-                            <option value="gemini" <?= isSelected('aiSelection', 'gemini') ?>>Gemini</option>
-                            <option value="claude" <?= isSelected('aiSelection', 'claude') ?>>Claude</option>
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1">AI service used to select the most important articles</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">AI for Content Generation</label>
-                        <select name="aiGeneration" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                            <option value="openai" <?= isSelected('aiGeneration', 'openai') ?>>OpenAI</option>
-                            <option value="gemini" <?= isSelected('aiGeneration', 'gemini') ?>>Gemini</option>
-                            <option value="claude" <?= isSelected('aiGeneration', 'claude') ?>>Claude</option>
-                        </select>
-                        <p class="text-xs text-gray-500 mt-1">AI service used to generate the news briefing content</p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="openaiEnabled" <?= isChecked('openaiEnabled') ?> class="mr-2">
-                            OpenAI API
-                        </label>
-                        <input type="password" name="openaiApiKey" value="<?= getValue('openaiApiKey') ?>" placeholder="OpenAI API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank" class="text-blue-600 hover:underline">platform.openai.com</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="claudeEnabled" <?= isChecked('claudeEnabled') ?> class="mr-2">
-                            Claude API
-                        </label>
-                        <input type="password" name="claudeApiKey" value="<?= getValue('claudeApiKey') ?>" placeholder="Claude API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.anthropic.com/" target="_blank" class="text-blue-600 hover:underline">console.anthropic.com</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="googleTtsEnabled" <?= isChecked('googleTtsEnabled') ?> class="mr-2">
-                            Google Text-to-Speech
-                        </label>
-                        <input type="password" name="googleTtsApiKey" value="<?= getValue('googleTtsApiKey') ?>" placeholder="Google TTS API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.cloud.google.com/" target="_blank" class="text-blue-600 hover:underline">Google Cloud Console</a></p>
-                    </div>
+                <!-- AI Services Tab -->
+                <div id="ai-content" class="tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">AI Configuration</h3>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">AI for Article Selection</label>
+                                    <select name="aiSelection" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                        <option value="openai" <?= isSelected('aiSelection', 'openai') ?>>OpenAI</option>
+                                        <option value="gemini" <?= isSelected('aiSelection', 'gemini') ?>>Gemini</option>
+                                        <option value="claude" <?= isSelected('aiSelection', 'claude') ?>>Claude</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">AI service used to select the most important articles</p>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">AI for Content Generation</label>
+                                    <select name="aiGeneration" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                                        <option value="openai" <?= isSelected('aiGeneration', 'openai') ?>>OpenAI</option>
+                                        <option value="gemini" <?= isSelected('aiGeneration', 'gemini') ?>>Gemini</option>
+                                        <option value="claude" <?= isSelected('aiGeneration', 'claude') ?>>Claude</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">AI service used to generate the news briefing content</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">AI API Keys</h3>
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="openaiEnabled" <?= isChecked('openaiEnabled') ?> class="mr-3 h-4 w-4">
+                                        OpenAI API
+                                    </label>
+                                    <input type="password" name="openaiApiKey" value="<?= getValue('openaiApiKey') ?>" placeholder="OpenAI API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank" class="text-blue-600 hover:underline">platform.openai.com</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="geminiEnabled" <?= isChecked('geminiEnabled') ?> class="mr-3 h-4 w-4">
+                                        Gemini API
+                                    </label>
+                                    <input type="password" name="geminiApiKey" value="<?= getValue('geminiApiKey') ?>" placeholder="Gemini API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 hover:underline">Google AI Studio</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="claudeEnabled" <?= isChecked('claudeEnabled') ?> class="mr-3 h-4 w-4">
+                                        Claude API
+                                    </label>
+                                    <input type="password" name="claudeApiKey" value="<?= getValue('claudeApiKey') ?>" placeholder="Claude API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.anthropic.com/" target="_blank" class="text-blue-600 hover:underline">console.anthropic.com</a></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
