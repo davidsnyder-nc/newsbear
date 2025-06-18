@@ -162,6 +162,7 @@ class NewsBriefApp {
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
         this.startWittyMessages();
+        this.switchToRedLogo();
     }
 
     updateStatus(message, progress = 0) {
@@ -203,6 +204,7 @@ class NewsBriefApp {
 
     showSuccess(downloadUrl, briefingText = null) {
         this.stopWittyMessages();
+        this.switchToBlueLogo();
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
         document.getElementById('success-container').classList.remove('hidden');
@@ -239,6 +241,7 @@ class NewsBriefApp {
 
     showError(message) {
         this.stopWittyMessages();
+        this.switchToBlueLogo();
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.remove('hidden');
@@ -331,6 +334,7 @@ class NewsBriefApp {
         this.showGenerateButton();
         this.hideNewButton();
         this.enableButton();
+        this.switchToBlueLogo();
         
         // Reset any form state if needed
         this.isGenerating = false;
@@ -338,6 +342,20 @@ class NewsBriefApp {
         
         // Show a confirmation message
         this.showToast('Ready to generate a new briefing!', 'success');
+    }
+
+    switchToRedLogo() {
+        const logoImg = document.querySelector('img[src*="newsbear_blue_logo.png"], img[src*="newsbear_red_logo.png"]');
+        if (logoImg) {
+            logoImg.src = 'attached_assets/newsbear_red_logo.png';
+        }
+    }
+
+    switchToBlueLogo() {
+        const logoImg = document.querySelector('img[src*="newsbear_blue_logo.png"], img[src*="newsbear_red_logo.png"]');
+        if (logoImg) {
+            logoImg.src = 'attached_assets/newsbear_blue_logo.png';
+        }
     }
 }
 
