@@ -80,9 +80,7 @@ class BriefingGenerator {
             error_log("Stories selected by AI: " . count($selectedStories));
             
             // Validate all selected stories are from authentic sources
-            error_log("Before validation: " . count($selectedStories) . " stories");
             $validatedStories = $this->validateAuthenticStories($selectedStories);
-            error_log("After validation: " . count($validatedStories) . " stories");
             
             // Check if we have any authentic news content
             $hasNewsContent = false;
@@ -417,10 +415,7 @@ class BriefingGenerator {
             return !$isWeatherOrTV && !$isLocal;
         });
         
-        error_log("Content generation - Local stories: " . count($localNewsStories) . ", Other stories: " . count($otherNewsStories));
-        foreach ($stories as $i => $story) {
-            error_log("Story " . ($i+1) . " for content: [" . ($story['source'] ?? 'Unknown') . "] category: " . ($story['category'] ?? 'none') . " - " . $story['title']);
-        }
+
         
         if (empty($localNewsStories) && empty($otherNewsStories)) {
             $prompt .= "CRITICAL: NO real news stories are available. After weather and entertainment, state 'No additional news is available from our sources at this time' and end with the conclusion. DO NOT create any fictional news content.\n\n";

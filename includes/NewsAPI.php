@@ -75,6 +75,11 @@ class NewsAPI {
     private function fetchFromGNews($categories) {
         $news = [];
         
+        // Validate API key exists
+        if (empty($this->gnewsKey)) {
+            throw new Exception("GNews API key is not configured");
+        }
+        
         foreach ($categories as $category) {
             $url = "https://gnews.io/api/v4/top-headlines?" . http_build_query([
                 'category' => $category,
@@ -84,6 +89,7 @@ class NewsAPI {
                 'apikey' => $this->gnewsKey
             ]);
             
+            error_log("GNews URL: " . $url);
             $response = $this->makeRequest($url);
             
             if ($response && isset($response['articles'])) {
