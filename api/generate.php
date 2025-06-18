@@ -89,6 +89,14 @@ class BriefingGenerator {
             // Step 3: AI story selection (filter out covered topics)
             $this->updateStatus('Selecting stories using AI...', 30);
             error_log("News items sent to AI for selection: " . count($newsItems));
+            
+            // Debug: Check if this is where the issue occurs
+            if (empty($newsItems)) {
+                error_log("ERROR: newsItems is empty after fetchNews()");
+            } else {
+                error_log("SUCCESS: newsItems contains " . count($newsItems) . " articles");
+            }
+            
             $selectedStories = $this->selectStories($newsItems, $todaysTopics);
             error_log("Stories selected by AI: " . count($selectedStories));
             
@@ -118,23 +126,29 @@ class BriefingGenerator {
             }
             
             if (empty($validatedStories)) {
-                // Check what content types are enabled to give a more specific error
-                $enabledSources = [];
-                if ($this->settings['weatherEnabled'] ?? false) $enabledSources[] = 'weather';
-                if ($this->settings['tmdbEnabled'] ?? false) $enabledSources[] = 'TV/movies';
-                if ($this->settings['includeLocal'] ?? false) $enabledSources[] = 'local news';
-                
-                $newsAPIs = [];
-                if ($this->settings['gnewsEnabled'] ?? false) $newsAPIs[] = 'GNews';
-                if ($this->settings['newsApiEnabled'] ?? false) $newsAPIs[] = 'NewsAPI';
-                if ($this->settings['guardianEnabled'] ?? false) $newsAPIs[] = 'Guardian';
-                if ($this->settings['nytEnabled'] ?? false) $newsAPIs[] = 'New York Times';
-                
-                if (empty($enabledSources) && empty($newsAPIs)) {
-                    throw new Exception('No content sources are enabled. Please enable at least one news API, weather, TV/movies, or local news in settings.');
+                // Check if we're doing category-specific briefing with RSS content
+                $isSpecificCategoryOnly = count($this->selectedCategories) == 1 && !in_array('general', $this->selectedCategories);
+                if ($isSpecificCategoryOnly) {
+                    throw new Exception("No {$this->selectedCategories[0]} content available. Please check your RSS feed configuration for {$this->selectedCategories[0]} content.");
                 } else {
-                    $enabled = array_merge($enabledSources, $newsAPIs);
-                    throw new Exception('Unable to fetch content from enabled sources: ' . implode(', ', $enabled) . '. Please check your API keys and internet connection.');
+                    // Check what content types are enabled to give a more specific error
+                    $enabledSources = [];
+                    if ($this->settings['weatherEnabled'] ?? false) $enabledSources[] = 'weather';
+                    if ($this->settings['tmdbEnabled'] ?? false) $enabledSources[] = 'TV/movies';
+                    if ($this->settings['includeLocal'] ?? false) $enabledSources[] = 'local news';
+                    
+                    $newsAPIs = [];
+                    if ($this->settings['gnewsEnabled'] ?? false) $newsAPIs[] = 'GNews';
+                    if ($this->settings['newsApiEnabled'] ?? false) $newsAPIs[] = 'NewsAPI';
+                    if ($this->settings['guardianEnabled'] ?? false) $newsAPIs[] = 'Guardian';
+                    if ($this->settings['nytEnabled'] ?? false) $newsAPIs[] = 'New York Times';
+                    
+                    if (empty($enabledSources) && empty($newsAPIs)) {
+                        throw new Exception('No content sources are enabled. Please enable at least one news API, weather, TV/movies, or local news in settings.');
+                    } else {
+                        $enabled = array_merge($enabledSources, $newsAPIs);
+                        throw new Exception('Unable to fetch content from enabled sources: ' . implode(', ', $enabled) . '. Please check your API keys and internet connection.');
+                    }
                 }
             }
             
@@ -1046,7 +1060,8 @@ class BriefingGenerator {
             'Weather Service', 'The Movie Database', 'Local News',
             'OpenWeatherMap', 'TMDB', 'Weather API', 'NBC News', 
             'The Washington Post', 'Bloomberg', 'Earth.com', 'ScienceAlert', 
-            'Deadline', 'CNN', 'BBC News', 'Reuters', 'Associated Press'
+            'Deadline', 'CNN', 'BBC News', 'Reuters', 'Associated Press',
+            'Polygon', 'IGN', 'GameSpot', 'Kotaku', 'PC Gamer', 'Rock Paper Shotgun'
         ];
         
         foreach ($stories as $i => $story) {
