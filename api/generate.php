@@ -154,6 +154,9 @@ class BriefingGenerator {
             if ($generateMp3) {
                 // Step 5: Generate audio
                 $this->updateStatus('Generating audio...', 80);
+                error_log("AI Generated content length: " . strlen($briefingContent) . " characters");
+                error_log("AI Generated word count: " . str_word_count($briefingContent));
+                error_log("Content preview (first 300 chars): " . substr($briefingContent, 0, 300));
                 $audioFile = $this->generateAudio($briefingContent);
                 
                 // Extract source links from news stories for history

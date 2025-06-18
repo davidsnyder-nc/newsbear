@@ -18,26 +18,38 @@ class TTSService {
         // Clean up the SSML text
         $ssmlText = $this->cleanSSML($ssmlText);
         
+        // Log the input text details
+        error_log("TTS Input - Character count: " . strlen($ssmlText));
+        error_log("TTS Input - Word count: " . str_word_count(strip_tags($ssmlText)));
+        error_log("TTS Input - First 200 chars: " . substr($ssmlText, 0, 200));
+        error_log("TTS Input - Last 200 chars: " . substr($ssmlText, -200));
+        
         // Check if text exceeds Google's 5000 byte limit
         if (strlen($ssmlText) > 4800) { // Increased threshold, leave smaller buffer
+            error_log("TTS: Text length exceeds limit, using chunked synthesis");
             return $this->synthesizeLongSpeech($ssmlText);
         }
         
+        error_log("TTS: Using single chunk synthesis");
         return $this->synthesizeSingleChunk($ssmlText);
     }
     
     private function synthesizeLongSpeech($ssmlText) {
         // Split text into chunks that fit within the limit
         $chunks = $this->splitTextIntoChunks($ssmlText, 4500);
+        error_log("TTS: Split into " . count($chunks) . " chunks");
         $audioSegments = [];
         
         foreach ($chunks as $i => $chunk) {
+            error_log("TTS: Processing chunk " . ($i + 1) . " - chars: " . strlen($chunk));
             $audioData = $this->synthesizeSingleChunk($chunk, false);
+            error_log("TTS: Chunk " . ($i + 1) . " audio size: " . strlen($audioData) . " bytes");
             $audioSegments[] = $audioData;
         }
         
         // Combine all audio segments
         $combinedAudio = $this->combineAudioSegments($audioSegments);
+        error_log("TTS: Combined audio size: " . strlen($combinedAudio) . " bytes");
         
         // Generate unique filename with timestamp
         $timeFrame = $this->getTimeFrame();
