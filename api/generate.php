@@ -127,6 +127,10 @@ class BriefingGenerator {
             
             // Step 4: Generate briefing content
             $this->updateStatus('Summarizing with AI...', 60);
+            error_log("Stories sent to content generation: " . count($validatedStories));
+            foreach ($validatedStories as $i => $story) {
+                error_log("Content gen story " . ($i+1) . ": [" . ($story['source'] ?? 'Unknown') . "] " . $story['title']);
+            }
             $briefingContent = $this->generateBriefingContent($validatedStories);
             
             $generateMp3 = $this->settings['generateMp3'] ?? true;
