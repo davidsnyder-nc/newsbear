@@ -189,22 +189,43 @@ function isCategoryChecked($category) {
                 </div>
                 
                 <!-- Desktop tabs -->
-                <nav class="hidden sm:flex -mb-px overflow-x-auto" role="tablist">
-                    <div class="flex space-x-2 lg:space-x-8 min-w-max">
-                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-2 px-2 lg:px-4 border-b-2 border-blue-500 font-medium text-xs lg:text-sm text-blue-600 whitespace-nowrap" role="tab">
-                            <i class="fas fa-cog mr-1 lg:mr-2"></i><span class="hidden md:inline">Basic Settings</span><span class="md:hidden">Basic</span>
+                <nav class="hidden md:flex -mb-px" role="tablist">
+                    <div class="flex space-x-8 w-full">
+                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-2 px-4 border-b-2 border-blue-500 font-medium text-sm text-blue-600 whitespace-nowrap" role="tab">
+                            <i class="fas fa-cog mr-2"></i>Basic Settings
                         </button>
-                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
-                            <i class="fas fa-newspaper mr-1 lg:mr-2"></i><span class="hidden md:inline">Content & Categories</span><span class="md:hidden">Content</span>
+                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-2 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-newspaper mr-2"></i>Content & Categories
                         </button>
-                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
-                            <i class="fas fa-key mr-1 lg:mr-2"></i><span class="hidden md:inline">API Keys</span><span class="md:hidden">API</span>
+                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-2 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-key mr-2"></i>API Keys
                         </button>
-                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
-                            <i class="fas fa-robot mr-1 lg:mr-2"></i><span class="hidden md:inline">AI Services</span><span class="md:hidden">AI</span>
+                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-2 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-robot mr-2"></i>AI Services
                         </button>
-                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-2 px-2 lg:px-4 border-b-2 border-transparent font-medium text-xs lg:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
-                            <i class="fas fa-sliders-h mr-1 lg:mr-2"></i><span class="hidden md:inline">Advanced</span><span class="md:hidden">Adv</span>
+                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-2 px-4 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-sliders-h mr-2"></i>Advanced
+                        </button>
+                    </div>
+                </nav>
+                
+                <!-- Tablet tabs with horizontal scroll -->
+                <nav class="hidden sm:flex md:hidden -mb-px overflow-x-auto" role="tablist">
+                    <div class="flex space-x-4 min-w-max">
+                        <button type="button" onclick="showTab('basic')" id="basic-tab-tablet" class="py-2 px-3 border-b-2 border-blue-500 font-medium text-sm text-blue-600 whitespace-nowrap" role="tab">
+                            <i class="fas fa-cog mr-2"></i>Basic
+                        </button>
+                        <button type="button" onclick="showTab('content')" id="content-tab-tablet" class="py-2 px-3 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-newspaper mr-2"></i>Content
+                        </button>
+                        <button type="button" onclick="showTab('api')" id="api-tab-tablet" class="py-2 px-3 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-key mr-2"></i>API Keys
+                        </button>
+                        <button type="button" onclick="showTab('ai')" id="ai-tab-tablet" class="py-2 px-3 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-robot mr-2"></i>AI Services
+                        </button>
+                        <button type="button" onclick="showTab('advanced')" id="advanced-tab-tablet" class="py-2 px-3 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap" role="tab">
+                            <i class="fas fa-sliders-h mr-2"></i>Advanced
                         </button>
                     </div>
                 </nav>
@@ -573,7 +594,7 @@ function showTab(tabName) {
         content.classList.add('hidden');
     });
     
-    // Remove active styles from all tabs
+    // Remove active styles from all tabs (desktop, tablet, mobile)
     const tabs = document.querySelectorAll('[role="tab"]');
     tabs.forEach(tab => {
         tab.classList.remove('border-blue-500', 'text-blue-600');
@@ -586,12 +607,16 @@ function showTab(tabName) {
         selectedContent.classList.remove('hidden');
     }
     
-    // Add active styles to the selected tab
-    const selectedTab = document.getElementById(tabName + '-tab');
-    if (selectedTab) {
-        selectedTab.classList.remove('border-transparent', 'text-gray-500');
-        selectedTab.classList.add('border-blue-500', 'text-blue-600');
-    }
+    // Add active styles to all matching tabs (desktop, tablet, mobile)
+    const desktopTab = document.getElementById(tabName + '-tab');
+    const tabletTab = document.getElementById(tabName + '-tab-tablet');
+    
+    [desktopTab, tabletTab].forEach(tab => {
+        if (tab) {
+            tab.classList.remove('border-transparent', 'text-gray-500');
+            tab.classList.add('border-blue-500', 'text-blue-600');
+        }
+    });
     
     // Update mobile dropdown to match
     const mobileSelect = document.getElementById('mobile-tab-select');
