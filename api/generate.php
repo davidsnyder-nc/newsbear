@@ -941,15 +941,8 @@ class BriefingGenerator {
     private function generateAudio($ssmlContent) {
         $ttsService = new TTSService($this->settings);
         
-        $timeFrame = $this->getTimeFrame();
-        $date = date('Y-m-d');
-        $filename = "ai-news-{$timeFrame}-{$date}.mp3";
-        $filepath = "../downloads/{$filename}";
-        
-        $audioData = $ttsService->synthesizeSpeech($ssmlContent);
-        file_put_contents($filepath, $audioData);
-        
-        return "downloads/{$filename}";
+        // TTS service now handles file creation and returns the path
+        return $ttsService->synthesizeSpeech($ssmlContent);
     }
     
     private function getTimeFrame() {

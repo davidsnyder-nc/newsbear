@@ -70,7 +70,31 @@ class TTSService {
         
         $audioData = base64_decode($responseData['audioContent']);
         
-        return $audioData;
+        // Generate unique filename with timestamp
+        $timeFrame = $this->getTimeFrame();
+        $date = date('Y-m-d');
+        $timestamp = date('His');
+        $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
+        $filepath = __DIR__ . "/../downloads/{$filename}";
+        
+        // Ensure downloads directory exists
+        $downloadsDir = __DIR__ . "/../downloads";
+        if (!is_dir($downloadsDir)) {
+            mkdir($downloadsDir, 0755, true);
+        }
+        
+        // Save audio file
+        file_put_contents($filepath, $audioData);
+        
+        // Return relative path from web root
+        return "downloads/{$filename}";
+    }
+    
+    private function getTimeFrame() {
+        $hour = intval(date('H'));
+        if ($hour >= 5 && $hour < 12) return 'morning';
+        if ($hour >= 12 && $hour < 17) return 'afternoon';
+        return 'evening';
     }
     
 
