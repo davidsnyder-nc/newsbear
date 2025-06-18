@@ -1,4 +1,7 @@
 <?php
+// Set timezone for correct timestamps
+date_default_timezone_set('America/New_York');
+
 error_reporting(0);
 ini_set('display_errors', 0);
 header('Content-Type: application/json');

@@ -6,6 +6,9 @@ class BriefingHistory {
     private $briefingsFile;
     
     public function __construct() {
+        // Set timezone to Eastern Time for correct timestamps
+        date_default_timezone_set('America/New_York');
+        
         $this->historyDir = __DIR__ . '/../data/history';
         $this->ensureDirectoryExists($this->historyDir);
         

@@ -1,4 +1,7 @@
 <?php
+// Set timezone for correct timestamps
+date_default_timezone_set('America/New_York');
+
 require_once 'includes/BriefingHistory.php';
 
 $history = new BriefingHistory();
