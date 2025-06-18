@@ -34,9 +34,13 @@
 }
 
 .pulse-blue {
-    animation: pulse-blue 2s infinite;
+    animation: pulse-blue 2s infinite !important;
     position: relative;
     z-index: 1;
+}
+
+#generate-btn.pulse-blue {
+    animation: pulse-blue 2s infinite !important;
 }
 
 /* Processing state for generate button */
