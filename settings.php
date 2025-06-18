@@ -1,6 +1,40 @@
 <?php
 $settingsFile = 'config/user_settings.json';
 
+// RSS Feed Processing Functions
+function processRssFeeds($rssFeeds) {
+    $processedFeeds = [];
+    
+    if (!is_array($rssFeeds)) {
+        return $processedFeeds;
+    }
+    
+    foreach ($rssFeeds as $feed) {
+        if (!empty($feed['url']) && !empty($feed['name']) && !empty($feed['category'])) {
+            $processedFeed = [
+                'url' => filter_var($feed['url'], FILTER_SANITIZE_URL),
+                'name' => htmlspecialchars($feed['name'], ENT_QUOTES, 'UTF-8'),
+                'category' => $feed['category']
+            ];
+            
+            // Handle custom category
+            if ($feed['category'] === 'custom' && !empty($feed['customCategory'])) {
+                $processedFeed['customCategory'] = htmlspecialchars($feed['customCategory'], ENT_QUOTES, 'UTF-8');
+            }
+            
+            $processedFeeds[] = $processedFeed;
+        }
+    }
+    
+    return $processedFeeds;
+}
+
+function getRssFeeds() {
+    require_once 'includes/RSSFeedHandler.php';
+    $rssHandler = new RSSFeedHandler();
+    return $rssHandler->getRssFeeds();
+}
+
 // Handle form submission
 if ($_POST) {
     $settings = [
@@ -50,45 +84,6 @@ if ($_POST) {
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: index.php?saved=1');
     exit;
-}
-
-// RSS Feed Processing Functions
-function processRssFeeds($rssFeeds) {
-    $processedFeeds = [];
-    
-    if (!is_array($rssFeeds)) {
-        return $processedFeeds;
-    }
-    
-    foreach ($rssFeeds as $feed) {
-        if (!empty($feed['url']) && !empty($feed['name']) && !empty($feed['category'])) {
-            $processedFeed = [
-                'url' => filter_var($feed['url'], FILTER_SANITIZE_URL),
-                'name' => htmlspecialchars($feed['name'], ENT_QUOTES, 'UTF-8'),
-                'category' => $feed['category']
-            ];
-            
-            // Handle custom category
-            if ($feed['category'] === 'custom' && !empty($feed['customCategory'])) {
-                $processedFeed['customCategory'] = htmlspecialchars($feed['customCategory'], ENT_QUOTES, 'UTF-8');
-            }
-            
-            $processedFeeds[] = $processedFeed;
-        }
-    }
-    
-    return $processedFeeds;
-}
-
-function getRssFeeds() {
-    global $settingsFile;
-    
-    if (!file_exists($settingsFile)) {
-        return [];
-    }
-    
-    $settings = json_decode(file_get_contents($settingsFile), true);
-    return $settings['rssFeeds'] ?? [];
 }
 
 // Load current settings
@@ -161,6 +156,16 @@ function isSelected($setting, $value) {
 function isCategoryChecked($category) {
     global $settings;
     return in_array($category, $settings['categories'] ?? []) ? 'checked' : '';
+}
+
+function getRssCustomCategories() {
+    try {
+        require_once 'includes/RSSFeedHandler.php';
+        $rssHandler = new RSSFeedHandler();
+        return $rssHandler->getCustomCategories();
+    } catch (Exception $e) {
+        return [];
+    }
 }
 ?>
 <!DOCTYPE html>
