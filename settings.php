@@ -149,93 +149,94 @@ function isCategoryChecked($category) {
             
             <form method="POST" class="space-y-8">
                 <!-- Settings Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                     <!-- Left Column -->
-                    <div class="space-y-8">
+                    <div class="space-y-6 md:space-y-8">
                         <!-- Basic Settings -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Basic Settings</h3>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Time Frame</label>
-                        <select name="timeFrame" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                            <option value="auto" <?= isSelected('timeFrame', 'auto') ?>>Auto</option>
-                            <option value="morning" <?= isSelected('timeFrame', 'morning') ?>>Morning</option>
-                            <option value="afternoon" <?= isSelected('timeFrame', 'afternoon') ?>>Afternoon</option>
-                            <option value="evening" <?= isSelected('timeFrame', 'evening') ?>>Evening</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Audio Length</label>
-                        <select name="audioLength" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                            <option value="3-5" <?= isSelected('audioLength', '3-5') ?>>3-5 minutes</option>
-                            <option value="5-10" <?= isSelected('audioLength', '5-10') ?>>5-10 minutes</option>
-                            <option value="10-15" <?= isSelected('audioLength', '10-15') ?>>10-15 minutes</option>
-                            <option value="15-20" <?= isSelected('audioLength', '15-20') ?>>15-20 minutes</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
-                        <input type="text" name="zipCode" value="<?= getValue('zipCode') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                    </div>
-                    
-                            <div class="space-y-3">
-
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="includeWeather" <?= isChecked('includeWeather') ?> class="mr-2">
-                                    Include Weather
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="includeLocal" <?= isChecked('includeLocal') ?> class="mr-2">
-                                    Include Local News
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="includeTV" <?= isChecked('includeTV') ?> class="mr-2">
-                                    Include TV Shows/Movies
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="generateMp3" <?= isChecked('generateMp3') ?> class="mr-2">
-                                    Generate MP3 Audio File
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="darkTheme" <?= isChecked('darkTheme') ?> class="mr-2">
-                                    Dark Theme
-                                </label>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Time Frame</label>
+                                    <select name="timeFrame" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                        <option value="auto" <?= isSelected('timeFrame', 'auto') ?>>Auto</option>
+                                        <option value="morning" <?= isSelected('timeFrame', 'morning') ?>>Morning</option>
+                                        <option value="afternoon" <?= isSelected('timeFrame', 'afternoon') ?>>Afternoon</option>
+                                        <option value="evening" <?= isSelected('timeFrame', 'evening') ?>>Evening</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Audio Length</label>
+                                    <select name="audioLength" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                        <option value="3-5" <?= isSelected('audioLength', '3-5') ?>>3-5 minutes</option>
+                                        <option value="5-10" <?= isSelected('audioLength', '5-10') ?>>5-10 minutes</option>
+                                        <option value="10-15" <?= isSelected('audioLength', '10-15') ?>>10-15 minutes</option>
+                                        <option value="15-20" <?= isSelected('audioLength', '15-20') ?>>15-20 minutes</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
+                                    <input type="text" name="zipCode" value="<?= getValue('zipCode') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Enter ZIP code for local news">
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="includeWeather" <?= isChecked('includeWeather') ?> class="mr-3 h-4 w-4">
+                                        Include Weather
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="includeLocal" <?= isChecked('includeLocal') ?> class="mr-3 h-4 w-4">
+                                        Include Local News
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="includeTV" <?= isChecked('includeTV') ?> class="mr-3 h-4 w-4">
+                                        Include TV Shows/Movies
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="generateMp3" <?= isChecked('generateMp3') ?> class="mr-3 h-4 w-4">
+                                        Generate MP3 Audio File
+                                    </label>
+                                    <label class="flex items-center text-sm">
+                                        <input type="checkbox" name="darkTheme" <?= isChecked('darkTheme') ?> class="mr-3 h-4 w-4">
+                                        Dark Theme
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         
                         <!-- News Categories -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-800 border-b pb-2">News Categories</h3>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="general" <?= isCategoryChecked('general') ?> class="mr-2">
+                            <div class="grid grid-cols-2 gap-2 md:grid-cols-1 md:gap-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="general" <?= isCategoryChecked('general') ?> class="mr-3 h-4 w-4">
                                     General
                                 </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="technology" <?= isCategoryChecked('technology') ?> class="mr-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="technology" <?= isCategoryChecked('technology') ?> class="mr-3 h-4 w-4">
                                     Technology
                                 </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="science" <?= isCategoryChecked('science') ?> class="mr-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="science" <?= isCategoryChecked('science') ?> class="mr-3 h-4 w-4">
                                     Science
                                 </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="health" <?= isCategoryChecked('health') ?> class="mr-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="health" <?= isCategoryChecked('health') ?> class="mr-3 h-4 w-4">
                                     Health
                                 </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="entertainment" <?= isCategoryChecked('entertainment') ?> class="mr-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="entertainment" <?= isCategoryChecked('entertainment') ?> class="mr-3 h-4 w-4">
                                     Entertainment
                                 </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="business" <?= isCategoryChecked('business') ?> class="mr-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="business" <?= isCategoryChecked('business') ?> class="mr-3 h-4 w-4">
                                     Business
                                 </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="categories[]" value="sports" <?= isCategoryChecked('sports') ?> class="mr-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="categories[]" value="sports" <?= isCategoryChecked('sports') ?> class="mr-3 h-4 w-4">
                                     Sports
                                 </label>
                             </div>
@@ -243,55 +244,56 @@ function isCategoryChecked($category) {
                     </div>
                     
                     <!-- Right Column -->
-                    <div class="space-y-8">
+                    <div class="space-y-6 md:space-y-8">
                         <!-- API Keys -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-800 border-b pb-2">API Keys</h3>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="gnewsEnabled" <?= isChecked('gnewsEnabled') ?> class="mr-2">
-                            GNews API
-                        </label>
-                        <input type="password" name="gnewsApiKey" value="<?= getValue('gnewsApiKey') ?>" placeholder="GNews API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://gnews.io" target="_blank" class="text-blue-600 hover:underline">gnews.io</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="newsApiEnabled" <?= isChecked('newsApiEnabled') ?> class="mr-2">
-                            NewsAPI.org
-                        </label>
-                        <input type="password" name="newsApiKey" value="<?= getValue('newsApiKey') ?>" placeholder="NewsAPI Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://newsapi.org/register" target="_blank" class="text-blue-600 hover:underline">newsapi.org</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="weatherEnabled" <?= isChecked('weatherEnabled') ?> class="mr-2">
-                            OpenWeatherMap API
-                        </label>
-                        <input type="password" name="weatherApiKey" value="<?= getValue('weatherApiKey') ?>" placeholder="OpenWeatherMap API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://openweathermap.org/api" target="_blank" class="text-blue-600 hover:underline">openweathermap.org</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="tmdbEnabled" <?= isChecked('tmdbEnabled') ?> class="mr-2">
-                            TMDB (TV/Movies)
-                        </label>
-                        <input type="password" name="tmdbApiKey" value="<?= getValue('tmdbApiKey') ?>" placeholder="TMDB API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-blue-600 hover:underline">themoviedb.org</a></p>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center mb-2">
-                            <input type="checkbox" name="guardianEnabled" <?= isChecked('guardianEnabled') ?> class="mr-2">
-                            Guardian API
-                        </label>
-                        <input type="password" name="guardianApiKey" value="<?= getValue('guardianApiKey') ?>" placeholder="Guardian API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://open-platform.theguardian.com/access/" target="_blank" class="text-blue-600 hover:underline">theguardian.com</a></p>
-                    </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="gnewsEnabled" <?= isChecked('gnewsEnabled') ?> class="mr-3 h-4 w-4">
+                                        GNews API
+                                    </label>
+                                    <input type="password" name="gnewsApiKey" value="<?= getValue('gnewsApiKey') ?>" placeholder="GNews API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://gnews.io" target="_blank" class="text-blue-600 hover:underline">gnews.io</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="newsApiEnabled" <?= isChecked('newsApiEnabled') ?> class="mr-3 h-4 w-4">
+                                        NewsAPI.org
+                                    </label>
+                                    <input type="password" name="newsApiKey" value="<?= getValue('newsApiKey') ?>" placeholder="NewsAPI Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://newsapi.org/register" target="_blank" class="text-blue-600 hover:underline">newsapi.org</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="weatherEnabled" <?= isChecked('weatherEnabled') ?> class="mr-3 h-4 w-4">
+                                        OpenWeatherMap API
+                                    </label>
+                                    <input type="password" name="weatherApiKey" value="<?= getValue('weatherApiKey') ?>" placeholder="OpenWeatherMap API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://openweathermap.org/api" target="_blank" class="text-blue-600 hover:underline">openweathermap.org</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="tmdbEnabled" <?= isChecked('tmdbEnabled') ?> class="mr-3 h-4 w-4">
+                                        TMDB (TV/Movies)
+                                    </label>
+                                    <input type="password" name="tmdbApiKey" value="<?= getValue('tmdbApiKey') ?>" placeholder="TMDB API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-blue-600 hover:underline">themoviedb.org</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="guardianEnabled" <?= isChecked('guardianEnabled') ?> class="mr-3 h-4 w-4">
+                                        Guardian API
+                                    </label>
+                                    <input type="password" name="guardianApiKey" value="<?= getValue('guardianApiKey') ?>" placeholder="Guardian API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://open-platform.theguardian.com/access/" target="_blank" class="text-blue-600 hover:underline">theguardian.com</a></p>
+                                </div>
                     
                     <div>
                         <label class="flex items-center mb-2">

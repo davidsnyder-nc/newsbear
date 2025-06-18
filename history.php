@@ -47,18 +47,18 @@ $todaysTopics = $history->getTodaysTopics();
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-4 md:py-8">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="flex justify-center items-center mb-4">
-                <img src="attached_assets/newsbear_blue_logo.png" alt="NewsBear" class="h-16 w-16 mr-4">
-                <h1 class="text-4xl font-bold text-gray-800">Briefing History</h1>
+        <div class="text-center mb-6 md:mb-8">
+            <div class="flex flex-col sm:flex-row justify-center items-center mb-4">
+                <img src="attached_assets/newsbear_blue_logo.png" alt="NewsBear" class="h-12 w-12 sm:h-16 sm:w-16 mb-2 sm:mb-0 sm:mr-4">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Briefing History</h1>
             </div>
-            <div class="flex justify-center space-x-4 mt-4">
-                <a href="index.php" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+            <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-4">
+                <a href="index.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base">
                     <i class="fas fa-home mr-2"></i>Home
                 </a>
-                <a href="settings.php" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
+                <a href="settings.php" class="bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base">
                     <i class="fas fa-cog mr-2"></i>Settings
                 </a>
             </div>
@@ -73,33 +73,33 @@ $todaysTopics = $history->getTodaysTopics();
 
         <!-- Today's Topics -->
         <?php if (!empty($todaysTopics)): ?>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <h2 class="text-xl font-semibold text-blue-800 mb-3">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 md:p-6 mb-6 md:mb-8">
+            <h2 class="text-lg md:text-xl font-semibold text-blue-800 mb-3">
                 <i class="fas fa-clock mr-2"></i>Topics Covered Today
             </h2>
             <div class="flex flex-wrap gap-2">
                 <?php foreach (array_slice($todaysTopics, 0, 15) as $topic): ?>
-                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                <span class="bg-blue-100 text-blue-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm">
                     <?php echo htmlspecialchars($topic); ?>
                 </span>
                 <?php endforeach; ?>
                 <?php if (count($todaysTopics) > 15): ?>
-                <span class="text-blue-600 text-sm">+ <?php echo count($todaysTopics) - 15; ?> more</span>
+                <span class="text-blue-600 text-xs md:text-sm">+ <?php echo count($todaysTopics) - 15; ?> more</span>
                 <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>
 
         <!-- Management Actions -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 md:mb-8">
+            <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4">
                 <i class="fas fa-tools mr-2"></i>Manage Briefings
             </h2>
-            <div class="flex flex-wrap gap-4">
-                <button onclick="showClearOldModal()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded">
+            <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
+                <button onclick="showClearOldModal()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm md:text-base">
                     <i class="fas fa-calendar-times mr-2"></i>Clear Old Briefings
                 </button>
-                <button onclick="showClearAllModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                <button onclick="showClearAllModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm md:text-base">
                     <i class="fas fa-trash-alt mr-2"></i>Clear All Briefings
                 </button>
             </div>
@@ -107,28 +107,28 @@ $todaysTopics = $history->getTodaysTopics();
 
         <!-- Briefing List -->
         <div class="bg-white rounded-lg shadow-md">
-            <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">
+            <div class="p-4 md:p-6 border-b border-gray-200">
+                <h2 class="text-lg md:text-xl font-semibold text-gray-800">
                     <i class="fas fa-history mr-2"></i>All Briefings (<?php echo count($briefings); ?>)
                 </h2>
             </div>
             
             <?php if (empty($briefings)): ?>
-            <div class="p-8 text-center text-gray-500">
-                <i class="fas fa-inbox text-4xl mb-4"></i>
-                <p class="text-lg">No briefings found.</p>
-                <p>Generate your first briefing to see it here!</p>
+            <div class="p-6 md:p-8 text-center text-gray-500">
+                <i class="fas fa-inbox text-3xl md:text-4xl mb-4"></i>
+                <p class="text-base md:text-lg">No briefings found.</p>
+                <p class="text-sm md:text-base">Generate your first briefing to see it here!</p>
             </div>
             <?php else: ?>
             <div class="divide-y divide-gray-200">
                 <?php foreach ($briefings as $briefing): ?>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800">
+                <div class="p-4 md:p-6">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
+                        <div class="flex-1">
+                            <h3 class="text-base md:text-lg font-semibold text-gray-800">
                                 <?php echo date('M j, Y - g:i A', $briefing['timestamp']); ?>
                             </h3>
-                            <div class="flex items-center text-sm text-gray-600 mt-1">
+                            <div class="flex items-center text-xs md:text-sm text-gray-600 mt-1">
                                 <i class="fas fa-<?php echo $briefing['format'] === 'mp3' ? 'volume-up' : 'file-text'; ?> mr-2"></i>
                                 <?php echo ucfirst($briefing['format']); ?>
                                 <?php if ($briefing['duration'] > 0): ?>
@@ -136,29 +136,29 @@ $todaysTopics = $history->getTodaysTopics();
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
+                        <div class="flex flex-wrap gap-2">
                             <?php if ($briefing['audio_file'] && file_exists($briefing['audio_file'])): ?>
                             <button onclick="toggleAudio('<?php echo $briefing['id']; ?>')" 
-                                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
+                                    class="bg-green-600 hover:bg-green-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
                                 <i class="fas fa-play mr-1"></i>Play
                             </button>
                             <a href="<?php echo $briefing['audio_file']; ?>" 
-                               class="bg-green-700 hover:bg-green-800 text-white px-3 py-1 rounded text-sm"
+                               class="bg-green-700 hover:bg-green-800 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm"
                                download>
                                 <i class="fas fa-download mr-1"></i>Download
                             </a>
                             <?php else: ?>
                             <button onclick="generateAudio('<?php echo $briefing['id']; ?>')" 
-                                    class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm">
+                                    class="bg-purple-600 hover:bg-purple-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
                                 <i class="fas fa-microphone mr-1"></i>Create MP3
                             </button>
                             <?php endif; ?>
                             <button onclick="toggleText('<?php echo $briefing['id']; ?>')" 
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
                                 <i class="fas fa-eye mr-1"></i>Text
                             </button>
                             <button onclick="deleteBriefing('<?php echo $briefing['id']; ?>')" 
-                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                                    class="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
                                 <i class="fas fa-trash mr-1"></i>Delete
                             </button>
                         </div>
