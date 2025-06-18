@@ -380,7 +380,7 @@ class BriefingGenerator {
         }
         
         if (!empty($tvContent)) {
-            $prompt .= "4. ALWAYS include entertainment/TV information next: {$tvContent}\n\n";
+            $prompt .= "4. ALWAYS include entertainment/TV information second: {$tvContent}\n\n";
         }
         
         $prompt .= "5. Present each news story in a conversational, natural speaking style suitable for audio reading\n";
@@ -394,22 +394,48 @@ class BriefingGenerator {
         
         $prompt .= "13. Keep the total content to approximately {$wordCount} words for {$audioLength} minutes of audio\n\n";
         
-        // Count only real news stories (exclude weather and TV)
-        $realNewsStories = array_filter($stories, function($story) {
-            return !isset($story['source']) || !in_array($story['source'], ['Weather Service', 'The Movie Database', 'OpenWeatherMap', 'TMDB']);
+        // Separate local news from other news stories
+        $localNewsStories = array_filter($stories, function($story) {
+            return isset($story['category']) && $story['category'] === 'local';
         });
         
-        if (empty($realNewsStories)) {
+        $otherNewsStories = array_filter($stories, function($story) {
+            $isWeatherOrTV = isset($story['source']) && in_array($story['source'], ['Weather Service', 'The Movie Database', 'OpenWeatherMap', 'TMDB']);
+            $isLocal = isset($story['category']) && $story['category'] === 'local';
+            return !$isWeatherOrTV && !$isLocal;
+        });
+        
+        if (empty($localNewsStories) && empty($otherNewsStories)) {
             $prompt .= "CRITICAL: NO real news stories are available. After weather and entertainment, state 'No additional news is available from our sources at this time' and end with the conclusion. DO NOT create any fictional news content.\n\n";
         } else {
-            $prompt .= "Real news stories to include after weather and entertainment (ONLY use these exact stories):\n\n";
+            $prompt .= "Real news stories to include after weather and entertainment (ONLY use these exact stories in this exact order):\n\n";
             
-            foreach ($realNewsStories as $i => $story) {
-                $prompt .= ($i + 1) . ". {$story['title']}\n";
-                if (!empty($story['content'])) {
-                    $prompt .= "   Details: {$story['content']}\n";
+            $storyIndex = 1;
+            
+            // Add local news first if available
+            if (!empty($localNewsStories)) {
+                $prompt .= "LOCAL NEWS (present these first after weather/entertainment):\n";
+                foreach ($localNewsStories as $story) {
+                    $prompt .= "{$storyIndex}. {$story['title']}\n";
+                    if (!empty($story['content'])) {
+                        $prompt .= "   Details: {$story['content']}\n";
+                    }
+                    $prompt .= "\n";
+                    $storyIndex++;
                 }
-                $prompt .= "\n";
+            }
+            
+            // Add other news stories after local news
+            if (!empty($otherNewsStories)) {
+                $prompt .= "OTHER NEWS (present these after local news):\n";
+                foreach ($otherNewsStories as $story) {
+                    $prompt .= "{$storyIndex}. {$story['title']}\n";
+                    if (!empty($story['content'])) {
+                        $prompt .= "   Details: {$story['content']}\n";
+                    }
+                    $prompt .= "\n";
+                    $storyIndex++;
+                }
             }
         }
         
