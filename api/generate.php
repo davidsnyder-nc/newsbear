@@ -407,9 +407,9 @@ class BriefingGenerator {
             case '3-5':
                 return '5-7';  // More news stories for core content
             case '10-15':
-                return '10-12';
+                return '12-15';
             case '15-20':
-                return '15-18';
+                return '18-22';
             default: // '5-10'
                 return '8-10'; // Increased from 4-6 to ensure more news coverage
         }

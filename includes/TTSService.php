@@ -19,7 +19,7 @@ class TTSService {
         $ssmlText = $this->cleanSSML($ssmlText);
         
         // Check if text exceeds Google's 5000 byte limit
-        if (strlen($ssmlText) > 4500) { // Leave buffer for SSML tags
+        if (strlen($ssmlText) > 4800) { // Increased threshold, leave smaller buffer
             return $this->synthesizeLongSpeech($ssmlText);
         }
         
@@ -28,7 +28,7 @@ class TTSService {
     
     private function synthesizeLongSpeech($ssmlText) {
         // Split text into chunks that fit within the limit
-        $chunks = $this->splitTextIntoChunks($ssmlText, 4000);
+        $chunks = $this->splitTextIntoChunks($ssmlText, 4500);
         $audioSegments = [];
         
         foreach ($chunks as $i => $chunk) {
@@ -177,9 +177,71 @@ class TTSService {
     }
     
     private function combineAudioSegments($segments) {
-        // For MP3 files, we can simply concatenate the binary data
-        // This works because MP3 is a stream format
-        return implode('', $segments);
+        if (count($segments) === 1) {
+            return $segments[0];
+        }
+        
+        // Create temporary files for each segment
+        $tempFiles = [];
+        foreach ($segments as $i => $segment) {
+            $tempFile = sys_get_temp_dir() . '/tts_segment_' . $i . '_' . time() . '.mp3';
+            file_put_contents($tempFile, $segment);
+            $tempFiles[] = $tempFile;
+        }
+        
+        // Create output file
+        $outputFile = sys_get_temp_dir() . '/tts_combined_' . time() . '.mp3';
+        
+        // Use ffmpeg to properly combine MP3 files if available
+        if ($this->isCommandAvailable('ffmpeg')) {
+            $this->combineWithFFmpeg($tempFiles, $outputFile);
+        } else {
+            // Fallback: simple concatenation
+            $combinedData = '';
+            foreach ($segments as $segment) {
+                $combinedData .= $segment;
+            }
+            file_put_contents($outputFile, $combinedData);
+        }
+        
+        // Read combined file
+        $result = file_get_contents($outputFile);
+        
+        // Clean up temp files
+        foreach ($tempFiles as $tempFile) {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+        if (file_exists($outputFile)) {
+            unlink($outputFile);
+        }
+        
+        return $result;
+    }
+    
+    private function isCommandAvailable($command) {
+        $test = shell_exec("which $command 2>/dev/null");
+        return !empty($test);
+    }
+    
+    private function combineWithFFmpeg($inputFiles, $outputFile) {
+        // Create a file list for ffmpeg
+        $listFile = sys_get_temp_dir() . '/ffmpeg_list_' . time() . '.txt';
+        $listContent = '';
+        foreach ($inputFiles as $file) {
+            $listContent .= "file '" . addslashes($file) . "'\n";
+        }
+        file_put_contents($listFile, $listContent);
+        
+        // Run ffmpeg to concatenate
+        $command = "ffmpeg -f concat -safe 0 -i " . escapeshellarg($listFile) . " -c copy " . escapeshellarg($outputFile) . " 2>/dev/null";
+        shell_exec($command);
+        
+        // Clean up list file
+        if (file_exists($listFile)) {
+            unlink($listFile);
+        }
     }
     
     private function getTimeFrame() {
