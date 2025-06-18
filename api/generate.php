@@ -290,8 +290,43 @@ class BriefingGenerator {
         return $filtered;
     }
     
+    private function filterByCategories($newsItems) {
+        $selectedCategories = $this->settings['categories'] ?? [];
+        
+        // If no categories are selected, return all items
+        if (empty($selectedCategories)) {
+            return $newsItems;
+        }
+        
+        $filtered = [];
+        foreach ($newsItems as $item) {
+            $itemCategory = $item['category'] ?? '';
+            
+            // Always include special categories regardless of user selection
+            $alwaysInclude = ['local', 'weather', 'entertainment'];
+            if (in_array($itemCategory, $alwaysInclude)) {
+                $filtered[] = $item;
+                continue;
+            }
+            
+            // Include if category is selected by user
+            if (in_array($itemCategory, $selectedCategories)) {
+                $filtered[] = $item;
+            }
+        }
+        
+        error_log("Categories selected: " . implode(', ', $selectedCategories));
+        error_log("News items before category filter: " . count($newsItems));
+        error_log("News items after category filter: " . count($filtered));
+        
+        return $filtered;
+    }
+    
     private function selectStories($newsItems, $todaysTopics = []) {
         $aiService = new AIService($this->settings);
+        
+        // Filter news items by selected categories
+        $filteredItems = $this->filterByCategories($newsItems);
         
         // Determine story count based on audio length
         $audioLength = $this->settings['audioLength'] ?? '5-10';
@@ -313,7 +348,7 @@ class BriefingGenerator {
                  $excludeTopicsText .
                  "Available stories:\n";
         
-        foreach ($newsItems as $i => $item) {
+        foreach ($filteredItems as $i => $item) {
             $source = $item['source'] ?? 'Unknown';
             $prompt .= ($i + 1) . ". [{$item['category']}] [{$source}] {$item['title']}\n";
             if (!empty($item['content'])) {
@@ -346,7 +381,7 @@ class BriefingGenerator {
         if (!$response) {
             // Fallback: select first stories based on count
             $count = $this->getNumericStoryCount($storyCount);
-            return array_slice($newsItems, 0, $count);
+            return array_slice($filteredItems, 0, $count);
         }
         
         // Parse selection
@@ -355,8 +390,8 @@ class BriefingGenerator {
         
         foreach ($selectedIndexes as $index) {
             $arrayIndex = intval($index) - 1;
-            if (isset($newsItems[$arrayIndex])) {
-                $story = $newsItems[$arrayIndex];
+            if (isset($filteredItems[$arrayIndex])) {
+                $story = $filteredItems[$arrayIndex];
                 error_log("Selected story " . $index . ": [" . ($story['source'] ?? 'Unknown') . "] " . $story['title']);
                 $selectedStories[] = $story;
             }
