@@ -553,19 +553,26 @@ class NewsAPI {
     }
 
     private function makeRequest($url) {
-        $context = stream_context_create([
-            'http' => [
-                'timeout' => 30,
-                'user_agent' => 'NewsBot/1.0',
-                'ignore_errors' => true
-            ]
-        ]);
+        // Use cURL for better compatibility
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'NewsBot/1.0');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
-        $response = file_get_contents($url, false, $context);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
         
-        if ($response === false) {
-            $error = error_get_last();
-            throw new Exception("Failed to fetch from URL: $url. Error: " . ($error['message'] ?? 'Unknown error'));
+        if ($response === false || !empty($error)) {
+            throw new Exception("Failed to fetch from URL: $url. CURL Error: $error");
+        }
+        
+        if ($httpCode !== 200) {
+            throw new Exception("HTTP Error $httpCode for URL: $url. Response: $response");
         }
         
         $decoded = json_decode($response, true);
