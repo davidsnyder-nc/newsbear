@@ -173,7 +173,6 @@ class NewsBriefApp {
             document.getElementById('status-text').textContent = message;
             this.stopWittyMessages();
         }
-        document.getElementById('progress-bar').style.width = progress + '%';
     }
 
     startWittyMessages() {
