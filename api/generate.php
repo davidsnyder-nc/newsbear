@@ -304,42 +304,59 @@ class BriefingGenerator {
         // Normalize selected categories to lowercase for comparison
         $normalizedSelected = array_map('strtolower', $selectedCategories);
         
+        // Get all RSS custom categories to understand what's custom vs standard
+        $rssCustomCategories = [];
+        try {
+            require_once __DIR__ . '/../includes/RSSFeedHandler.php';
+            $rssHandler = new RSSFeedHandler();
+            $rssCustomCategories = array_map('strtolower', $rssHandler->getCustomCategories());
+        } catch (Exception $e) {
+            // Continue without RSS categories if there's an error
+        }
+        
+        // Standard news categories that APIs typically support
+        $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'];
+        
         $filtered = [];
         foreach ($newsItems as $item) {
             $itemCategory = $item['category'] ?? '';
             $normalizedItemCategory = strtolower($itemCategory);
             
-            // Log all items for debugging
-            error_log("Article: '{$item['title']}' - Category: '$itemCategory' - Source: '{$item['source']}'");
-            
-            // Only include weather if weather is enabled in settings
+            // Always include special system categories based on settings
             if ($normalizedItemCategory === 'weather' && ($this->settings['includeWeather'] ?? false)) {
                 $filtered[] = $item;
                 continue;
             }
             
-            // Only include local news if local news is enabled in settings
             if ($normalizedItemCategory === 'local' && ($this->settings['includeLocal'] ?? false)) {
                 $filtered[] = $item;
                 continue;
             }
             
-            // Only include entertainment/TV if TV is enabled in settings
             if ($normalizedItemCategory === 'entertainment' && ($this->settings['includeTV'] ?? false)) {
                 $filtered[] = $item;
                 continue;
             }
             
-            // Include if category is selected by user (case-insensitive comparison)
+            // For user-selected categories, include exact matches
             if (in_array($normalizedItemCategory, $normalizedSelected)) {
                 $filtered[] = $item;
-                error_log("Including item with category '$itemCategory' (normalized: '$normalizedItemCategory')");
-            } else {
-                error_log("EXCLUDING item with category '$itemCategory' (not in selected categories: " . implode(', ', $selectedCategories) . ")");
+                error_log("Including item with category '$itemCategory' - matches selected category");
+                continue;
             }
+            
+            // If user selected only custom categories, exclude all standard "general" news
+            $userSelectedOnlyCustomCategories = !empty(array_diff($normalizedSelected, $standardCategories));
+            if ($userSelectedOnlyCustomCategories && $normalizedItemCategory === 'general') {
+                error_log("EXCLUDING 'general' article '{$item['title']}' - user selected only custom categories");
+                continue;
+            }
+            
+            error_log("EXCLUDING article '{$item['title']}' - category '$itemCategory' not in selected: " . implode(', ', $selectedCategories));
         }
         
         error_log("Categories selected: " . implode(', ', $selectedCategories));
+        error_log("User selected only custom categories: " . ($userSelectedOnlyCustomCategories ? 'YES' : 'NO'));
         error_log("News items before category filter: " . count($newsItems));
         error_log("News items after category filter: " . count($filtered));
         
