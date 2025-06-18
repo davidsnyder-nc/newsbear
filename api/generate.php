@@ -864,7 +864,7 @@ class BriefingGenerator {
     private function validateAuthenticStories($stories) {
         $validStories = [];
         $authenticSources = [
-            'GNews', 'NewsAPI', 'The Guardian', 'The New York Times', 
+            'GNews', 'NewsAPI', 'The Guardian', 'New York Times', 
             'Weather Service', 'The Movie Database', 'Local News',
             'OpenWeatherMap', 'TMDB', 'Weather API'
         ];
