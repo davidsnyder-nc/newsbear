@@ -127,10 +127,6 @@ class BriefingGenerator {
             
             // Step 4: Generate briefing content
             $this->updateStatus('Summarizing with AI...', 60);
-            error_log("Stories sent to content generation: " . count($validatedStories));
-            foreach ($validatedStories as $i => $story) {
-                error_log("Content gen story " . ($i+1) . ": [" . ($story['source'] ?? 'Unknown') . "] " . $story['title']);
-            }
             $briefingContent = $this->generateBriefingContent($validatedStories);
             
             $generateMp3 = $this->settings['generateMp3'] ?? true;
@@ -310,11 +306,7 @@ class BriefingGenerator {
             $prompt .= "\n";
         }
         
-        error_log("AI selection prompt includes " . count($newsItems) . " stories");
-        // Log first few story sources to verify NYT is in the list
-        for ($i = 0; $i < min(10, count($newsItems)); $i++) {
-            error_log("Story " . ($i+1) . " for AI: [" . ($newsItems[$i]['source'] ?? 'Unknown') . "] " . $newsItems[$i]['title']);
-        }
+
         
         $prompt .= "\nRespond with only the numbers of the selected stories, separated by commas (e.g., 1,3,5,7).";
         
@@ -337,7 +329,6 @@ class BriefingGenerator {
         
         if (!$response) {
             // Fallback: select first stories based on count
-            error_log("AI selection failed - using fallback selection");
             $count = $this->getNumericStoryCount($storyCount);
             return array_slice($newsItems, 0, $count);
         }
@@ -876,33 +867,24 @@ class BriefingGenerator {
             'OpenWeatherMap', 'TMDB', 'Weather API'
         ];
         
-        error_log("Starting validation of " . count($stories) . " stories");
-        
         foreach ($stories as $i => $story) {
-            error_log("Validating story " . ($i+1) . ": " . ($story['title'] ?? 'No title'));
-            
             // Check if story has required authentic fields
             if (!isset($story['title'])) {
-                error_log("Story " . ($i+1) . " rejected: No title");
                 continue;
             }
             
             // Weather and TV content may not have a 'source' field, so handle them specially
             if (isset($story['source'])) {
-                error_log("Story " . ($i+1) . " source: " . $story['source']);
-                
                 // Verify the source is from an authentic API
                 $isAuthentic = false;
                 foreach ($authenticSources as $source) {
                     if (stripos($story['source'], $source) !== false) {
                         $isAuthentic = true;
-                        error_log("Story " . ($i+1) . " matched authentic source: " . $source);
                         break;
                     }
                 }
                 
                 if (!$isAuthentic) {
-                    error_log("Story " . ($i+1) . " rejected: Not authentic source");
                     continue;
                 }
                 
@@ -917,28 +899,16 @@ class BriefingGenerator {
                                        stripos($story['source'], 'GNews') !== false ||
                                        stripos($story['source'], 'NewsAPI') !== false;
                 
-                error_log("Story " . ($i+1) . " content check - content: " . (empty($story['content']) ? 'empty' : 'has content') . 
-                         ", description: " . (empty($story['description']) ? 'empty' : 'has description') . 
-                         ", sufficient: " . ($hasSufficientContent ? 'yes' : 'no'));
-                
                 if ($hasSufficientContent) {
-                    error_log("Story " . ($i+1) . " ACCEPTED");
                     $validStories[] = $story;
-                } else {
-                    error_log("Story " . ($i+1) . " rejected: Insufficient content");
                 }
             } else {
                 // For content without explicit source (weather, TV), check if it has title and content
                 if (!empty($story['title']) && (!empty($story['content']) || !empty($story['description']))) {
-                    error_log("Story " . ($i+1) . " ACCEPTED (no source field)");
                     $validStories[] = $story;
-                } else {
-                    error_log("Story " . ($i+1) . " rejected: No source and insufficient content");
                 }
             }
         }
-        
-        error_log("Validation complete: " . count($validStories) . " stories accepted out of " . count($stories));
         return $validStories;
     }
     
