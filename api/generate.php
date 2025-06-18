@@ -345,13 +345,10 @@ class BriefingGenerator {
                 continue;
             }
             
-            // No need to exclude general articles anymore since they'll be properly categorized by AI
-            
             error_log("EXCLUDING article '{$item['title']}' - category '$itemCategory' not in selected: " . implode(', ', $selectedCategories));
         }
         
         error_log("Categories selected: " . implode(', ', $selectedCategories));
-        error_log("User selected only custom categories: " . ($userSelectedOnlyCustomCategories ? 'YES' : 'NO'));
         error_log("News items before category filter: " . count($newsItems));
         error_log("News items after category filter: " . count($filtered));
         

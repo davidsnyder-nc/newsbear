@@ -69,7 +69,7 @@ class CategoryClassifier {
         $prompt = $this->buildClassificationPrompt($articleSummaries, $availableCategories);
         
         try {
-            $response = $this->aiService->generateContent($prompt);
+            $response = $this->aiService->generateText($prompt, 'gemini');
             $classifications = $this->parseClassificationResponse($response);
             
             // Apply classifications to articles
