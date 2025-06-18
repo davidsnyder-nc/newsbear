@@ -127,6 +127,27 @@ class BriefingHistory {
         $content = file_get_contents($this->briefingsFile);
         return json_decode($content, true) ?: [];
     }
+
+    /**
+     * Get total count of briefings
+     */
+    public function getBriefingCount() {
+        return count($this->getAllBriefings());
+    }
+
+    /**
+     * Get briefings with pagination
+     */
+    public function getBriefings($limit = 10, $offset = 0) {
+        $allBriefings = $this->getAllBriefings();
+        
+        // Sort by timestamp descending (newest first)
+        usort($allBriefings, function($a, $b) {
+            return $b['timestamp'] - $a['timestamp'];
+        });
+        
+        return array_slice($allBriefings, $offset, $limit);
+    }
     
     /**
      * Get briefings for a specific date

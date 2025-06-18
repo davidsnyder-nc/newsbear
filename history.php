@@ -32,8 +32,15 @@ if (isset($_GET['msg'])) {
     $message = $_GET['msg'];
 }
 
-// Get all briefings
-$briefings = $history->getAllBriefings();
+// Pagination settings
+$briefingsPerPage = 10;
+$currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($currentPage - 1) * $briefingsPerPage;
+
+// Get total count and paginated briefings
+$totalBriefings = $history->getBriefingCount();
+$totalPages = ceil($totalBriefings / $briefingsPerPage);
+$briefings = $history->getBriefings($briefingsPerPage, $offset);
 $todaysTopics = $history->getTodaysTopics();
 ?>
 <!DOCTYPE html>
@@ -109,8 +116,14 @@ $todaysTopics = $history->getTodaysTopics();
         <div class="bg-white rounded-lg shadow-md">
             <div class="p-4 md:p-6 border-b border-gray-200">
                 <h2 class="text-lg md:text-xl font-semibold text-gray-800">
-                    <i class="fas fa-history mr-2"></i>All Briefings (<?php echo count($briefings); ?>)
+                    <i class="fas fa-history mr-2"></i>All Briefings (<?php echo $totalBriefings; ?>)
                 </h2>
+                <?php if ($totalPages > 1): ?>
+                <p class="text-sm text-gray-600 mt-1">
+                    Page <?php echo $currentPage; ?> of <?php echo $totalPages; ?> 
+                    (Showing <?php echo count($briefings); ?> of <?php echo $totalBriefings; ?> briefings)
+                </p>
+                <?php endif; ?>
             </div>
             
             <?php if (empty($briefings)): ?>
@@ -222,6 +235,48 @@ $todaysTopics = $history->getTodaysTopics();
                     </div>
                 </div>
                 <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Pagination Controls -->
+            <?php if ($totalPages > 1): ?>
+            <div class="p-4 md:p-6 border-t border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-600">
+                        Showing <?php echo $offset + 1; ?>-<?php echo min($offset + $briefingsPerPage, $totalBriefings); ?> of <?php echo $totalBriefings; ?> briefings
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <?php if ($currentPage > 1): ?>
+                        <a href="?page=1" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded">
+                            First
+                        </a>
+                        <a href="?page=<?php echo $currentPage - 1; ?>" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded">
+                            Previous
+                        </a>
+                        <?php endif; ?>
+                        
+                        <?php
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($totalPages, $currentPage + 2);
+                        
+                        for ($i = $startPage; $i <= $endPage; $i++): ?>
+                        <a href="?page=<?php echo $i; ?>" 
+                           class="px-3 py-1 text-sm rounded <?php echo $i == $currentPage ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'; ?>">
+                            <?php echo $i; ?>
+                        </a>
+                        <?php endfor; ?>
+                        
+                        <?php if ($currentPage < $totalPages): ?>
+                        <a href="?page=<?php echo $currentPage + 1; ?>" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded">
+                            Next
+                        </a>
+                        <a href="?page=<?php echo $totalPages; ?>" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded">
+                            Last
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
             <?php endif; ?>
         </div>
