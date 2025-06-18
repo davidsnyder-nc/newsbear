@@ -251,14 +251,14 @@ class TTSService {
                 'sampleRate' => 24000,
                 'effectsProfile' => ['headphone-class-device']
             ],
-            'en-US-Studio-O' => [
+            'en-US-Wavenet-D' => [
                 'languageCode' => 'en-US',
                 'gender' => 'MALE',
                 'speakingRate' => 0.9,
                 'pitch' => -1.5,
                 'volumeGain' => 5.0,
-                'sampleRate' => 48000,
-                'effectsProfile' => ['large-home-entertainment-class-device']
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
             ],
             
             // British Male Voices
@@ -280,14 +280,14 @@ class TTSService {
                 'sampleRate' => 24000,
                 'effectsProfile' => ['headphone-class-device']
             ],
-            'en-GB-Studio-D' => [
+            'en-GB-Standard-D' => [
                 'languageCode' => 'en-GB',
                 'gender' => 'MALE',
                 'speakingRate' => 0.9,
                 'pitch' => -1.0,
                 'volumeGain' => 5.0,
-                'sampleRate' => 48000,
-                'effectsProfile' => ['large-home-entertainment-class-device']
+                'sampleRate' => 24000,
+                'effectsProfile' => ['headphone-class-device']
             ],
             
             // Australian Male Voices
