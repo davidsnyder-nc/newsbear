@@ -394,15 +394,17 @@ class BriefingGenerator {
         }
         
         $prompt .= "5. Present each news story in a conversational, natural speaking style suitable for audio reading\n";
-        $prompt .= "6. Use natural transitions between stories like 'Now for technology news', 'Next up in business', 'Moving to health news', 'And in science' - NO numbered lists or formal section headers\n";
-        $prompt .= "7. Write ONLY clean text without any markup tags, asterisks, underscores, hashtags, or formatting symbols - just natural, flowing sentences\n";
-        $prompt .= "8. Include natural pauses between stories using periods and paragraph breaks\n";
-        $prompt .= "9. IMPORTANT: Do not use any markdown formatting like *, **, _, __, #, or any other special characters for emphasis\n";
-        $prompt .= "10. ABSOLUTE REQUIREMENT: ONLY use the exact news stories listed below. NEVER create, invent, imagine, or generate ANY fictional news content under ANY circumstances. If no real news stories are provided, state that no news is available.\n";
-        $prompt .= "11. Add proper paragraph breaks between stories for readability\n";
-        $prompt .= "12. End with a natural conclusion like 'That's all the news for this {$timeFrame}. Have a great day!' or similar\n\n";
+        $prompt .= "6. EXPAND on each story with sufficient detail - provide context, background, and implications. Each story should be 2-3 paragraphs minimum to reach the target word count\n";
+        $prompt .= "7. Use natural transitions between stories like 'Now for technology news', 'Next up in business', 'Moving to health news', 'And in science' - NO numbered lists or formal section headers\n";
+        $prompt .= "8. Write ONLY clean text without any markup tags, asterisks, underscores, hashtags, or formatting symbols - just natural, flowing sentences\n";
+        $prompt .= "9. Include natural pauses between stories using periods and paragraph breaks\n";
+        $prompt .= "10. IMPORTANT: Do not use any markdown formatting like *, **, _, __, #, or any other special characters for emphasis\n";
+        $prompt .= "11. ABSOLUTE REQUIREMENT: ONLY use the exact news stories listed below. NEVER create, invent, imagine, or generate ANY fictional news content under ANY circumstances. If no real news stories are provided, state that no news is available.\n";
+        $prompt .= "12. Add proper paragraph breaks between stories for readability\n";
+        $prompt .= "13. Provide thorough coverage of each story - explain what happened, why it matters, and potential impacts. Make each story substantive and informative\n";
+        $prompt .= "14. End with a natural conclusion like 'That's all the news for this {$timeFrame}. Have a great day!' or similar\n\n";
         
-        $prompt .= "13. Keep the total content to approximately {$wordCount} words for {$audioLength} minutes of audio\n\n";
+        $prompt .= "15. Keep the total content to approximately {$wordCount} words for {$audioLength} minutes of audio\n\n";
         
         // Separate local news from other news stories
         $localNewsStories = array_filter($stories, function($story) {
@@ -482,15 +484,16 @@ class BriefingGenerator {
     }
     
     private function getWordCountForLength($audioLength) {
+        // AI speaks at ~200 words per minute, so targeting higher word counts
         switch ($audioLength) {
             case '3-5':
-                return '400-700';
+                return '800-1200';  // 4-6 minutes target
             case '10-15':
-                return '1400-2100';
+                return '2200-3000'; // 11-15 minutes target
             case '15-20':
-                return '2100-2800';
+                return '3200-4000'; // 16-20 minutes target
             default: // '5-10'
-                return '700-1400';
+                return '1200-2000'; // 6-10 minutes target
         }
     }
     
