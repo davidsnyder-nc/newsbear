@@ -550,17 +550,26 @@ class NewsAPI {
         $context = stream_context_create([
             'http' => [
                 'timeout' => 30,
-                'user_agent' => 'NewsBot/1.0'
+                'user_agent' => 'NewsBot/1.0',
+                'ignore_errors' => true
             ]
         ]);
         
         $response = file_get_contents($url, false, $context);
         
         if ($response === false) {
-            throw new Exception("Failed to fetch from URL: $url");
+            $error = error_get_last();
+            throw new Exception("Failed to fetch from URL: $url. Error: " . ($error['message'] ?? 'Unknown error'));
         }
         
-        return json_decode($response, true);
+        $decoded = json_decode($response, true);
+        
+        // Check for API error responses
+        if (isset($decoded['errors'])) {
+            throw new Exception("API Error: " . implode(', ', $decoded['errors']));
+        }
+        
+        return $decoded;
     }
 }
 ?>
