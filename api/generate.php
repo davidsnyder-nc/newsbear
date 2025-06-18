@@ -888,7 +888,16 @@ class BriefingGenerator {
                 
                 // Additional validation: story must have content or description
                 // Local news stories use title as content, so accept them
-                if ($isAuthentic && (!empty($story['content']) || !empty($story['description']) || $story['source'] === 'Local News')) {
+                // NYT and other major sources should be accepted even with minimal content
+                $hasSufficientContent = !empty($story['content']) || 
+                                       !empty($story['description']) || 
+                                       $story['source'] === 'Local News' ||
+                                       stripos($story['source'], 'New York Times') !== false ||
+                                       stripos($story['source'], 'Guardian') !== false ||
+                                       stripos($story['source'], 'GNews') !== false ||
+                                       stripos($story['source'], 'NewsAPI') !== false;
+                
+                if ($isAuthentic && $hasSufficientContent) {
                     $validStories[] = $story;
                 }
             } else {
