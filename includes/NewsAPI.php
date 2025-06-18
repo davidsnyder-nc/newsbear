@@ -60,12 +60,15 @@ class NewsAPI {
         
         if ($this->nytKey) {
             try {
-                $allNews = array_merge($allNews, $this->fetchFromNYT($categories));
+                $nytNews = $this->fetchFromNYT($categories);
+                error_log("NYT fetch returned " . count($nytNews) . " articles");
+                $allNews = array_merge($allNews, $nytNews);
             } catch (Exception $e) {
                 error_log("NYT fetch error: " . $e->getMessage());
             }
         }
         
+        error_log("Total news articles before return: " . count($allNews));
         return $allNews;
     }
     
@@ -254,7 +257,7 @@ class NewsAPI {
                 foreach ($response['results'] as $article) {
                     if ($count >= 10) break;
                     
-                    $news[] = [
+                    $newsItem = [
                         'title' => $article['title'],
                         'content' => $article['abstract'] ?? '',
                         'category' => $category,
@@ -262,8 +265,12 @@ class NewsAPI {
                         'publishedAt' => $article['published_date'] ?? date('c'),
                         'url' => $article['url'] ?? ''
                     ];
+                    
+                    error_log("Adding NYT article: " . $newsItem['title']);
+                    $news[] = $newsItem;
                     $count++;
                 }
+                error_log("Added " . $count . " NYT articles from " . $section . " section");
             }
         }
         
