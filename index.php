@@ -126,7 +126,7 @@ if (file_exists($settingsFile)) {
             <div class="flex justify-center">
                 <button 
                     id="generate-btn" 
-                    class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold text-xl px-12 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold text-xl px-12 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"
                 >
                     <i class="fas fa-microphone text-2xl"></i>
                     <span>Create My News Brief</span>
