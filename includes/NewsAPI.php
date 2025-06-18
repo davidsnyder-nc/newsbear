@@ -92,6 +92,22 @@ class NewsAPI {
         }
         
         error_log("Total news articles before return: " . count($allNews));
+        
+        // If no articles were fetched and no RSS content, throw error
+        if (empty($allNews)) {
+            $enabledSources = [];
+            if ($this->gnewsKey) $enabledSources[] = 'GNews';
+            if ($this->newsApiKey) $enabledSources[] = 'NewsAPI';
+            if ($this->guardianKey) $enabledSources[] = 'Guardian';
+            if ($this->nytKey) $enabledSources[] = 'New York Times';
+            
+            if (empty($enabledSources)) {
+                throw new Exception('No news API sources are enabled. Please configure at least one news API in settings.');
+            } else {
+                throw new Exception('Unable to fetch content from enabled sources: ' . implode(', ', $enabledSources) . '. Please check your API keys and internet connection.');
+            }
+        }
+        
         return $allNews;
     }
     

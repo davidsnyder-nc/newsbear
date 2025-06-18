@@ -73,7 +73,13 @@ class BriefingGenerator {
             
             // Ensure we have real news content before proceeding
             if (empty($newsItems)) {
-                throw new Exception('No news content available. Please enable at least one news API source in settings and ensure your API keys are valid.');
+                // Check if we're doing category-specific briefing with RSS content
+                $isSpecificCategoryOnly = count($this->selectedCategories) == 1 && !in_array('general', $this->selectedCategories);
+                if ($isSpecificCategoryOnly) {
+                    throw new Exception("No {$this->selectedCategories[0]} content available from RSS feeds. Please check your RSS feed configuration.");
+                } else {
+                    throw new Exception('Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.');
+                }
             }
             
             // Step 2: Check for topic overlap with today's briefings
@@ -235,10 +241,11 @@ class BriefingGenerator {
         
         // Fetch from enabled news sources including local news
         $newsItems = $newsAPI->fetchFromAllSources(
-            $this->settings['categories'], 
+            $this->selectedCategories, 
             $this->settings['zipCode'] ?? null, 
             $this->settings['includeLocal'] ?? false
         );
+        error_log("fetchNews: Got " . count($newsItems) . " items from NewsAPI");
         $allNews = array_merge($allNews, $newsItems);
         
         // Local news is now handled within fetchFromAllSources
