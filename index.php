@@ -122,7 +122,7 @@ if (file_exists($settingsFile)) {
             <div class="flex flex-col items-center space-y-6">
                 <button 
                     id="generate-btn" 
-                    class="bg-blue-600 text-white font-bold text-lg transition-all duration-300 shadow-2xl hover:border-4 hover:border-blue-300 flex flex-col items-center justify-center"
+                    class="bg-blue-600 text-white font-bold text-lg transition-all duration-300 shadow-2xl border-4 border-blue-300 hover:border-red-400 flex flex-col items-center justify-center"
                     style="width: 192px; height: 192px; border-radius: 50%; min-width: 192px; min-height: 192px; max-width: 192px; max-height: 192px;"
                 >
                     <i class="fas fa-play text-3xl"></i>

@@ -38,6 +38,7 @@
 .generate-processing {
     animation: pulse-blue 1.5s infinite;
     cursor: not-allowed;
+    border-color: #ef4444 !important; /* Red border during processing */
 }
 
 /* Smooth transitions for all interactive elements */
