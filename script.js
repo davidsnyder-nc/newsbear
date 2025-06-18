@@ -11,6 +11,34 @@ class NewsBriefApp {
             'Finalizing briefing...'
         ];
         this.currentStep = 0;
+        this.wittyMessages = [
+            "Teaching bears to read the news...",
+            "Asking the internet what happened today...",
+            "Convincing AI to work for honey...",
+            "Sorting through the day's chaos...",
+            "Making sense of the headlines...",
+            "Brewing up some fresh news...",
+            "Hunting for the good stories...",
+            "Turning noise into knowledge...",
+            "Gathering intel from around the globe...",
+            "Cooking up your daily digest...",
+            "Fishing for the latest updates...",
+            "Separating facts from fiction...",
+            "Collecting today's greatest hits...",
+            "Assembling your news sandwich...",
+            "Herding cats... I mean, headlines...",
+            "Putting the 'brief' in news briefing...",
+            "Teaching headlines to behave...",
+            "Converting chaos into clarity...",
+            "Distilling the day's events...",
+            "Packaging news with a bow on top...",
+            "Making deadlines meet their maker...",
+            "Translating reporter-speak to human...",
+            "Convincing stories to play nicely together...",
+            "Bear-ing the weight of world events..."
+        ];
+        this.messageInterval = null;
+        this.currentMessageIndex = 0;
         this.init();
     }
 
@@ -133,14 +161,48 @@ class NewsBriefApp {
         document.getElementById('status-container').classList.remove('hidden');
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
+        this.startWittyMessages();
     }
 
     updateStatus(message, progress = 0) {
-        document.getElementById('status-text').textContent = message;
+        // Only update with technical status if not showing witty messages
+        if (progress > 80) {
+            // Near completion, show actual status
+            document.getElementById('status-text').textContent = message;
+            this.stopWittyMessages();
+        }
         document.getElementById('progress-bar').style.width = progress + '%';
     }
 
+    startWittyMessages() {
+        this.currentMessageIndex = 0;
+        this.showRandomWittyMessage();
+        
+        this.messageInterval = setInterval(() => {
+            this.showRandomWittyMessage();
+        }, 2500); // Change message every 2.5 seconds
+    }
+
+    stopWittyMessages() {
+        if (this.messageInterval) {
+            clearInterval(this.messageInterval);
+            this.messageInterval = null;
+        }
+    }
+
+    showRandomWittyMessage() {
+        // Pick a random message different from the current one
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * this.wittyMessages.length);
+        } while (newIndex === this.currentMessageIndex && this.wittyMessages.length > 1);
+        
+        this.currentMessageIndex = newIndex;
+        document.getElementById('status-text').textContent = this.wittyMessages[this.currentMessageIndex];
+    }
+
     showSuccess(downloadUrl, briefingText = null) {
+        this.stopWittyMessages();
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
         document.getElementById('success-container').classList.remove('hidden');
@@ -176,6 +238,7 @@ class NewsBriefApp {
     }
 
     showError(message) {
+        this.stopWittyMessages();
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('success-container').classList.add('hidden');
         document.getElementById('error-container').classList.remove('hidden');
