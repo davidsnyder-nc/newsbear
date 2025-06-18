@@ -439,7 +439,7 @@ function isCategoryChecked($category) {
                 
                 <!-- AI Services Tab -->
                 <div id="ai-content" class="tab-content hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                         <div class="space-y-6">
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-800 border-b pb-2">AI Configuration</h3>
@@ -502,7 +502,7 @@ function isCategoryChecked($category) {
                 <!-- Advanced Settings Tab -->
                 <div id="advanced-content" class="tab-content hidden">
                     <div class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                             <div class="space-y-6">
                                 <div class="space-y-4">
                                     <h3 class="text-lg font-medium text-gray-800 border-b pb-2">AI Prompts</h3>
