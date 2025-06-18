@@ -293,9 +293,8 @@ body.dark-theme .shadow-lg {
     }
 }
 
-/* Button hover effects */
+/* Button hover effects - removed movement */
 #generate-btn:hover {
-    transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
