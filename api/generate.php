@@ -80,7 +80,9 @@ class BriefingGenerator {
             error_log("Stories selected by AI: " . count($selectedStories));
             
             // Validate all selected stories are from authentic sources
+            error_log("Before validation: " . count($selectedStories) . " stories");
             $validatedStories = $this->validateAuthenticStories($selectedStories);
+            error_log("After validation: " . count($validatedStories) . " stories");
             
             // Check if we have any authentic news content
             $hasNewsContent = false;
@@ -869,7 +871,9 @@ class BriefingGenerator {
         $authenticSources = [
             'GNews', 'NewsAPI', 'The Guardian', 'New York Times', 
             'Weather Service', 'The Movie Database', 'Local News',
-            'OpenWeatherMap', 'TMDB', 'Weather API'
+            'OpenWeatherMap', 'TMDB', 'Weather API', 'NBC News', 
+            'The Washington Post', 'Bloomberg', 'Earth.com', 'ScienceAlert', 
+            'Deadline', 'CNN', 'BBC News', 'Reuters', 'Associated Press'
         ];
         
         foreach ($stories as $i => $story) {
