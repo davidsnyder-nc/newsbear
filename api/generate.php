@@ -291,14 +291,16 @@ class BriefingGenerator {
         $prompt = "Select {$storyCount} of the most important and interesting news stories from the following list for a " . 
                  $this->getTimeFrame() . " news briefing. Focus on stories that are:\n" .
                  "1. Most newsworthy and impactful\n" .
-                 "2. Diverse in topics\n" .
+                 "2. Diverse in topics and sources\n" .
                  "3. Appropriate for the time of day\n" .
-                 "4. Include weather, entertainment, and local content when available\n\n" .
+                 "4. Include weather, entertainment, and local content when available\n" .
+                 "5. Prioritize major news sources like New York Times, Guardian, etc. for national/international news\n\n" .
                  $excludeTopicsText .
                  "Available stories:\n";
         
         foreach ($newsItems as $i => $item) {
-            $prompt .= ($i + 1) . ". [{$item['category']}] {$item['title']}\n";
+            $source = $item['source'] ?? 'Unknown';
+            $prompt .= ($i + 1) . ". [{$item['category']}] [{$source}] {$item['title']}\n";
             if (!empty($item['content'])) {
                 $prompt .= "   Summary: " . substr($item['content'], 0, 200) . "...\n";
             }
