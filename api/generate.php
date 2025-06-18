@@ -301,20 +301,25 @@ class BriefingGenerator {
             return $newsItems;
         }
         
+        // Normalize selected categories to lowercase for comparison
+        $normalizedSelected = array_map('strtolower', $selectedCategories);
+        
         $filtered = [];
         foreach ($newsItems as $item) {
             $itemCategory = $item['category'] ?? '';
+            $normalizedItemCategory = strtolower($itemCategory);
             
             // Always include special categories regardless of user selection
             $alwaysInclude = ['local', 'weather', 'entertainment'];
-            if (in_array($itemCategory, $alwaysInclude)) {
+            if (in_array($normalizedItemCategory, $alwaysInclude)) {
                 $filtered[] = $item;
                 continue;
             }
             
-            // Include if category is selected by user
-            if (in_array($itemCategory, $selectedCategories)) {
+            // Include if category is selected by user (case-insensitive comparison)
+            if (in_array($normalizedItemCategory, $normalizedSelected)) {
                 $filtered[] = $item;
+                error_log("Including item with category '$itemCategory' (normalized: '$normalizedItemCategory')");
             }
         }
         
