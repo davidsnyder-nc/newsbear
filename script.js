@@ -346,11 +346,10 @@ class NewsBriefApp {
 
     switchToRedLogo() {
         const logoImg = document.querySelector('img[src*="newsbear_blue_logo.png"], img[src*="newsbear_red_logo.png"]');
-        console.log('Switching to red logo, found element:', logoImg);
         if (logoImg) {
-            console.log('Current src:', logoImg.src);
             logoImg.src = 'attached_assets/newsbear_red_logo.png';
-            console.log('New src:', logoImg.src);
+            // Force browser to reload the image to avoid caching issues
+            logoImg.src = logoImg.src + '?t=' + Date.now();
         }
     }
 
@@ -358,6 +357,8 @@ class NewsBriefApp {
         const logoImg = document.querySelector('img[src*="newsbear_blue_logo.png"], img[src*="newsbear_red_logo.png"]');
         if (logoImg) {
             logoImg.src = 'attached_assets/newsbear_blue_logo.png';
+            // Force browser to reload the image to avoid caching issues
+            logoImg.src = logoImg.src + '?t=' + Date.now();
         }
     }
 }
