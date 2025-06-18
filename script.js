@@ -45,6 +45,7 @@ class NewsBriefApp {
     init() {
         this.bindEvents();
         this.setupErrorHandling();
+        this.initDarkTheme();
     }
 
     setupErrorHandling() {
@@ -627,6 +628,57 @@ class NewsBriefApp {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
         return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    initDarkTheme() {
+        // Check for saved dark theme preference or system preference
+        const savedTheme = localStorage.getItem('darkTheme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+            this.enableDarkTheme();
+        }
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (localStorage.getItem('darkTheme') === null) {
+                if (e.matches) {
+                    this.enableDarkTheme();
+                } else {
+                    this.disableDarkTheme();
+                }
+            }
+        });
+    }
+
+    enableDarkTheme() {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('darkTheme', 'true');
+        
+        // Update toggle switch if it exists
+        const darkThemeToggle = document.getElementById('darkTheme');
+        if (darkThemeToggle) {
+            darkThemeToggle.checked = true;
+        }
+    }
+
+    disableDarkTheme() {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('darkTheme', 'false');
+        
+        // Update toggle switch if it exists
+        const darkThemeToggle = document.getElementById('darkTheme');
+        if (darkThemeToggle) {
+            darkThemeToggle.checked = false;
+        }
+    }
+
+    toggleDarkTheme() {
+        if (document.body.classList.contains('dark-theme')) {
+            this.disableDarkTheme();
+        } else {
+            this.enableDarkTheme();
+        }
     }
 }
 

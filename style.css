@@ -248,6 +248,87 @@ body.dark-theme .border-red-200 {
     border-color: #dc2626 !important;
 }
 
+/* Audio player dark theme */
+body.dark-theme audio {
+    background-color: #3a3a3a !important;
+    border-color: #555 !important;
+}
+
+body.dark-theme audio::-webkit-media-controls-panel {
+    background-color: #3a3a3a !important;
+    border-color: #555 !important;
+}
+
+body.dark-theme .audio-container {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%) !important;
+    border-color: #555 !important;
+}
+
+/* Button styling for dark theme */
+body.dark-theme .bg-blue-600 {
+    background-color: #1d4ed8 !important;
+}
+
+body.dark-theme .bg-blue-600:hover {
+    background-color: #1e40af !important;
+}
+
+body.dark-theme .bg-gray-600 {
+    background-color: #4b5563 !important;
+}
+
+body.dark-theme .bg-gray-600:hover {
+    background-color: #374151 !important;
+}
+
+/* Tab styling for dark theme */
+body.dark-theme .tab-button {
+    background-color: #3a3a3a !important;
+    color: #d0d0d0 !important;
+    border-color: #555 !important;
+}
+
+body.dark-theme .tab-button.active {
+    background-color: #1d4ed8 !important;
+    color: white !important;
+}
+
+/* Toast styling for dark theme */
+body.dark-theme .toast {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+}
+
+body.dark-theme .toast.success {
+    background-color: #166534 !important;
+    border-color: #15803d !important;
+}
+
+body.dark-theme .toast.error {
+    background-color: #991b1b !important;
+    border-color: #dc2626 !important;
+}
+
+/* Progress bar dark theme */
+body.dark-theme .progress-container {
+    background-color: #3a3a3a !important;
+}
+
+body.dark-theme .progress-bar {
+    background-color: #1d4ed8 !important;
+}
+
+/* History page dark theme */
+body.dark-theme .history-item {
+    background-color: #2d2d2d !important;
+    border-color: #4a4a4a !important;
+}
+
+body.dark-theme .history-item:hover {
+    background-color: #3a3a3a !important;
+}
+
 body.dark-theme .text-blue-800 {
     color: #93c5fd !important;
 }
