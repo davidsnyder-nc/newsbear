@@ -464,12 +464,21 @@ class NewsBriefApp {
         const clampedPos = Math.max(0, Math.min(1, pos));
         
         const newTime = clampedPos * audio.duration;
+        const wasPlaying = !audio.paused;
+        
+        // Set the new time
         audio.currentTime = newTime;
         
+        // Update visual elements
         const progress = clampedPos * 100;
         progressBar.style.width = progress + '%';
         progressHandle.style.left = progress + '%';
         currentTimeSpan.textContent = this.formatTime(newTime);
+        
+        // Resume playing if it was playing before
+        if (wasPlaying) {
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
     }
 
     updateVolumeIcon(volumeBtn, volume) {
