@@ -43,12 +43,52 @@ if ($_POST) {
         'geminiEnabled' => isset($_POST['geminiEnabled']) ? true : false,
         'claudeEnabled' => isset($_POST['claudeEnabled']) ? true : false,
         'googleTtsEnabled' => isset($_POST['googleTtsEnabled']) ? true : false,
+        'rssFeeds' => processRssFeeds($_POST['rssFeeds'] ?? []),
         'lastUpdated' => date('c')
     ];
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: index.php?saved=1');
     exit;
+}
+
+// RSS Feed Processing Functions
+function processRssFeeds($rssFeeds) {
+    $processedFeeds = [];
+    
+    if (!is_array($rssFeeds)) {
+        return $processedFeeds;
+    }
+    
+    foreach ($rssFeeds as $feed) {
+        if (!empty($feed['url']) && !empty($feed['name']) && !empty($feed['category'])) {
+            $processedFeed = [
+                'url' => filter_var($feed['url'], FILTER_SANITIZE_URL),
+                'name' => htmlspecialchars($feed['name'], ENT_QUOTES, 'UTF-8'),
+                'category' => $feed['category']
+            ];
+            
+            // Handle custom category
+            if ($feed['category'] === 'custom' && !empty($feed['customCategory'])) {
+                $processedFeed['customCategory'] = htmlspecialchars($feed['customCategory'], ENT_QUOTES, 'UTF-8');
+            }
+            
+            $processedFeeds[] = $processedFeed;
+        }
+    }
+    
+    return $processedFeeds;
+}
+
+function getRssFeeds() {
+    global $settingsFile;
+    
+    if (!file_exists($settingsFile)) {
+        return [];
+    }
+    
+    $settings = json_decode(file_get_contents($settingsFile), true);
+    return $settings['rssFeeds'] ?? [];
 }
 
 // Load current settings
@@ -182,6 +222,7 @@ function isCategoryChecked($category) {
                     <select id="mobile-tab-select" onchange="showTab(this.value)" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                         <option value="basic">🔧 Basic Settings</option>
                         <option value="content">📰 Content & Categories</option>
+                        <option value="rss">📡 RSS Feeds</option>
                         <option value="api">🔑 API Keys</option>
                         <option value="ai">🤖 AI Services</option>
                         <option value="advanced">⚙️ Advanced</option>
@@ -190,20 +231,23 @@ function isCategoryChecked($category) {
                 
                 <!-- Desktop tabs with icons only -->
                 <nav class="hidden sm:flex -mb-px justify-center" role="tablist">
-                    <div class="flex space-x-8">
-                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-3 px-4 border-b-2 border-blue-500 font-medium text-blue-600 hover:text-blue-700" role="tab" title="Basic Settings">
+                    <div class="flex space-x-6">
+                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-3 px-3 border-b-2 border-blue-500 font-medium text-blue-600 hover:text-blue-700" role="tab" title="Basic Settings">
                             <i class="fas fa-cog text-lg"></i>
                         </button>
-                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-3 px-4 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Content & Categories">
+                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Content & Categories">
                             <i class="fas fa-newspaper text-lg"></i>
                         </button>
-                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-3 px-4 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="API Keys">
+                        <button type="button" onclick="showTab('rss')" id="rss-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="RSS Feeds">
+                            <i class="fas fa-rss text-lg"></i>
+                        </button>
+                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="API Keys">
                             <i class="fas fa-key text-lg"></i>
                         </button>
-                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-3 px-4 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="AI Services">
+                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="AI Services">
                             <i class="fas fa-robot text-lg"></i>
                         </button>
-                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-3 px-4 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Advanced">
+                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Advanced">
                             <i class="fas fa-sliders-h text-lg"></i>
                         </button>
                     </div>
@@ -356,6 +400,33 @@ function isCategoryChecked($category) {
                                     <p class="text-xs text-gray-500 mt-1">Optional custom introduction for your briefings</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- RSS Feeds Tab -->
+                <div id="rss-content" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-medium text-gray-800">RSS Feeds</h3>
+                            <button type="button" onclick="addRssFeed()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
+                                <i class="fas fa-plus mr-2"></i>Add RSS Feed
+                            </button>
+                        </div>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-sm text-blue-800">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                RSS feeds will be treated like news API sources. Each feed can be assigned to existing categories or create new ones.
+                            </p>
+                        </div>
+                        
+                        <div id="rss-feeds-container" class="space-y-4">
+                            <!-- RSS feeds will be dynamically added here -->
+                        </div>
+                        
+                        <div class="text-center text-gray-500 text-sm" id="no-rss-message">
+                            No RSS feeds configured. Click "Add RSS Feed" to get started.
                         </div>
                     </div>
                 </div>
@@ -617,6 +688,83 @@ function toggleDarkThemeFromSettings() {
     }
 }
 
+// RSS Feed Management
+let rssFeedCounter = 0;
+
+function addRssFeed(url = '', name = '', category = '') {
+    const container = document.getElementById('rss-feeds-container');
+    const noMessage = document.getElementById('no-rss-message');
+    
+    rssFeedCounter++;
+    const feedId = 'rss_feed_' + rssFeedCounter;
+    
+    const feedHtml = `
+        <div class="border border-gray-200 rounded-lg p-4 bg-white" id="${feedId}">
+            <div class="flex justify-between items-start mb-4">
+                <h4 class="font-medium text-gray-800">RSS Feed ${rssFeedCounter}</h4>
+                <button type="button" onclick="removeRssFeed('${feedId}')" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Feed URL</label>
+                    <input type="url" name="rssFeeds[${rssFeedCounter}][url]" value="${url}" placeholder="https://example.com/feed.xml" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                    <input type="text" name="rssFeeds[${rssFeedCounter}][name]" value="${name}" placeholder="Source Name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="general" ${category === 'general' ? 'selected' : ''}>General</option>
+                        <option value="business" ${category === 'business' ? 'selected' : ''}>Business</option>
+                        <option value="entertainment" ${category === 'entertainment' ? 'selected' : ''}>Entertainment</option>
+                        <option value="health" ${category === 'health' ? 'selected' : ''}>Health</option>
+                        <option value="science" ${category === 'science' ? 'selected' : ''}>Science</option>
+                        <option value="sports" ${category === 'sports' ? 'selected' : ''}>Sports</option>
+                        <option value="technology" ${category === 'technology' ? 'selected' : ''}>Technology</option>
+                        <option value="custom" ${category === 'custom' ? 'selected' : ''}>Custom Category</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 hidden" id="custom-category-${rssFeedCounter}">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Category Name</label>
+                <input type="text" name="rssFeeds[${rssFeedCounter}][customCategory]" placeholder="Enter custom category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', feedHtml);
+    noMessage.style.display = 'none';
+    
+    // Add event listener for custom category toggle
+    const categorySelect = document.querySelector(`select[name="rssFeeds[${rssFeedCounter}][category]"]`);
+    categorySelect.addEventListener('change', function() {
+        const customDiv = document.getElementById(`custom-category-${rssFeedCounter}`);
+        if (this.value === 'custom') {
+            customDiv.classList.remove('hidden');
+        } else {
+            customDiv.classList.add('hidden');
+        }
+    });
+}
+
+function removeRssFeed(feedId) {
+    const feedElement = document.getElementById(feedId);
+    if (feedElement) {
+        feedElement.remove();
+        
+        // Check if any feeds remain
+        const container = document.getElementById('rss-feeds-container');
+        const noMessage = document.getElementById('no-rss-message');
+        if (container.children.length === 0) {
+            noMessage.style.display = 'block';
+        }
+    }
+}
+
 // Transition from loading theme to proper dark theme
 document.addEventListener('DOMContentLoaded', function() {
     showTab('basic');
@@ -632,7 +780,30 @@ document.addEventListener('DOMContentLoaded', function() {
             darkThemeToggle.checked = true;
         }
     }
+    
+    // Load existing RSS feeds
+    loadExistingRssFeeds();
 });
+
+function loadExistingRssFeeds() {
+    // This will be populated from PHP when feeds exist
+    const existingFeeds = <?php echo json_encode(getRssFeeds()); ?>;
+    
+    if (existingFeeds && existingFeeds.length > 0) {
+        existingFeeds.forEach(feed => {
+            addRssFeed(feed.url, feed.name, feed.category);
+            
+            // Set custom category if applicable
+            if (feed.category === 'custom' && feed.customCategory) {
+                const customInput = document.querySelector(`input[name="rssFeeds[${rssFeedCounter}][customCategory]"]`);
+                if (customInput) {
+                    customInput.value = feed.customCategory;
+                    document.getElementById(`custom-category-${rssFeedCounter}`).classList.remove('hidden');
+                }
+            }
+        });
+    }
+}
 </script>
 </body>
 </html>
