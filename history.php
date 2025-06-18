@@ -202,7 +202,13 @@ $todaysTopics = $history->getTodaysTopics();
                         <div class="flex flex-wrap gap-1">
                             <?php foreach (array_slice($briefing['topics'], 0, 8) as $topic): ?>
                             <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
-                                <?php echo htmlspecialchars($topic); ?>
+                                <?php 
+                                if (is_array($topic) && isset($topic['title'])) {
+                                    echo htmlspecialchars($topic['title']);
+                                } else {
+                                    echo htmlspecialchars((string)$topic);
+                                }
+                                ?>
                             </span>
                             <?php endforeach; ?>
                         </div>
