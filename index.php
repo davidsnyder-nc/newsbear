@@ -92,7 +92,7 @@ if (file_exists($settingsFile)) {
                             
                             <!-- Enhanced Audio Player -->
                             <div class="custom-audio-player" id="main-audio-player">
-                                <audio id="briefing-player" preload="metadata" class="hidden">
+                                <audio id="briefing-player" preload="auto" class="hidden">
                                     <source id="audio-source" src="" type="audio/mpeg">
                                 </audio>
                                 

@@ -248,7 +248,7 @@ $todaysTopics = $history->getTodaysTopics();
                         
                         <!-- Custom Audio Player -->
                         <div class="custom-audio-player" data-audio-src="<?php echo $briefing['audio_file']; ?>">
-                            <audio preload="metadata" class="hidden">
+                            <audio preload="auto" class="hidden">
                                 <source src="<?php echo $briefing['audio_file']; ?>" type="audio/mpeg">
                             </audio>
                             
@@ -565,11 +565,13 @@ $todaysTopics = $history->getTodaysTopics();
                 // Progress bar clicking and dragging
                 progressContainer.addEventListener('mousedown', (e) => {
                     isDragging = true;
+                    e.preventDefault();
                     updateProgress(e);
                 });
                 
                 progressContainer.addEventListener('mousemove', (e) => {
                     if (isDragging) {
+                        e.preventDefault();
                         updateProgress(e);
                     }
                 });
@@ -580,18 +582,51 @@ $todaysTopics = $history->getTodaysTopics();
                     }
                 });
                 
+                // Also handle click events separately for immediate seeking
+                progressContainer.addEventListener('click', (e) => {
+                    if (!isDragging) {
+                        updateProgress(e);
+                    }
+                });
+                
                 function updateProgress(e) {
                     const rect = progressContainer.getBoundingClientRect();
                     const pos = (e.clientX - rect.left) / rect.width;
                     const clampedPos = Math.max(0, Math.min(1, pos));
                     
-                    const newTime = clampedPos * audio.duration;
-                    audio.currentTime = newTime;
+                    if (isNaN(audio.duration) || audio.duration === 0) {
+                        console.log('Audio not ready for seeking');
+                        return;
+                    }
                     
+                    const newTime = clampedPos * audio.duration;
+                    const wasPlaying = !audio.paused;
+                    
+                    // Pause before seeking to prevent issues
+                    if (wasPlaying) {
+                        audio.pause();
+                    }
+                    
+                    // Set the new time
+                    try {
+                        audio.currentTime = newTime;
+                    } catch (e) {
+                        console.log('Seeking failed:', e);
+                        return;
+                    }
+                    
+                    // Update visual elements immediately
                     const progress = clampedPos * 100;
                     progressBar.style.width = progress + '%';
                     progressHandle.style.left = progress + '%';
                     currentTimeSpan.textContent = formatTime(newTime);
+                    
+                    // Resume playing after a brief delay if it was playing before
+                    if (wasPlaying) {
+                        setTimeout(() => {
+                            audio.play().catch(e => console.log('Audio resume failed:', e));
+                        }, 100);
+                    }
                 }
                 
                 // Volume control

@@ -413,11 +413,13 @@ class NewsBriefApp {
         // Progress bar clicking and dragging
         progressContainer.addEventListener('mousedown', (e) => {
             isDragging = true;
+            e.preventDefault();
             this.updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan);
         });
         
         progressContainer.addEventListener('mousemove', (e) => {
             if (isDragging) {
+                e.preventDefault();
                 this.updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan);
             }
         });
@@ -425,6 +427,13 @@ class NewsBriefApp {
         document.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
+            }
+        });
+        
+        // Also handle click events separately for immediate seeking
+        progressContainer.addEventListener('click', (e) => {
+            if (!isDragging) {
+                this.updateMainProgress(e, audio, progressContainer, progressBar, progressHandle, currentTimeSpan);
             }
         });
         
@@ -463,21 +472,38 @@ class NewsBriefApp {
         const pos = (e.clientX - rect.left) / rect.width;
         const clampedPos = Math.max(0, Math.min(1, pos));
         
+        if (isNaN(audio.duration) || audio.duration === 0) {
+            console.log('Audio not ready for seeking');
+            return;
+        }
+        
         const newTime = clampedPos * audio.duration;
         const wasPlaying = !audio.paused;
         
-        // Set the new time
-        audio.currentTime = newTime;
+        // Pause before seeking to prevent issues
+        if (wasPlaying) {
+            audio.pause();
+        }
         
-        // Update visual elements
+        // Set the new time
+        try {
+            audio.currentTime = newTime;
+        } catch (e) {
+            console.log('Seeking failed:', e);
+            return;
+        }
+        
+        // Update visual elements immediately
         const progress = clampedPos * 100;
         progressBar.style.width = progress + '%';
         progressHandle.style.left = progress + '%';
         currentTimeSpan.textContent = this.formatTime(newTime);
         
-        // Resume playing if it was playing before
+        // Resume playing after a brief delay if it was playing before
         if (wasPlaying) {
-            audio.play().catch(e => console.log('Audio play failed:', e));
+            setTimeout(() => {
+                audio.play().catch(e => console.log('Audio resume failed:', e));
+            }, 100);
         }
     }
 
