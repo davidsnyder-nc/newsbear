@@ -288,13 +288,12 @@ class BriefingGenerator {
                                ". Prefer fresh stories when possible, but if there's important breaking news on these topics, include it.\n\n";
         }
         
-        $prompt = "Select {$storyCount} of the most important and interesting news stories from the following list for a " . 
-                 $this->getTimeFrame() . " news briefing. Focus on stories that are:\n" .
-                 "1. Most newsworthy and impactful\n" .
-                 "2. Diverse in topics and sources\n" .
-                 "3. Appropriate for the time of day\n" .
-                 "4. Include weather, entertainment, and local content when available\n" .
-                 "5. Prioritize major news sources like New York Times, Guardian, etc. for national/international news\n\n" .
+        $prompt = "Select {$storyCount} of the most important and interesting stories from the following list for a " . 
+                 $this->getTimeFrame() . " news briefing. Always include weather, local news, and entertainment content when available (these don't count toward the {$storyCount} limit). For the remaining slots, prioritize:\n" .
+                 "1. Most newsworthy and impactful stories\n" .
+                 "2. Major news sources like New York Times, Guardian, etc.\n" .
+                 "3. Diverse topics covering world, business, technology, science\n" .
+                 "4. Stories appropriate for the time of day\n\n" .
                  $excludeTopicsText .
                  "Available stories:\n";
         
@@ -347,15 +346,17 @@ class BriefingGenerator {
     }
     
     private function getStoryCountForLength($audioLength) {
+        // These counts are for actual news stories only
+        // Weather, local, and TV/movie content are bonus additions
         switch ($audioLength) {
             case '3-5':
-                return '3-4';
+                return '5-7';  // More news stories for core content
             case '10-15':
-                return '6-8';
+                return '10-12';
             case '15-20':
-                return '8-12';
+                return '15-18';
             default: // '5-10'
-                return '4-6';
+                return '8-10'; // Increased from 4-6 to ensure more news coverage
         }
     }
     
