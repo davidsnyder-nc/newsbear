@@ -75,7 +75,9 @@ class BriefingGenerator {
             
             // Step 3: AI story selection (filter out covered topics)
             $this->updateStatus('Selecting stories using AI...', 30);
+            error_log("News items sent to AI for selection: " . count($newsItems));
             $selectedStories = $this->selectStories($newsItems, $todaysTopics);
+            error_log("Stories selected by AI: " . count($selectedStories));
             
             // Validate all selected stories are from authentic sources
             $validatedStories = $this->validateAuthenticStories($selectedStories);
@@ -313,6 +315,7 @@ class BriefingGenerator {
             try {
                 $response = $aiService->generateText($prompt, $modelName);
                 if ($response) {
+                    error_log("AI story selection response: " . $response);
                     break; // Success, stop trying other services
                 }
             } catch (Exception $e) {
