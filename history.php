@@ -362,8 +362,28 @@ $todaysTopics = $history->getTodaysTopics();
 
         function toggleAudio(briefingId) {
             const audioDiv = document.getElementById('audio-' + briefingId);
+            const button = event.target.closest('button');
+            
             if (audioDiv) {
-                audioDiv.classList.toggle('hidden');
+                const isHidden = audioDiv.classList.contains('hidden');
+                
+                if (isHidden) {
+                    // Show audio player and start playing
+                    audioDiv.classList.remove('hidden');
+                    const audio = audioDiv.querySelector('audio');
+                    if (audio) {
+                        audio.play().catch(e => console.log('Auto-play prevented:', e));
+                    }
+                    button.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+                } else {
+                    // Hide audio player and pause
+                    audioDiv.classList.add('hidden');
+                    const audio = audioDiv.querySelector('audio');
+                    if (audio) {
+                        audio.pause();
+                    }
+                    button.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+                }
             }
         }
 
@@ -451,6 +471,39 @@ $todaysTopics = $history->getTodaysTopics();
                 toast.remove();
             }, 3000);
         }
+
+        // Initialize audio event listeners when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all audio elements
+            const audioElements = document.querySelectorAll('audio');
+            audioElements.forEach(audio => {
+                const audioDiv = audio.closest('[id^="audio-"]');
+                const briefingId = audioDiv.id.replace('audio-', '');
+                const playButton = document.querySelector(`button[onclick="toggleAudio('${briefingId}')"]`);
+                
+                // Reset button when audio ends
+                audio.addEventListener('ended', function() {
+                    if (playButton) {
+                        playButton.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+                    }
+                    audioDiv.classList.add('hidden');
+                });
+                
+                // Update button when audio starts playing
+                audio.addEventListener('play', function() {
+                    if (playButton) {
+                        playButton.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+                    }
+                });
+                
+                // Update button when audio is paused
+                audio.addEventListener('pause', function() {
+                    if (playButton) {
+                        playButton.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
