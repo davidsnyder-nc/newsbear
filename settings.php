@@ -17,6 +17,8 @@ if ($_POST) {
         'aiGeneration' => $_POST['aiGeneration'] ?? 'gemini',
         'blockedTerms' => $_POST['blockedTerms'] ?? '',
         'categories' => $_POST['categories'] ?? ['general'],
+        'debugMode' => isset($_POST['debugMode']) ? true : false,
+        'verboseLogging' => isset($_POST['verboseLogging']) ? true : false,
         'gnewsApiKey' => $_POST['gnewsApiKey'] ?? '',
         'newsApiKey' => $_POST['newsApiKey'] ?? '',
         'guardianApiKey' => $_POST['guardianApiKey'] ?? '',
@@ -388,32 +390,12 @@ function isCategoryChecked($category) {
                         
                         <div class="space-y-6">
                             <div class="space-y-4">
-                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Other APIs</h3>
-                                <div>
-                                    <label class="flex items-center mb-2 text-sm">
-                                        <input type="checkbox" name="weatherEnabled" <?= isChecked('weatherEnabled') ?> class="mr-3 h-4 w-4">
-                                        OpenWeatherMap API
-                                    </label>
-                                    <input type="password" name="weatherApiKey" value="<?= getValue('weatherApiKey') ?>" placeholder="OpenWeatherMap API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://openweathermap.org/api" target="_blank" class="text-blue-600 hover:underline">openweathermap.org</a></p>
-                                </div>
-                                
-                                <div>
-                                    <label class="flex items-center mb-2 text-sm">
-                                        <input type="checkbox" name="tmdbEnabled" <?= isChecked('tmdbEnabled') ?> class="mr-3 h-4 w-4">
-                                        TMDB (TV/Movies)
-                                    </label>
-                                    <input type="password" name="tmdbApiKey" value="<?= getValue('tmdbApiKey') ?>" placeholder="TMDB API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://www.themoviedb.org/settings/api" target="_blank" class="text-blue-600 hover:underline">themoviedb.org</a></p>
-                                </div>
-                                
-                                <div>
-                                    <label class="flex items-center mb-2 text-sm">
-                                        <input type="checkbox" name="googleTtsEnabled" <?= isChecked('googleTtsEnabled') ?> class="mr-3 h-4 w-4">
-                                        Google Text-to-Speech
-                                    </label>
-                                    <input type="password" name="googleTtsApiKey" value="<?= getValue('googleTtsApiKey') ?>" placeholder="Google TTS API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.cloud.google.com/" target="_blank" class="text-blue-600 hover:underline">Google Cloud Console</a></p>
+                                <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Additional APIs</h3>
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <p class="text-sm text-blue-800">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        Configure API keys for news sources, weather data, and entertainment content. Enable only the services you plan to use.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -482,38 +464,58 @@ function isCategoryChecked($category) {
                     </div>
                 </div>
                 
-                <!-- Advanced Settings - Full Width -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Advanced Settings</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Custom Header</label>
-                            <input type="text" name="customHeader" value="<?= getValue('customHeader') ?>" placeholder="Custom briefing header" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                            <p class="text-xs text-gray-500 mt-1">Custom text to include at the start of each briefing</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Blocked Terms</label>
-                            <textarea name="blockedTerms" rows="3" placeholder="Enter terms to exclude from news (comma-separated)" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('blockedTerms') ?></textarea>
-                            <p class="text-xs text-gray-500 mt-1">Articles containing these terms will be filtered out</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">OpenAI Custom Prompt</label>
-                            <textarea name="openaiPrompt" rows="2" placeholder="Custom prompt for OpenAI" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('openaiPrompt') ?></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Gemini Custom Prompt</label>
-                            <textarea name="geminiPrompt" rows="2" placeholder="Custom prompt for Gemini" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('geminiPrompt') ?></textarea>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Claude Custom Prompt</label>
-                            <textarea name="claudePrompt" rows="2" placeholder="Custom prompt for Claude" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('claudePrompt') ?></textarea>
+                <!-- Advanced Settings Tab -->
+                <div id="advanced-content" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-6">
+                                <div class="space-y-4">
+                                    <h3 class="text-lg font-medium text-gray-800 border-b pb-2">AI Prompts</h3>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">OpenAI Custom Prompt</label>
+                                        <textarea name="openaiPrompt" rows="3" placeholder="Custom prompt for OpenAI" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('openaiPrompt') ?></textarea>
+                                        <p class="text-xs text-gray-500 mt-1">Custom instructions for OpenAI content generation</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Gemini Custom Prompt</label>
+                                        <textarea name="geminiPrompt" rows="3" placeholder="Custom prompt for Gemini" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('geminiPrompt') ?></textarea>
+                                        <p class="text-xs text-gray-500 mt-1">Custom instructions for Gemini content generation</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Claude Custom Prompt</label>
+                                        <textarea name="claudePrompt" rows="3" placeholder="Custom prompt for Claude" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><?= getValue('claudePrompt') ?></textarea>
+                                        <p class="text-xs text-gray-500 mt-1">Custom instructions for Claude content generation</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div class="space-y-4">
+                                    <h3 class="text-lg font-medium text-gray-800 border-b pb-2">Debug & Development</h3>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <p class="text-sm text-yellow-800">
+                                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                                            Advanced settings for debugging and development. Only modify if you understand the implications.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="space-y-3">
+                                        <label class="flex items-center text-sm">
+                                            <input type="checkbox" name="debugMode" <?= isChecked('debugMode') ?> class="mr-3 h-4 w-4">
+                                            Enable Debug Mode
+                                        </label>
+                                        <p class="text-xs text-gray-500 ml-7">Shows detailed error messages and logging information</p>
+                                        
+                                        <label class="flex items-center text-sm">
+                                            <input type="checkbox" name="verboseLogging" <?= isChecked('verboseLogging') ?> class="mr-3 h-4 w-4">
+                                            Verbose Logging
+                                        </label>
+                                        <p class="text-xs text-gray-500 ml-7">Logs detailed API calls and processing steps</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -529,10 +531,43 @@ function isCategoryChecked($category) {
     </div>
 
 <script>
+function showTab(tabName) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active styles from all tabs
+    const tabs = document.querySelectorAll('[role="tab"]');
+    tabs.forEach(tab => {
+        tab.classList.remove('border-blue-500', 'text-blue-600');
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show the selected tab content
+    const selectedContent = document.getElementById(tabName + '-content');
+    if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+    }
+    
+    // Add active styles to the selected tab
+    const selectedTab = document.getElementById(tabName + '-tab');
+    if (selectedTab) {
+        selectedTab.classList.remove('border-transparent', 'text-gray-500');
+        selectedTab.classList.add('border-blue-500', 'text-blue-600');
+    }
+}
+
 function saveAndGoHome() {
     // Submit the form to save settings
     document.querySelector('form').submit();
 }
+
+// Initialize with the basic tab active
+document.addEventListener('DOMContentLoaded', function() {
+    showTab('basic');
+});
 </script>
 </body>
 </html>
