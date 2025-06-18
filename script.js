@@ -205,7 +205,7 @@ class NewsBriefApp {
 
     showSuccess(downloadUrl, briefingText = null) {
         this.stopWittyMessages();
-        this.switchToBlueLogo();
+        this.switchToBrownLogo();
         document.getElementById('status-container').classList.add('hidden');
         document.getElementById('error-container').classList.add('hidden');
         document.getElementById('success-container').classList.remove('hidden');
@@ -346,7 +346,7 @@ class NewsBriefApp {
     }
 
     switchToRedLogo() {
-        const logoImg = document.querySelector('img[src*="newsbear_blue_logo.png"], img[src*="newsbear_red_logo.png"]');
+        const logoImg = document.querySelector('img[src*="newsbear_brown_logo.png"], img[src*="newsbear_red_logo.png"]');
         if (logoImg) {
             logoImg.src = 'attached_assets/newsbear_red_logo.png';
             // Force browser to reload the image to avoid caching issues
@@ -354,10 +354,10 @@ class NewsBriefApp {
         }
     }
 
-    switchToBlueLogo() {
-        const logoImg = document.querySelector('img[src*="newsbear_blue_logo.png"], img[src*="newsbear_red_logo.png"]');
+    switchToBrownLogo() {
+        const logoImg = document.querySelector('img[src*="newsbear_brown_logo.png"], img[src*="newsbear_red_logo.png"]');
         if (logoImg) {
-            logoImg.src = 'attached_assets/newsbear_blue_logo.png';
+            logoImg.src = 'attached_assets/newsbear_brown_logo.png';
             // Force browser to reload the image to avoid caching issues
             logoImg.src = logoImg.src + '?t=' + Date.now();
         }

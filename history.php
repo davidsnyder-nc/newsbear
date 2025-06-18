@@ -64,7 +64,7 @@ $todaysTopics = $history->getTodaysTopics();
         <!-- Header -->
         <div class="text-center mb-6 md:mb-8">
             <div class="flex flex-col sm:flex-row justify-center items-center mb-4">
-                <img src="attached_assets/newsbear_blue_logo.png" alt="NewsBear" class="h-12 w-12 sm:h-16 sm:w-16 mb-2 sm:mb-0 sm:mr-4">
+                <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear" class="h-12 w-12 sm:h-16 sm:w-16 mb-2 sm:mb-0 sm:mr-4">
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">Briefing History</h1>
             </div>
             <div class="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mt-4">

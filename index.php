@@ -27,7 +27,7 @@ if (file_exists($settingsFile)) {
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <!-- Logo and Title -->
                 <div class="flex items-center justify-center sm:justify-start mb-4 sm:mb-0">
-                    <img src="attached_assets/newsbear_blue_logo.png" alt="NewsBear Logo" class="w-20 h-20 sm:w-24 sm:h-24 mr-3 sm:mr-4">
+                    <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-20 h-20 sm:w-24 sm:h-24 mr-3 sm:mr-4">
                     <div class="text-left">
                         <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-none mb-0">NewsBear</h1>
                         <p class="text-gray-600 text-base sm:text-lg leading-none -mt-1">Personalized News Brief</p>
