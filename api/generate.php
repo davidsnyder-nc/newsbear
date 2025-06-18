@@ -462,7 +462,8 @@ class BriefingGenerator {
         }
         
         // Validate response contains no synthetic content
-        $response = $this->validateNoSyntheticContent($response, $realNewsStories);
+        $allRealNewsStories = array_merge($localNewsStories, $otherNewsStories);
+        $response = $this->validateNoSyntheticContent($response, $allRealNewsStories);
         
         // Clean the response to remove markdown formatting and unwanted characters
         return $this->cleanTextForAudio($response);
@@ -784,9 +785,12 @@ class BriefingGenerator {
     
     private function validateNoSyntheticContent($response, $realNewsStories) {
         // Extract titles from real news stories for validation
-        $realTitles = array_map(function($story) {
-            return strtolower($story['title'] ?? '');
-        }, $realNewsStories);
+        $realTitles = [];
+        if ($realNewsStories && is_array($realNewsStories)) {
+            $realTitles = array_map(function($story) {
+                return strtolower($story['title'] ?? '');
+            }, $realNewsStories);
+        }
         
         // Forbidden phrases that indicate synthetic content
         $syntheticIndicators = [
@@ -804,7 +808,7 @@ class BriefingGenerator {
         $responseLower = strtolower($response);
         
         // If we have no real news stories, make sure AI isn't creating any
-        if (empty($realNewsStories)) {
+        if (empty($realNewsStories) || !is_array($realNewsStories)) {
             foreach ($syntheticIndicators as $indicator) {
                 if (strpos($responseLower, $indicator) !== false) {
                     // Replace synthetic content with safe message
