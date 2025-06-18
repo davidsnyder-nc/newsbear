@@ -75,19 +75,19 @@ class TTSService {
         $date = date('Y-m-d');
         $timestamp = date('His');
         $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
-        $filepath = __DIR__ . "/../downloads/{$filename}";
+        $filepath = __DIR__ . "/../data/history/{$filename}";
         
-        // Ensure downloads directory exists
-        $downloadsDir = __DIR__ . "/../downloads";
-        if (!is_dir($downloadsDir)) {
-            mkdir($downloadsDir, 0755, true);
+        // Ensure history directory exists
+        $historyDir = __DIR__ . "/../data/history";
+        if (!is_dir($historyDir)) {
+            mkdir($historyDir, 0755, true);
         }
         
         // Save audio file
         file_put_contents($filepath, $audioData);
         
         // Return relative path from web root
-        return "downloads/{$filename}";
+        return "data/history/{$filename}";
     }
     
     private function getTimeFrame() {

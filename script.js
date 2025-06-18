@@ -78,6 +78,7 @@ class NewsBriefApp {
         this.hideResults();
         this.showStatus();
         this.disableButton();
+        this.switchToRedLogo();
 
         try {
             const endpoint = 'api/generate.php';

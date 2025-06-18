@@ -53,8 +53,9 @@ try {
         throw new Exception('Failed to generate audio file');
     }
     
-    // Verify the file was actually created
-    if (!file_exists($audioFile)) {
+    // Verify the file was actually created (audioFile is relative path)
+    $fullPath = __DIR__ . "/../{$audioFile}";
+    if (!file_exists($fullPath)) {
         throw new Exception('Audio file was not saved properly');
     }
     
