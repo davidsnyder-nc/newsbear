@@ -309,9 +309,23 @@ class BriefingGenerator {
             $itemCategory = $item['category'] ?? '';
             $normalizedItemCategory = strtolower($itemCategory);
             
-            // Always include special categories regardless of user selection
-            $alwaysInclude = ['local', 'weather', 'entertainment'];
-            if (in_array($normalizedItemCategory, $alwaysInclude)) {
+            // Log all items for debugging
+            error_log("Article: '{$item['title']}' - Category: '$itemCategory' - Source: '{$item['source']}'");
+            
+            // Only include weather if weather is enabled in settings
+            if ($normalizedItemCategory === 'weather' && ($this->settings['includeWeather'] ?? false)) {
+                $filtered[] = $item;
+                continue;
+            }
+            
+            // Only include local news if local news is enabled in settings
+            if ($normalizedItemCategory === 'local' && ($this->settings['includeLocal'] ?? false)) {
+                $filtered[] = $item;
+                continue;
+            }
+            
+            // Only include entertainment/TV if TV is enabled in settings
+            if ($normalizedItemCategory === 'entertainment' && ($this->settings['includeTV'] ?? false)) {
                 $filtered[] = $item;
                 continue;
             }
@@ -320,6 +334,8 @@ class BriefingGenerator {
             if (in_array($normalizedItemCategory, $normalizedSelected)) {
                 $filtered[] = $item;
                 error_log("Including item with category '$itemCategory' (normalized: '$normalizedItemCategory')");
+            } else {
+                error_log("EXCLUDING item with category '$itemCategory' (not in selected categories: " . implode(', ', $selectedCategories) . ")");
             }
         }
         
