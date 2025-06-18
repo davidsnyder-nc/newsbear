@@ -462,10 +462,17 @@ $todaysTopics = $history->getTodaysTopics();
 
         function copyBriefingText(elementId) {
             const element = document.getElementById(elementId);
-            const text = element.querySelector('.whitespace-pre-wrap').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Text copied to clipboard!', 'success');
-            });
+            if (element) {
+                const textElement = element.querySelector('.whitespace-pre-wrap');
+                if (textElement) {
+                    const text = textElement.textContent;
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast('Text copied to clipboard!', 'success');
+                    }).catch(() => {
+                        showToast('Failed to copy text', 'error');
+                    });
+                }
+            }
         }
 
         function deleteBriefing(briefingId) {
