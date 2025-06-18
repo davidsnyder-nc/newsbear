@@ -523,6 +523,8 @@ $todaysTopics = $history->getTodaysTopics();
             const audioPlayers = document.querySelectorAll('.custom-audio-player');
             
             audioPlayers.forEach(player => {
+                if (player.initialized) return;
+                
                 const audio = player.querySelector('audio');
                 const playPauseBtn = player.querySelector('.play-pause-btn');
                 const progressContainer = player.querySelector('.progress-container');
@@ -534,7 +536,14 @@ $todaysTopics = $history->getTodaysTopics();
                 const volumeSlider = player.querySelector('.volume-slider');
                 const volumeContainer = player.querySelector('.volume-slider-container');
                 
+                // Check if all required elements exist
+                if (!audio || !playPauseBtn || !progressContainer || !progressBar || !progressHandle || !currentTimeSpan || !durationSpan) {
+                    console.warn('Audio player elements missing for player:', player);
+                    return;
+                }
+                
                 let isDragging = false;
+                player.initialized = true;
                 
                 // Play/Pause functionality
                 playPauseBtn.addEventListener('click', () => {
@@ -549,17 +558,21 @@ $todaysTopics = $history->getTodaysTopics();
                 
                 // Update progress and time
                 audio.addEventListener('timeupdate', () => {
-                    if (!isDragging) {
+                    if (!isDragging && progressBar && progressHandle && currentTimeSpan) {
                         const progress = (audio.currentTime / audio.duration) * 100;
-                        progressBar.style.width = progress + '%';
-                        progressHandle.style.left = progress + '%';
-                        currentTimeSpan.textContent = formatTime(audio.currentTime);
+                        if (!isNaN(progress)) {
+                            progressBar.style.width = progress + '%';
+                            progressHandle.style.left = progress + '%';
+                            currentTimeSpan.textContent = formatTime(audio.currentTime);
+                        }
                     }
                 });
                 
                 // Load duration when metadata is loaded
                 audio.addEventListener('loadedmetadata', () => {
-                    durationSpan.textContent = formatTime(audio.duration);
+                    if (durationSpan && !isNaN(audio.duration)) {
+                        durationSpan.textContent = formatTime(audio.duration);
+                    }
                 });
                 
                 // Progress bar clicking and dragging
@@ -590,6 +603,10 @@ $todaysTopics = $history->getTodaysTopics();
                 });
                 
                 function updateProgress(e) {
+                    if (!progressContainer || !progressBar || !progressHandle || !currentTimeSpan || !audio) {
+                        return;
+                    }
+                    
                     const rect = progressContainer.getBoundingClientRect();
                     const pos = (e.clientX - rect.left) / rect.width;
                     const clampedPos = Math.max(0, Math.min(1, pos));
@@ -613,18 +630,27 @@ $todaysTopics = $history->getTodaysTopics();
                 }
                 
                 // Volume control
-                volumeBtn.addEventListener('click', () => {
-                    volumeContainer.classList.toggle('hidden');
-                });
+                if (volumeBtn && volumeContainer) {
+                    volumeBtn.addEventListener('click', () => {
+                        volumeContainer.classList.toggle('hidden');
+                    });
+                }
                 
-                volumeSlider.addEventListener('input', () => {
-                    audio.volume = volumeSlider.value / 100;
-                    updateVolumeIcon();
-                });
+                if (volumeSlider) {
+                    volumeSlider.addEventListener('input', () => {
+                        audio.volume = volumeSlider.value / 100;
+                        if (volumeBtn) {
+                            updateVolumeIcon();
+                        }
+                    });
+                }
                 
                 function updateVolumeIcon() {
+                    if (!volumeBtn) return;
+                    
                     const volume = audio.volume;
                     const icon = volumeBtn.querySelector('i');
+                    if (!icon) return;
                     
                     if (volume === 0) {
                         icon.className = 'fas fa-volume-mute';
@@ -637,22 +663,32 @@ $todaysTopics = $history->getTodaysTopics();
                 
                 // Reset when audio ends
                 audio.addEventListener('ended', () => {
-                    playPauseBtn.innerHTML = '<i class="fas fa-play text-sm"></i>';
-                    progressBar.style.width = '0%';
-                    progressHandle.style.left = '0%';
-                    currentTimeSpan.textContent = '0:00';
+                    if (playPauseBtn) {
+                        playPauseBtn.innerHTML = '<i class="fas fa-play text-sm"></i>';
+                    }
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                    if (progressHandle) {
+                        progressHandle.style.left = '0%';
+                    }
+                    if (currentTimeSpan) {
+                        currentTimeSpan.textContent = '0:00';
+                    }
                 });
                 
                 // Show handle on hover
-                progressContainer.addEventListener('mouseenter', () => {
-                    progressHandle.style.opacity = '1';
-                });
-                
-                progressContainer.addEventListener('mouseleave', () => {
-                    if (!isDragging) {
-                        progressHandle.style.opacity = '0';
-                    }
-                });
+                if (progressHandle) {
+                    progressContainer.addEventListener('mouseenter', () => {
+                        progressHandle.style.opacity = '1';
+                    });
+                    
+                    progressContainer.addEventListener('mouseleave', () => {
+                        if (!isDragging) {
+                            progressHandle.style.opacity = '0';
+                        }
+                    });
+                }
             });
         }
         
