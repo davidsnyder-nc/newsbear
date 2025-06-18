@@ -386,6 +386,22 @@ function getRssCustomCategories() {
                                         <input type="checkbox" name="categories[]" value="sports" <?= isCategoryChecked('sports') ?> class="mr-3 h-4 w-4">
                                         Sports
                                     </label>
+                                    
+                                    <?php
+                                    // Add RSS custom categories
+                                    $rssCustomCategories = getRssCustomCategories();
+                                    if (!empty($rssCustomCategories)):
+                                    ?>
+                                    <div class="border-t pt-3 mt-3">
+                                        <h4 class="text-xs font-medium text-gray-600 uppercase mb-2">RSS Custom Categories</h4>
+                                        <?php foreach ($rssCustomCategories as $customCategory): ?>
+                                        <label class="flex items-center text-sm">
+                                            <input type="checkbox" name="categories[]" value="<?= htmlspecialchars($customCategory) ?>" <?= isCategoryChecked($customCategory) ?> class="mr-3 h-4 w-4">
+                                            <?= htmlspecialchars($customCategory) ?>
+                                        </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
