@@ -6,10 +6,26 @@ if (!isset($_GET['file'])) {
 }
 
 $filename = $_GET['file'];
-$filepath = 'downloads/' . basename($filename); // Sanitize path
 
-// Security check - only allow files in downloads directory
-if (!file_exists($filepath) || strpos($filename, '..') !== false) {
+// Security check - ensure the file path is within allowed directories
+$allowedPaths = ['data/history/', 'downloads/'];
+$validPath = false;
+foreach ($allowedPaths as $allowedPath) {
+    if (strpos($filename, $allowedPath) === 0) {
+        $validPath = true;
+        break;
+    }
+}
+
+if (!$validPath || strpos($filename, '..') !== false) {
+    http_response_code(403);
+    die('Invalid file path');
+}
+
+$filepath = $filename;
+
+// Check if file exists
+if (!file_exists($filepath)) {
     http_response_code(404);
     die('File not found');
 }

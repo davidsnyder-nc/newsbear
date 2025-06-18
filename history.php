@@ -595,38 +595,21 @@ $todaysTopics = $history->getTodaysTopics();
                     const clampedPos = Math.max(0, Math.min(1, pos));
                     
                     if (isNaN(audio.duration) || audio.duration === 0) {
-                        console.log('Audio not ready for seeking');
                         return;
                     }
                     
                     const newTime = clampedPos * audio.duration;
-                    const wasPlaying = !audio.paused;
                     
-                    // Pause before seeking to prevent issues
-                    if (wasPlaying) {
-                        audio.pause();
-                    }
-                    
-                    // Set the new time
-                    try {
+                    // Direct seeking without complex pause/resume logic
+                    if (audio.readyState >= 2) { // HAVE_CURRENT_DATA or higher
                         audio.currentTime = newTime;
-                    } catch (e) {
-                        console.log('Seeking failed:', e);
-                        return;
                     }
                     
-                    // Update visual elements immediately
+                    // Update visual elements
                     const progress = clampedPos * 100;
                     progressBar.style.width = progress + '%';
                     progressHandle.style.left = progress + '%';
                     currentTimeSpan.textContent = formatTime(newTime);
-                    
-                    // Resume playing after a brief delay if it was playing before
-                    if (wasPlaying) {
-                        setTimeout(() => {
-                            audio.play().catch(e => console.log('Audio resume failed:', e));
-                        }, 100);
-                    }
                 }
                 
                 // Volume control
