@@ -122,7 +122,10 @@ if ($_POST && !isset($_POST['action'])) {
         'claudeApiKey' => $_POST['claudeApiKey'] ?? '',
         'claudePrompt' => $_POST['claudePrompt'] ?? 'Generate news briefing script.',
         'googleTtsApiKey' => $_POST['googleTtsApiKey'] ?? '',
+        'huggingfaceApiKey' => $_POST['huggingfaceApiKey'] ?? '',
+        'ttsProvider' => $_POST['ttsProvider'] ?? 'google',
         'voiceSelection' => $_POST['voiceSelection'] ?? 'en-US-Neural2-D',
+        'chatterboxVoice' => $_POST['chatterboxVoice'] ?? 'news_anchor',
         'gnewsEnabled' => isset($_POST['gnewsEnabled']) ? true : false,
         'newsApiEnabled' => isset($_POST['newsApiEnabled']) ? true : false,
         'guardianEnabled' => isset($_POST['guardianEnabled']) ? true : false,
@@ -133,6 +136,7 @@ if ($_POST && !isset($_POST['action'])) {
         'geminiEnabled' => isset($_POST['geminiEnabled']) ? true : false,
         'claudeEnabled' => isset($_POST['claudeEnabled']) ? true : false,
         'googleTtsEnabled' => isset($_POST['googleTtsEnabled']) ? true : false,
+        'chatterboxEnabled' => isset($_POST['chatterboxEnabled']) ? true : false,
         // RSS feeds are handled separately in data/rss_feeds.json, not in main settings
         'lastUpdated' => date('c')
     ];
