@@ -129,6 +129,14 @@ class BriefingGenerator {
             $selectedStories = $this->selectStories($newsItems, $todaysTopics);
             $this->debugLog("AI selection completed: " . count($selectedStories) . " stories chosen");
             
+            // If AI selection failed but we have articles, use smart fallback
+            if (empty($selectedStories) && !empty($newsItems)) {
+                $this->debugLog("AI selection returned no stories but " . count($newsItems) . " articles available. Using smart fallback.", 'WARNING');
+                $targetCount = $this->getTargetStoryCount();
+                $selectedStories = $this->smartFallbackSelection($newsItems, $targetCount, []);
+                $this->debugLog("Fallback selection completed: " . count($selectedStories) . " stories chosen");
+            }
+            
             // Log selected story details
             foreach ($selectedStories as $i => $story) {
                 $this->debugLog("Selected story " . ($i + 1) . ": [" . ($story['source'] ?? 'Unknown') . "] " . substr($story['title'] ?? 'No title', 0, 80) . "...");
@@ -662,6 +670,12 @@ class BriefingGenerator {
                     break;
                 }
             }
+        }
+        
+        // If we still don't have enough stories, use fallback selection
+        if (count($selectedStories) < max(1, $storyCount / 2)) {
+            $this->debugLog("Insufficient stories selected (" . count($selectedStories) . "), using fallback selection", 'WARNING');
+            return $this->smartFallbackSelection($filteredItems, $storyCount, $selectedCategoryDistribution);
         }
         
         // Validate and enforce source diversity
