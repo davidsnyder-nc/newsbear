@@ -429,9 +429,10 @@ class BriefingGenerator {
                      $this->getTimeFrame() . " news briefing covering: {$selectedCategoriesText}.\n\n" .
                      "Prioritize:\n" .
                      "1. Most newsworthy and impactful stories from selected categories\n" .
-                     "2. Major news sources like New York Times, Guardian, etc.\n" .
+                     "2. SOURCE DIVERSITY: Include stories from different sources (New York Times, Guardian, AP News, CNN, etc.)\n" .
                      "3. Diverse coverage within the selected categories\n" .
-                     "4. Stories appropriate for the time of day\n\n" .
+                     "4. Stories appropriate for the time of day\n" .
+                     "5. IMPORTANT: Avoid selecting too many stories from the same source - aim for variety\n\n" .
                      $excludeTopicsText .
                      "Available stories:\n";
         }
