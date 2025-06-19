@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://fal.run/fal-ai/resemble-chatterbox-tts';
+    private $baseUrl = 'https://queue.fal.run/fal-ai/xtts-v2';
     
     public function __construct($settings = null) {
         if ($settings) {
@@ -66,9 +66,11 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // fal.ai API format based on documentation
+        // XTTS v2 API format for fal.ai
         $data = [
-            'input' => $text
+            'text' => $text,
+            'language' => 'en',
+            'speaker_url' => 'https://github.com/coqui-ai/TTS/raw/dev/tests/data/ljspeech/wavs/LJ001-0001.wav'
         ];
         
         $headers = [
