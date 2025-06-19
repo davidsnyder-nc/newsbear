@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://queue.fal.run/fal-ai/chatterbox';
+    private $baseUrl = 'https://110602490-chatterbox-tts.hf.space/api/v1/predict';
     
     public function __construct($settings = null) {
         if ($settings) {
@@ -66,13 +66,13 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for fal.ai
+        // Chatterbox TTS API format for Hugging Face Spaces
         $data = [
-            'text' => $text
+            'data' => [$text],
+            'fn_index' => 0
         ];
         
         $headers = [
-            'Authorization: Key ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
@@ -104,14 +104,14 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Parse the queue response
-        $queueResponse = json_decode($response, true);
-        if (!$queueResponse || !isset($queueResponse['request_id'])) {
-            throw new Exception("Invalid queue response from Chatterbox TTS");
+        // Parse the Hugging Face Spaces response
+        $result = json_decode($response, true);
+        if (!$result || !isset($result['data'])) {
+            throw new Exception("Invalid response from Chatterbox TTS");
         }
         
-        // Poll for completion and get audio data
-        $audioData = $this->pollForCompletion($queueResponse['status_url'], $queueResponse['response_url'], $text);
+        // Extract audio data from response
+        $audioData = $this->extractAudioFromHFResponse($result);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
@@ -155,8 +155,13 @@ class ChatterboxTTS {
             $status = json_decode($statusResponse, true);
             
             if ($status['status'] === 'COMPLETED') {
-                // For Chatterbox TTS, generate a simple audio tone since fal.ai result retrieval is limited
-                // The model is working (confirmed by successful completion) but audio extraction requires different approach
+                // Try to get the actual audio result from fal.ai
+                $audioResult = $this->extractAudioFromCompletedRequest($status, $responseUrl);
+                if ($audioResult) {
+                    return $audioResult;
+                }
+                
+                // If extraction fails, fall back to Google TTS
                 return $this->generateAudioFromText($text);
             } elseif ($status['status'] === 'FAILED') {
                 $error = $status['error'] ?? 'Unknown error';
@@ -239,6 +244,68 @@ class ChatterboxTTS {
         }
         
         return base64_decode($result['audioContent']);
+    }
+    
+    private function extractAudioFromCompletedRequest($status, $responseUrl) {
+        // Try multiple approaches to extract audio from fal.ai completed request
+        $requestId = $status['request_id'];
+        
+        // Approach 1: Check if there's audio data in status response itself
+        if (isset($status['output']['audio_url'])) {
+            return $this->downloadAudioFile($status['output']['audio_url']);
+        }
+        
+        // Approach 2: Use fal.ai client pattern with result endpoint
+        $resultEndpoints = [
+            "https://fal.run/fal-ai/chatterbox/requests/{$requestId}",
+            "https://fal.run/fal-ai/chatterbox/{$requestId}/result",
+            str_replace('/status', '', $status['status_url'])
+        ];
+        
+        foreach ($resultEndpoints as $endpoint) {
+            try {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $endpoint);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Key ' . $this->apiKey,
+                    'Accept: application/json'
+                ]);
+                
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                
+                if ($httpCode === 200) {
+                    $data = json_decode($response, true);
+                    if (isset($data['audio_url'])) {
+                        return $this->downloadAudioFile($data['audio_url']);
+                    }
+                }
+            } catch (Exception $e) {
+                // Continue to next endpoint
+                continue;
+            }
+        }
+        
+        return null; // No audio extracted
+    }
+    
+    private function extractAudioFromHFResponse($result) {
+        // Extract audio data from Hugging Face Spaces response
+        if (isset($result['data'][0]) && is_string($result['data'][0])) {
+            // Direct audio file URL
+            return $this->downloadAudioFile($result['data'][0]);
+        }
+        
+        if (isset($result['data'][0]['name'])) {
+            // File object with name/path
+            $audioUrl = 'https://110602490-chatterbox-tts.hf.space/file=' . $result['data'][0]['name'];
+            return $this->downloadAudioFile($audioUrl);
+        }
+        
+        throw new Exception("No audio data found in Chatterbox TTS response");
     }
     
     private function splitTextIntoChunks($text, $maxChunkSize) {
