@@ -23,11 +23,10 @@ function processRssFeeds($rssFeeds) {
                 'category' => ucfirst(strtolower($feed['category']))
             ];
             
-            // Handle custom category - now custom categories are stored directly as the category value
+            // Only use predefined categories - validate and default to 'general' if invalid
             $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'];
             if (!in_array(strtolower($feed['category']), $standardCategories)) {
-                // This is a custom category, store the actual category name
-                $processedFeed['customCategory'] = $feed['category'];
+                $processedFeed['category'] = 'general'; // Default to general for any invalid category
             }
             
             $processedFeeds[] = $processedFeed;
@@ -68,22 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ['value' => 'gaming', 'label' => 'Gaming']
         ];
         
-        // Add custom categories from RSS feeds
-        if (isset($settings['rssFeeds']) && is_array($settings['rssFeeds'])) {
-            $customCategories = [];
-            foreach ($settings['rssFeeds'] as $feed) {
-                if (isset($feed['customCategory']) && !empty($feed['customCategory'])) {
-                    $customCategory = $feed['customCategory'];
-                    if (!isset($customCategories[$customCategory])) {
-                        $customCategories[$customCategory] = true;
-                        $categories[] = [
-                            'value' => strtolower($customCategory),
-                            'label' => $customCategory
-                        ];
-                    }
-                }
-            }
-        }
+        // Only predefined categories are used - no custom categories
         
         echo json_encode(['success' => true, 'categories' => $categories]);
         exit;
@@ -947,13 +931,7 @@ function loadCustomCategories() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            data.categories.forEach(cat => {
-                if (!['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'].includes(cat.value)) {
-                    customCategories.add(cat.label);
-                }
-            });
-        }
+        // Categories loaded successfully - only predefined categories are used now
     });
 }
 
@@ -990,7 +968,7 @@ function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
     const isEditMode = isNewFeed;
     
     // Ensure category defaults to 'general' if invalid
-    const validCategory = category && category !== 'add_new' ? category : 'general';
+    const validCategory = category || 'general';
     
     const feedHtml = `
         <div class="border border-gray-200 rounded-lg bg-white" id="${feedId}">
@@ -1066,10 +1044,7 @@ function getCategoryDisplayName(category) {
         'gaming': 'Gaming'
     };
     
-    // Don't display "add_new" as a category
-    if (category === 'add_new') {
-        return 'General';
-    }
+    // Return the proper category display name
     
     return standardCategories[category] || category;
 }
