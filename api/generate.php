@@ -1044,16 +1044,19 @@ class BriefingGenerator {
         
         error_log("AI Response word count: {$actualWordCount}, Target: {$wordCount}");
         
-        // If significantly under target, request expansion
-        if ($actualWordCount < $minWords * 0.7) { // If less than 70% of minimum target
-            error_log("Content too short, requesting expansion...");
-            $expansionPrompt = "The previous briefing was only {$actualWordCount} words but needs to be {$wordCount} words for a {$audioLength} minute audio briefing. Please EXPAND the content significantly by:\n\n";
-            $expansionPrompt .= "1. Adding much more detail to each story - background, context, implications\n";
-            $expansionPrompt .= "2. Including expert analysis and potential consequences\n";
-            $expansionPrompt .= "3. Explaining the significance and impact of each story\n";
-            $expansionPrompt .= "4. Adding relevant historical context where appropriate\n";
-            $expansionPrompt .= "5. MANDATORY: Reach exactly {$wordCount} words\n\n";
-            $expansionPrompt .= "Here is the content to expand:\n\n{$response}";
+        // If under target, request expansion (more aggressive threshold)
+        if ($actualWordCount < $minWords * 0.9) { // If less than 90% of minimum target
+            error_log("Content too short ({$actualWordCount} words), requesting expansion to {$wordCount} words...");
+            $expansionPrompt = "CRITICAL: The current briefing is only {$actualWordCount} words but MUST be expanded to {$wordCount} words for a proper {$audioLength} minute audio briefing.\n\n";
+            $expansionPrompt .= "MANDATORY EXPANSION REQUIREMENTS:\n";
+            $expansionPrompt .= "1. Each story must be 3-4 full paragraphs with extensive detail\n";
+            $expansionPrompt .= "2. Add comprehensive background context and historical perspective\n";
+            $expansionPrompt .= "3. Include expert analysis, implications, and future outlook\n";
+            $expansionPrompt .= "4. Explain WHY each story matters and its broader significance\n";
+            $expansionPrompt .= "5. Add relevant quotes, statistics, and detailed explanations\n";
+            $expansionPrompt .= "6. Expand on consequences, next steps, and potential impacts\n";
+            $expansionPrompt .= "7. ABSOLUTE REQUIREMENT: Output must be exactly {$wordCount} words\n\n";
+            $expansionPrompt .= "Original content to expand:\n\n{$response}";
             
             // Try to get expanded content
             foreach ($aiServices as $modelName) {
@@ -1079,16 +1082,16 @@ class BriefingGenerator {
     }
     
     private function getWordCountForLength($audioLength) {
-        // AI speaks at ~180-200 words per minute, targeting higher word counts for longer audio
+        // AI speaks at ~150-180 words per minute, targeting realistic word counts
         switch ($audioLength) {
             case '3-5':
-                return '800-1200';  // 4-6 minutes target
+                return '600-900';   // 4-5 minutes target
             case '10-15':
-                return '2500-3200'; // 12-16 minutes target
+                return '1800-2400'; // 12-15 minutes target  
             case '15-20':
-                return '3800-4500'; // 19-22 minutes target
+                return '2700-3600'; // 18-20 minutes target
             default: // '5-10'
-                return '1200-2000'; // 6-10 minutes target
+                return '900-1500';  // 6-8 minutes target
         }
     }
     
