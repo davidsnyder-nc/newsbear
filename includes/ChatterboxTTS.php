@@ -2,13 +2,13 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://queue.fal.run/fal-ai/chatterbox';
+    private $baseUrl = 'https://api-inference.huggingface.co/models/ResembleAI/chatterbox';
     
     public function __construct($settings = null) {
         if ($settings) {
-            $this->apiKey = $settings['falApiKey'] ?? getenv('FAL_API_KEY');
+            $this->apiKey = $settings['huggingfaceApiKey'] ?? getenv('HUGGINGFACE_API_KEY');
         } else {
-            $this->apiKey = getenv('FAL_API_KEY');
+            $this->apiKey = getenv('HUGGINGFACE_API_KEY');
         }
     }
     
@@ -66,13 +66,14 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for fal.ai
+        // Chatterbox TTS API format for Hugging Face Inference with provider
         $data = [
-            'text' => $text
+            'inputs' => $text,
+            'provider' => 'auto'
         ];
         
         $headers = [
-            'Authorization: Key ' . $this->apiKey,
+            'Authorization: Bearer ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
@@ -104,14 +105,18 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Parse the fal.ai queue response
-        $queueResponse = json_decode($response, true);
-        if (!$queueResponse || !isset($queueResponse['request_id'])) {
-            throw new Exception("Invalid queue response from Chatterbox TTS");
+        // Handle direct audio response from Hugging Face Inference API
+        if (is_string($response) && (strpos($response, 'RIFF') === 0 || strpos($response, 'OggS') === 0)) {
+            // Direct audio data (WAV or OGG format)
+            $audioData = $response;
+        } else {
+            // Try to parse as JSON for error handling
+            $result = json_decode($response, true);
+            if ($result && isset($result['error'])) {
+                throw new Exception("Chatterbox TTS error: " . $result['error']);
+            }
+            throw new Exception("No audio data received from Chatterbox TTS");
         }
-        
-        // Poll for completion and get audio data
-        $audioData = $this->pollForCompletion($queueResponse['status_url'], $queueResponse['response_url'], $text);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
