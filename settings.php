@@ -1534,6 +1534,7 @@ function displaySchedules(schedules) {
                 ${schedule.settings.includeWeather ? '<span class="mr-3"><i class="fas fa-cloud mr-1"></i>Weather</span>' : ''}
                 ${schedule.settings.includeLocal ? '<span class="mr-3"><i class="fas fa-map-marker-alt mr-1"></i>Local</span>' : ''}
                 ${schedule.settings.includeTV ? '<span class="mr-3"><i class="fas fa-tv mr-1"></i>TV/Movies</span>' : ''}
+                ${(schedule.settings.categories || []).map(cat => `<span class="mr-3"><i class="fas fa-tag mr-1"></i>${cat.charAt(0).toUpperCase() + cat.slice(1)}</span>`).join('')}
             </div>
         `;
         

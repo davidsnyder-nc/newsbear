@@ -512,20 +512,31 @@ class BriefingGenerator {
         $isSpecificCategoryOnly = count($this->selectedCategories) == 1 && !in_array('general', $this->selectedCategories);
         $selectedCategory = $isSpecificCategoryOnly ? $this->selectedCategories[0] : null;
         
-        // Only add weather and entertainment if not doing category-specific briefing
-        if (!$isSpecificCategoryOnly) {
+        // Add weather and entertainment based on user settings
+        $weatherContent = '';
+        $tvContent = '';
+        $contentNumber = 3;
+        
+        // Always check weather setting, even for category-specific briefings
+        if ($this->settings['includeWeather'] ?? false) {
             $weatherContent = $this->getWeatherContent();
-            $tvContent = $this->getTVContent();
-            
             if (!empty($weatherContent)) {
-                $prompt .= "3. ALWAYS include weather information first: {$weatherContent}\n\n";
+                $prompt .= "{$contentNumber}. ALWAYS include weather information first: {$weatherContent}\n\n";
+                $contentNumber++;
             }
-            
+        }
+        
+        // Check TV content setting, even for category-specific briefings
+        if ($this->settings['includeTV'] ?? false) {
+            $tvContent = $this->getTVContent();
             if (!empty($tvContent)) {
-                $prompt .= "4. ALWAYS include entertainment/TV information second: {$tvContent}\n\n";
+                $prompt .= "{$contentNumber}. ALWAYS include entertainment/TV information: {$tvContent}\n\n";
+                $contentNumber++;
             }
-        } else {
-            $prompt .= "3. This is a specialized {$selectedCategory} news briefing. Focus ONLY on {$selectedCategory} content. Do NOT include weather, local news, or entertainment sections.\n\n";
+        }
+        
+        if ($isSpecificCategoryOnly) {
+            $prompt .= "{$contentNumber}. This is a specialized {$selectedCategory} news briefing. After any weather/TV content above, focus on {$selectedCategory} content.\n\n";
         }
         
         $prompt .= "5. Present each news story in a conversational, natural speaking style suitable for audio reading\n";
