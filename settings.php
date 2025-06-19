@@ -104,7 +104,7 @@ if ($_POST && !isset($_POST['action'])) {
         'aiGeneration' => $_POST['aiGeneration'] ?? 'gemini',
         'blockedTerms' => $_POST['blockedTerms'] ?? '',
         'preferredTerms' => $_POST['preferredTerms'] ?? '',
-        'categories' => $_POST['categories'] ?? ['general'],
+        'categories' => isset($_POST['categories']) && is_array($_POST['categories']) ? $_POST['categories'] : [],
         'debugMode' => isset($_POST['debugMode']) ? true : false,
         'verboseLogging' => isset($_POST['verboseLogging']) ? true : false,
         'showLogWindow' => isset($_POST['showLogWindow']) ? true : false,
@@ -193,7 +193,7 @@ $defaults = [
     'aiGeneration' => 'gemini',
     'blockedTerms' => '',
     'preferredTerms' => '',
-    'categories' => ['general', 'technology', 'science', 'health', 'entertainment'],
+    'categories' => [],
     'rssFeeds' => [],
     'gnewsApiKey' => '',
     'newsApiKey' => '',
@@ -225,7 +225,16 @@ $defaults = [
     'authEnabled' => false
 ];
 
+// Merge defaults but preserve empty arrays for categories
 $settings = array_merge($defaults, $settings);
+
+// Special handling for categories - don't merge defaults if categories were explicitly set (even to empty)
+if (isset($settings['categories']) && is_array($settings['categories'])) {
+    // Keep the explicitly set categories (including empty array)
+} else {
+    // Only use defaults if categories weren't set at all
+    $settings['categories'] = $defaults['categories'];
+}
 
 function isChecked($setting) {
     global $settings;

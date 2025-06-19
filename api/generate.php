@@ -44,7 +44,9 @@ class BriefingGenerator {
         $this->statusFile = "../downloads/status_{$this->sessionId}.json";
         
         // Initialize selected categories from settings
-        $this->selectedCategories = $settings['categories'] ?? ['general'];
+        $this->selectedCategories = isset($settings['categories']) && is_array($settings['categories']) && !empty($settings['categories']) 
+            ? $settings['categories'] 
+            : ['general'];
         
         // Create downloads directory if it doesn't exist
         if (!is_dir('../downloads')) {
