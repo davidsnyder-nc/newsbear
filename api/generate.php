@@ -1399,59 +1399,29 @@ class BriefingGenerator {
     
     private function validateAuthenticStories($stories) {
         $validStories = [];
-        $authenticSources = [
-            'GNews', 'NewsAPI', 'The Guardian', 'New York Times', 
-            'Weather Service', 'The Movie Database', 'Local News',
-            'OpenWeatherMap', 'TMDB', 'Weather API', 'NBC News', 
-            'The Washington Post', 'Bloomberg', 'Earth.com', 'ScienceAlert', 
-            'Deadline', 'CNN', 'BBC News', 'Reuters', 'Associated Press',
-            'Polygon', 'IGN', 'GameSpot', 'Kotaku', 'PC Gamer', 'Rock Paper Shotgun',
-            'Forbes', 'TechSpot', 'CNBC', 'WDIV ClickOnDetroit', 'Gizchina.com',
-            'Fortune', 'BGR', 'SlashGear'
-        ];
         
-        foreach ($stories as $i => $story) {
-            // Check if story has required authentic fields
-            if (!isset($story['title'])) {
+        foreach ($stories as $story) {
+            // Basic validation - story must have a title
+            if (empty($story['title'])) {
+                $this->debugLog("Skipping story without title", 'WARNING');
                 continue;
             }
             
-            // Weather and TV content may not have a 'source' field, so handle them specially
-            if (isset($story['source'])) {
-                // Verify the source is from an authentic API
-                $isAuthentic = false;
-                foreach ($authenticSources as $source) {
-                    if (stripos($story['source'], $source) !== false) {
-                        $isAuthentic = true;
-                        break;
-                    }
-                }
-                
-                if (!$isAuthentic) {
-                    continue;
-                }
-                
-                // Additional validation: story must have content or description
-                // Local news stories use title as content, so accept them
-                // NYT and other major sources should be accepted even with minimal content
-                $hasSufficientContent = !empty($story['content']) || 
-                                       !empty($story['description']) || 
-                                       $story['source'] === 'Local News' ||
-                                       stripos($story['source'], 'New York Times') !== false ||
-                                       stripos($story['source'], 'Guardian') !== false ||
-                                       stripos($story['source'], 'GNews') !== false ||
-                                       stripos($story['source'], 'NewsAPI') !== false;
-                
-                if ($hasSufficientContent) {
-                    $validStories[] = $story;
-                }
-            } else {
-                // For content without explicit source (weather, TV), check if it has title and content
-                if (!empty($story['title']) && (!empty($story['content']) || !empty($story['description']))) {
-                    $validStories[] = $story;
-                }
+            // Story must have some content or description
+            if (empty($story['content']) && empty($story['description'])) {
+                $this->debugLog("Skipping story without content: " . substr($story['title'], 0, 50) . "...", 'WARNING');
+                continue;
             }
+            
+            // Accept all stories that pass basic validation - no source whitelist needed
+            // Sources come from legitimate APIs (GNews, NewsAPI, Guardian, NYT, weather services, etc.)
+            $validStories[] = $story;
+            
+            $source = isset($story['source']) ? $story['source'] : 'Unknown';
+            $this->debugLog("Validated story from " . $source . ": " . substr($story['title'], 0, 60) . "...");
         }
+        
+        $this->debugLog("Story validation completed: " . count($validStories) . " of " . count($stories) . " stories passed validation");
         return $validStories;
     }
     
