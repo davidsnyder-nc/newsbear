@@ -1633,13 +1633,15 @@ function editSchedule(scheduleId) {
         if (data.success && data.schedules) {
             const schedule = data.schedules.find(s => s.id === scheduleId);
             if (schedule) {
+                // Show modal first with loading state
+                showNewScheduleModal();
+                
                 // Load categories first, then populate form
                 loadAvailableCategories().then(() => {
-                    // Small delay to ensure DOM is updated
+                    // Wait for categories to be fully rendered
                     setTimeout(() => {
                         populateScheduleForm(schedule);
-                        showNewScheduleModal();
-                    }, 100);
+                    }, 200);
                 });
             }
         }
@@ -1651,6 +1653,14 @@ function editSchedule(scheduleId) {
 }
 
 function populateScheduleForm(schedule) {
+    // Wait for categories to be fully rendered
+    const categoriesContainer = document.getElementById('schedule-categories-container');
+    if (!categoriesContainer || categoriesContainer.children.length === 0) {
+        // Categories not ready yet, retry in a moment
+        setTimeout(() => populateScheduleForm(schedule), 100);
+        return;
+    }
+    
     // Set schedule ID for edit mode
     document.getElementById('schedule-id').value = schedule.id;
     
@@ -1680,13 +1690,16 @@ function populateScheduleForm(schedule) {
     document.querySelector('select[name="scheduleAiSelection"]').value = settings.aiSelection || 'gemini';
     document.querySelector('input[name="scheduleCustomHeader"]').value = settings.customHeader || '';
     
-    // Set categories - handle case sensitivity
-    document.querySelectorAll('input[name="scheduleCategories"]').forEach(checkbox => {
-        const categories = settings.categories || [];
-        const isChecked = categories.some(cat => cat.toLowerCase() === checkbox.value.toLowerCase());
-        checkbox.checked = isChecked;
-        console.log(`Category ${checkbox.value}: ${isChecked ? 'checked' : 'unchecked'}`);
-    });
+    // Set categories - handle case sensitivity and ensure categories are loaded
+    const categoryCheckboxes = document.querySelectorAll('input[name="scheduleCategories"]');
+    if (categoryCheckboxes.length > 0) {
+        categoryCheckboxes.forEach(checkbox => {
+            const categories = settings.categories || [];
+            const isChecked = categories.some(cat => cat.toLowerCase() === checkbox.value.toLowerCase());
+            checkbox.checked = isChecked;
+            console.log(`Category ${checkbox.value}: ${isChecked ? 'checked' : 'unchecked'}`);
+        });
+    }
     
     // Set active status
     document.querySelector('input[name="scheduleActive"]').checked = schedule.active !== false;
