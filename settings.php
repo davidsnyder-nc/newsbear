@@ -141,6 +141,8 @@ if ($_POST && !isset($_POST['action'])) {
     // Debug log the settings being saved
     error_log("DEBUG: Saving settings with preferredTerms: '" . ($settings['preferredTerms'] ?? 'NOT SET') . "'");
     error_log("DEBUG: POST data for preferredTerms: '" . ($_POST['preferredTerms'] ?? 'NOT IN POST') . "'");
+    error_log("DEBUG: Categories being saved: " . json_encode($settings['categories']));
+    error_log("DEBUG: POST categories data: " . json_encode($_POST['categories'] ?? 'NOT SET'));
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: index.php?saved=1');
