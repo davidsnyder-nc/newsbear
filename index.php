@@ -56,7 +56,7 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Authentication Header -->
-    <?php if ($authStatus['enabled']): ?>
+    <?php if ($authStatus['enabled'] && !$authStatus['loggedIn']): ?>
     <header class="bg-white shadow-sm border-b">
         <div class="container mx-auto px-4 py-3 max-w-4xl">
             <div class="flex justify-between items-center">

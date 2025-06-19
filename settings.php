@@ -805,6 +805,16 @@ function getRssCustomCategories() {
                                             Enable Authentication
                                         </label>
                                         <p class="text-xs text-gray-500 ml-7">Require login for access to settings and briefing generation</p>
+                                        
+                                        <?php 
+                                        $authStatus = $auth->getAuthStatus();
+                                        if ($authStatus['enabled'] && $authStatus['loggedIn']): ?>
+                                        <div class="ml-7 mt-2">
+                                            <a href="logout.php" class="text-sm text-red-600 hover:text-red-800 flex items-center">
+                                                <i class="fas fa-sign-out-alt mr-2"></i>Logout (<?= htmlspecialchars($authStatus['username']) ?>)
+                                            </a>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
