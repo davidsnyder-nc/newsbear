@@ -285,9 +285,6 @@ function getRssCustomCategories() {
                     <i class="fas fa-cog mr-2"></i>Settings
                 </h1>
                 <div class="flex gap-3">
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm sm:text-base">
-                        <i class="fas fa-save mr-2"></i>Save Settings
-                    </button>
                     <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm sm:text-base inline-flex items-center">
                         <i class="fas fa-home mr-2"></i>Go Home
                     </a>
@@ -853,6 +850,13 @@ function getRssCustomCategories() {
                             </div>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Save Settings Button -->
+                <div class="flex justify-center pt-6 border-t border-gray-200">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md text-sm sm:text-base font-medium">
+                        <i class="fas fa-save mr-2"></i>Save Settings
+                    </button>
                 </div>
             </form>
         </div>
