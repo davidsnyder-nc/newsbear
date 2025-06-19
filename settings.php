@@ -411,10 +411,6 @@ function isCategoryChecked($category) {
             </div>
 
             <form id="settings-form" method="POST" class="space-y-8">
-                <!-- Hidden fields to preserve current category selections -->
-                <?php foreach ($settings['categories'] ?? ['general'] as $category): ?>
-                <input type="hidden" name="categories[]" value="<?= htmlspecialchars($category) ?>">
-                <?php endforeach; ?>
                 <!-- Basic Settings Tab -->
                 <div id="basic-content" class="tab-content">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
