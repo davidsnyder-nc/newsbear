@@ -73,7 +73,9 @@ try {
             }
             
             // Load text content
-            if (isset($briefing['text_content'])) {
+            if (isset($briefing['text']) && !empty($briefing['text'])) {
+                $formattedBriefing['text_content'] = $briefing['text'];
+            } elseif (isset($briefing['text_content'])) {
                 $formattedBriefing['text_content'] = $briefing['text_content'];
             } elseif ($formattedBriefing['text_file'] && file_exists('../' . $formattedBriefing['text_file'])) {
                 $formattedBriefing['text_content'] = file_get_contents('../' . $formattedBriefing['text_file']);
