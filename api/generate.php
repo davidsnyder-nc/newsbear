@@ -80,7 +80,11 @@ class BriefingGenerator {
         
         try {
             // Initialize debug logging
-            $this->debugLog("Starting briefing generation process");
+            $this->debugLog("=== Starting briefing generation ===");
+            $this->debugLog("Session ID: " . $this->sessionId);
+            $this->debugLog("Selected categories: " . implode(', ', $this->selectedCategories));
+            $this->debugLog("Audio length: " . ($this->settings['audioLength'] ?? 'default'));
+            $this->debugLog("Story count: " . ($this->settings['storyCount'] ?? 'default'));
             
             // Initialize briefing history
             $history = new BriefingHistory();

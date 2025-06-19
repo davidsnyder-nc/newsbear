@@ -4,7 +4,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Simple debug log API endpoint
+// Debug log API endpoint
 $sessionId = $_GET['session'] ?? '';
 
 if (empty($sessionId)) {
@@ -13,31 +13,26 @@ if (empty($sessionId)) {
     exit;
 }
 
-// Read PHP error log for the session
+// Read debug log for the session
 $logFile = "/tmp/newsbear_debug_$sessionId.log";
 $logs = [];
 
 if (file_exists($logFile)) {
     $logContent = file_get_contents($logFile);
-    $lines = explode("\n", trim($logContent));
+    $lines = array_filter(explode("\n", $logContent), 'strlen');
     
     foreach ($lines as $line) {
-        if (!empty($line)) {
-            // Parse log entries
-            if (strpos($line, 'ERROR:') !== false) {
-                $logs[] = ['message' => $line, 'type' => 'error'];
-            } elseif (strpos($line, 'WARNING:') !== false) {
-                $logs[] = ['message' => $line, 'type' => 'warning'];
-            } elseif (strpos($line, 'SUCCESS:') !== false) {
-                $logs[] = ['message' => $line, 'type' => 'success'];
-            } else {
-                $logs[] = ['message' => $line, 'type' => 'info'];
-            }
+        // Parse log entries with type detection
+        if (strpos($line, 'ERROR:') !== false) {
+            $logs[] = ['message' => $line, 'type' => 'error'];
+        } elseif (strpos($line, 'WARNING:') !== false) {
+            $logs[] = ['message' => $line, 'type' => 'warning'];
+        } elseif (strpos($line, 'SUCCESS:') !== false) {
+            $logs[] = ['message' => $line, 'type' => 'success'];
+        } else {
+            $logs[] = ['message' => $line, 'type' => 'info'];
         }
     }
-    
-    // Clear the log file after reading
-    file_put_contents($logFile, '');
 }
 
 echo json_encode(['logs' => $logs]);
