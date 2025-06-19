@@ -497,14 +497,43 @@ class BriefingGenerator {
                      $excludeTopicsText .
                      "Available {$categoryName} stories:\n";
         } else {
-            $prompt = "Select {$storyCount} of the most important and interesting stories from the following list for a " . 
-                     $this->getTimeFrame() . " news briefing covering: {$selectedCategoriesText}.\n\n" .
+            // Calculate stories per category for balanced distribution
+            $categoriesInContent = [];
+            foreach ($filteredItems as $item) {
+                $cat = strtolower($item['category']);
+                if (!isset($categoriesInContent[$cat])) {
+                    $categoriesInContent[$cat] = 0;
+                }
+                $categoriesInContent[$cat]++;
+            }
+            
+            $selectedCategoryDistribution = [];
+            $totalSelectedCategories = count($this->selectedCategories);
+            $baseStoriesPerCategory = max(1, floor($storyCount / $totalSelectedCategories));
+            $remainingStories = $storyCount - ($baseStoriesPerCategory * $totalSelectedCategories);
+            
+            foreach ($this->selectedCategories as $i => $category) {
+                $storiesForCategory = $baseStoriesPerCategory;
+                if ($i < $remainingStories) {
+                    $storiesForCategory++; // Distribute remaining stories
+                }
+                $selectedCategoryDistribution[$category] = $storiesForCategory;
+            }
+            
+            $distributionText = [];
+            foreach ($selectedCategoryDistribution as $cat => $count) {
+                $distributionText[] = "{$count} {$cat}";
+            }
+            
+            $prompt = "Select {$storyCount} stories for a " . $this->getTimeFrame() . " news briefing covering: {$selectedCategoriesText}.\n\n" .
+                     "CRITICAL REQUIREMENT - BALANCED DISTRIBUTION:\n" .
+                     "You MUST select exactly: " . implode(", ", $distributionText) . " stories.\n" .
+                     "This ensures balanced coverage across all selected categories.\n\n" .
                      "Prioritize:\n" .
-                     "1. Most newsworthy and impactful stories from selected categories\n" .
-                     "2. SOURCE DIVERSITY: Include stories from different sources (New York Times, Guardian, AP News, CNN, etc.)\n" .
-                     "3. Diverse coverage within the selected categories\n" .
-                     "4. Stories appropriate for the time of day\n" .
-                     "5. IMPORTANT: Avoid selecting too many stories from the same source - aim for variety\n\n" .
+                     "1. CATEGORY BALANCE: Follow the exact distribution above\n" .
+                     "2. Most newsworthy stories within each category\n" .
+                     "3. SOURCE DIVERSITY: Different sources for variety\n" .
+                     "4. Stories appropriate for the time of day\n\n" .
                      $excludeTopicsText .
                      "Available stories:\n";
         }
