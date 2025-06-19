@@ -211,10 +211,10 @@ class ScheduleManager {
      * Generate briefing based on schedule settings
      */
     private function generateScheduledBriefing($settings) {
-        // Use the same briefing generation logic as the main generate.php API
-        // by calling it directly to ensure consistency
+        // Create a simplified briefing generation using cURL to call the API
+        $apiUrl = 'http://localhost:5000/api/generate.php';
         
-        $requestData = [
+        $postData = [
             'generateMp3' => $settings['generateMp3'] ?? false,
             'includeWeather' => $settings['includeWeather'] ?? false,
             'includeLocal' => $settings['includeLocal'] ?? false,
@@ -222,40 +222,46 @@ class ScheduleManager {
             'zipCode' => $settings['zipCode'] ?? '',
             'timeFrame' => $settings['timeFrame'] ?? 'auto',
             'audioLength' => $settings['audioLength'] ?? '5-10',
-            'aiSelection' => $settings['aiSelection'] ?? 'openai',
+            'aiSelection' => $settings['aiSelection'] ?? 'gemini',
             'customHeader' => $settings['customHeader'] ?? ''
         ];
         
-        // Simulate a briefing generation request
-        $_POST = $requestData;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minute timeout
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded'
+        ]);
         
-        // Start output buffering to capture the API response
-        ob_start();
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
         
-        try {
-            // Include and execute the generate.php logic
-            include __DIR__ . '/../api/generate.php';
-            $output = ob_get_contents();
-            ob_end_clean();
-            
-            // Parse the JSON response
-            $result = json_decode($output, true);
-            
-            if ($result && $result['success']) {
-                return [
-                    'text' => $result['text'] ?? '',
-                    'topics' => $this->extractTopicsFromText($result['text'] ?? ''),
-                    'sources' => $result['sources'] ?? [],
-                    'audio_file' => $result['audio_file'] ?? null,
-                    'duration' => $result['duration'] ?? 0
-                ];
-            } else {
-                throw new Exception('Failed to generate briefing: ' . ($result['message'] ?? 'Unknown error'));
-            }
-        } catch (Exception $e) {
-            ob_end_clean();
-            throw new Exception('Briefing generation failed: ' . $e->getMessage());
+        if ($error) {
+            throw new Exception('cURL error: ' . $error);
         }
+        
+        if ($httpCode !== 200) {
+            throw new Exception('HTTP error: ' . $httpCode);
+        }
+        
+        $result = json_decode($response, true);
+        
+        if (!$result || !$result['success']) {
+            throw new Exception('API error: ' . ($result['message'] ?? 'Unknown error'));
+        }
+        
+        return [
+            'text' => $result['text'] ?? '',
+            'topics' => $this->extractTopicsFromText($result['text'] ?? ''),
+            'sources' => $result['sources'] ?? [],
+            'audio_file' => $result['audio_file'] ?? null,
+            'duration' => $result['duration'] ?? 0
+        ];
     }
     
     /**
