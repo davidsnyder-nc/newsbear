@@ -90,6 +90,7 @@ class BriefingGenerator {
             $this->debugLog("Fetching news from all enabled sources");
             $this->updateStatus('Fetching headlines...', 10);
             $newsItems = $this->fetchNews();
+            $this->debugLog("Retrieved " . count($newsItems) . " news items");
             
             // Ensure we have real news content before proceeding
             if (empty($newsItems)) {
@@ -1470,6 +1471,14 @@ class BriefingGenerator {
         ];
         
         file_put_contents($this->statusFile, json_encode($status));
+        $this->debugLog("STATUS: $message ($progress%)");
+    }
+    
+    private function debugLog($message, $type = 'INFO') {
+        $logFile = "/tmp/newsbear_debug_{$this->sessionId}.log";
+        $timestamp = date('H:i:s');
+        $logEntry = "[$timestamp] $type: $message\n";
+        file_put_contents($logFile, $logEntry, FILE_APPEND);
     }
     
     public function getSessionId() {
