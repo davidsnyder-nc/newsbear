@@ -1459,9 +1459,10 @@ function saveSchedule() {
     .then(data => {
         if (data.success) {
             hideScheduleModal();
-            loadSchedules();
+            schedulesCache = null; // Clear cache
+            loadSchedules(true); // Force refresh
         } else {
-            alert('Failed to create schedule: ' + (data.message || 'Unknown error'));
+            alert('Failed to save schedule: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
@@ -1470,26 +1471,55 @@ function saveSchedule() {
     });
 }
 
-function loadSchedules() {
+let schedulesCache = null;
+let loadingSchedules = false;
+
+function loadSchedules(forceRefresh = false) {
+    // Use cache if available and not forcing refresh
+    if (!forceRefresh && schedulesCache !== null) {
+        displaySchedules(schedulesCache);
+        return;
+    }
+    
+    // Prevent multiple simultaneous requests
+    if (loadingSchedules) return;
+    loadingSchedules = true;
+    
     document.getElementById('schedules-loading').classList.remove('hidden');
     document.getElementById('schedules-list').classList.add('hidden');
     document.getElementById('schedules-empty').classList.add('hidden');
     
-    fetch('api/scheduling.php')
-    .then(response => response.json())
+    // Add timeout to prevent hanging
+    const fetchPromise = fetch('api/scheduling.php');
+    const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+    );
+    
+    Promise.race([fetchPromise, timeoutPromise])
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
     .then(data => {
+        loadingSchedules = false;
         document.getElementById('schedules-loading').classList.add('hidden');
         
         if (data.success && data.schedules && data.schedules.length > 0) {
+            schedulesCache = data.schedules;
             displaySchedules(data.schedules);
         } else {
             document.getElementById('schedules-empty').classList.remove('hidden');
         }
     })
     .catch(error => {
+        loadingSchedules = false;
         console.error('Error loading schedules:', error);
         document.getElementById('schedules-loading').classList.add('hidden');
         document.getElementById('schedules-empty').classList.remove('hidden');
+        
+        // Show user-friendly error
+        const emptyDiv = document.getElementById('schedules-empty');
+        emptyDiv.innerHTML = '<div class="text-center py-8"><p class="text-red-600">Failed to load schedules. <button onclick="loadSchedules(true)" class="text-blue-600 underline">Try again</button></p></div>';
     });
 }
 
@@ -1603,9 +1633,13 @@ function editSchedule(scheduleId) {
         if (data.success && data.schedules) {
             const schedule = data.schedules.find(s => s.id === scheduleId);
             if (schedule) {
+                // Load categories first, then populate form
                 loadAvailableCategories().then(() => {
-                    populateScheduleForm(schedule);
-                    showNewScheduleModal();
+                    // Small delay to ensure DOM is updated
+                    setTimeout(() => {
+                        populateScheduleForm(schedule);
+                        showNewScheduleModal();
+                    }, 100);
                 });
             }
         }
@@ -1646,9 +1680,12 @@ function populateScheduleForm(schedule) {
     document.querySelector('select[name="scheduleAiSelection"]').value = settings.aiSelection || 'gemini';
     document.querySelector('input[name="scheduleCustomHeader"]').value = settings.customHeader || '';
     
-    // Set categories
+    // Set categories - handle case sensitivity
     document.querySelectorAll('input[name="scheduleCategories"]').forEach(checkbox => {
-        checkbox.checked = (settings.categories || []).includes(checkbox.value);
+        const categories = settings.categories || [];
+        const isChecked = categories.some(cat => cat.toLowerCase() === checkbox.value.toLowerCase());
+        checkbox.checked = isChecked;
+        console.log(`Category ${checkbox.value}: ${isChecked ? 'checked' : 'unchecked'}`);
     });
     
     // Set active status
