@@ -92,20 +92,21 @@ class CategoryClassifier {
     }
     
     private function getAvailableCategories() {
-        // Standard news categories
-        $categories = [
-            'general', 'business', 'entertainment', 'health', 'science', 
-            'sports', 'technology', 'politics', 'world'
-        ];
+        // Use only the categories selected by the user in settings
+        $selectedCategories = $this->settings['categories'] ?? ['general'];
         
-        // Add RSS custom categories
+        // Add RSS custom categories that match selected ones
         try {
             require_once __DIR__ . '/RSSFeedHandler.php';
             $rssHandler = new RSSFeedHandler();
             $customCategories = $rssHandler->getCustomCategories();
-            $categories = array_merge($categories, $customCategories);
+            
+            // Only include custom categories that are also in selected categories
+            $validCustomCategories = array_intersect($customCategories, $selectedCategories);
+            $categories = array_merge($selectedCategories, $validCustomCategories);
         } catch (Exception $e) {
-            // Continue without RSS categories if there's an error
+            // Use only selected categories if RSS handler fails
+            $categories = $selectedCategories;
         }
         
         return array_unique($categories);
@@ -117,12 +118,13 @@ class CategoryClassifier {
         $prompt .= "AVAILABLE CATEGORIES (use exactly these names):\n";
         
         // Group categories for better understanding
-        $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics', 'world'];
-        $customCategories = array_diff($categories, $standardCategories);
+        $knownCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics', 'world'];
+        $standardCategories = array_intersect($categories, $knownCategories);
+        $customCategories = array_diff($categories, $knownCategories);
         
-        $prompt .= "Standard categories:\n";
-        foreach ($standardCategories as $cat) {
-            if (in_array($cat, $categories)) {
+        if (!empty($standardCategories)) {
+            $prompt .= "Available categories:\n";
+            foreach ($standardCategories as $cat) {
                 $prompt .= "- $cat: " . $this->getCategoryDescription($cat) . "\n";
             }
         }
@@ -135,10 +137,11 @@ class CategoryClassifier {
         }
         
         $prompt .= "\nCLASSIFICATION RULES:\n";
-        $prompt .= "1. Choose the MOST SPECIFIC category that fits the article\n";
-        $prompt .= "2. Use 'general' only if no other category fits\n";
-        $prompt .= "3. Custom categories take priority when content clearly matches\n";
-        $prompt .= "4. Use exact category names as listed above (lowercase)\n\n";
+        $prompt .= "1. MANDATORY: You must classify every article using ONLY the categories listed above\n";
+        $prompt .= "2. If an article doesn't clearly fit a specific category, assign it to 'general'\n";
+        $prompt .= "3. NEVER use categories not listed above (no 'world', 'politics', etc. unless specifically listed)\n";
+        $prompt .= "4. Use exact category names as listed above (lowercase)\n";
+        $prompt .= "5. Custom categories take priority when content clearly matches\n\n";
         
         $prompt .= "ARTICLES TO CLASSIFY:\n";
         
