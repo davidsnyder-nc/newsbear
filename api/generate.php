@@ -283,6 +283,9 @@ class BriefingGenerator {
             }
             
         } catch (Exception $e) {
+            $this->debugLog("=== FATAL ERROR OCCURRED ===", 'ERROR');
+            $this->debugLog("Error message: " . $e->getMessage(), 'ERROR');
+            $this->debugLog("Error location: " . $e->getFile() . " line " . $e->getLine(), 'ERROR');
             error_log("Briefing generation error: " . $e->getMessage());
             $this->updateStatus('Error: ' . $e->getMessage(), 0, true, false);
         }
@@ -296,17 +299,19 @@ class BriefingGenerator {
         $allNews = [];
         
         // Fetch from enabled news sources including local news
+        $this->debugLog("Fetching from news APIs (GNews, NewsAPI, Guardian, NYT, Local)...");
         $newsItems = $newsAPI->fetchFromAllSources(
             $this->selectedCategories, 
             $this->settings['zipCode'] ?? null, 
             $this->settings['includeLocal'] ?? false
         );
-        error_log("fetchNews: Got " . count($newsItems) . " items from NewsAPI");
+        $this->debugLog("News APIs returned " . count($newsItems) . " articles");
         $allNews = array_merge($allNews, $newsItems);
         
         // Fetch from RSS feeds
+        $this->debugLog("Fetching from configured RSS feeds...");
         $rssItems = $this->fetchRSSNews();
-        error_log("fetchNews: Got " . count($rssItems) . " items from RSS feeds");
+        $this->debugLog("RSS feeds returned " . count($rssItems) . " articles");
         $allNews = array_merge($allNews, $rssItems);
         
         // Apply content filtering (blocked/preferred terms)
@@ -318,6 +323,7 @@ class BriefingGenerator {
         
         // Add TV/Movie content if enabled
         if ($this->settings['includeTV'] && $this->settings['tmdbEnabled']) {
+            $this->debugLog("Fetching TV/Movie content from TMDB...");
             $tvContent = $tmdbService->getTVContent();
             if ($tvContent) {
                 $tvBriefing = $tmdbService->formatForBriefing($tvContent);
@@ -329,10 +335,16 @@ class BriefingGenerator {
                         'source' => 'The Movie Database',
                         'publishedAt' => date('c')
                     ];
+                    $this->debugLog("Added TV/Movie content successfully");
+                } else {
+                    $this->debugLog("TV content formatting failed", 'WARNING');
                 }
+            } else {
+                $this->debugLog("No TV/Movie content available from TMDB", 'WARNING');
             }
         }
         
+        $this->debugLog("Total content collected: " . count($allNews) . " items from all sources");
         return $allNews;
     }
     
@@ -599,24 +611,24 @@ class BriefingGenerator {
         foreach ($aiServices as $modelName) {
             try {
                 $startTime = time();
-                error_log("Attempting AI story selection with {$modelName}");
+                $this->debugLog("Attempting AI story selection with {$modelName}...");
                 
                 $response = $aiService->generateText($prompt, $modelName);
                 $duration = time() - $startTime;
                 
                 if ($response) {
-                    error_log("AI story selection response from {$modelName} (took {$duration}s): " . $response);
+                    $this->debugLog("AI response from {$modelName} (took {$duration}s): " . substr($response, 0, 100) . "...");
                     break; // Success, stop trying other services
                 }
             } catch (Exception $e) {
                 $duration = time() - $startTime;
-                error_log("AI service {$modelName} failed in story selection after {$duration}s: " . $e->getMessage());
+                $this->debugLog("AI service {$modelName} failed after {$duration}s: " . $e->getMessage(), 'ERROR');
                 // Continue to next AI service
             }
         }
         
         if (!$response) {
-            error_log("All AI services failed for story selection, using smart fallback");
+            $this->debugLog("All AI services failed for story selection, using smart fallback", 'WARNING');
             // Smart fallback: distribute stories across categories and sources
             return $this->smartFallbackSelection($filteredItems, $storyCount, $selectedCategoryDistribution);
         }
@@ -629,7 +641,7 @@ class BriefingGenerator {
             $arrayIndex = intval($index) - 1;
             if (isset($filteredItems[$arrayIndex])) {
                 $story = $filteredItems[$arrayIndex];
-                error_log("Selected story " . $index . ": [" . ($story['source'] ?? 'Unknown') . "] " . $story['title']);
+                $this->debugLog("Parsing selection #" . $index . ": [" . ($story['source'] ?? 'Unknown') . "] " . substr($story['title'], 0, 60) . "...");
                 $selectedStories[] = $story;
             }
         }
@@ -935,7 +947,14 @@ class BriefingGenerator {
         
         foreach ($aiServices as $modelName) {
             try {
+                $startTime = time();
+                $this->debugLog("Starting content generation with {$modelName}...");
                 $response = $aiService->generateText($prompt, $modelName);
+                $duration = time() - $startTime;
+                
+                if ($response) {
+                    $wordCount = str_word_count($response);
+                    $this->debugLog("Content generation completed with {$modelName} (took {$duration}s): {$wordCount} words generated");
                 if ($response) {
                     break; // Success, stop trying other services
                 }
