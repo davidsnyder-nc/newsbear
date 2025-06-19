@@ -2,13 +2,13 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://api-inference.huggingface.co/models/ResembleAI/chatterbox';
+    private $baseUrl = 'https://fal.run/fal-ai/chatterbox/text-to-speech';
     
     public function __construct($settings = null) {
         if ($settings) {
-            $this->apiKey = $settings['huggingfaceApiKey'] ?? getenv('HUGGINGFACE_API_KEY');
+            $this->apiKey = $settings['falApiKey'] ?? getenv('FAL_API_KEY');
         } else {
-            $this->apiKey = getenv('HUGGINGFACE_API_KEY');
+            $this->apiKey = getenv('FAL_API_KEY');
         }
     }
     
@@ -66,14 +66,13 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for Hugging Face Inference with provider
+        // Chatterbox TTS API format for Hugging Face Inference
         $data = [
-            'inputs' => $text,
-            'provider' => 'auto'
+            'inputs' => $text
         ];
         
         $headers = [
-            'Authorization: Bearer ' . $this->apiKey,
+            'Authorization: Key ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
