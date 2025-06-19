@@ -66,9 +66,9 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for Hugging Face Inference
+        // Chatterbox TTS API format for fal.ai
         $data = [
-            'inputs' => $text
+            'text' => $text
         ];
         
         $headers = [
@@ -104,17 +104,21 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Handle direct audio response from Hugging Face Inference API
+        // Handle fal.ai response format
         if (is_string($response) && (strpos($response, 'RIFF') === 0 || strpos($response, 'OggS') === 0)) {
             // Direct audio data (WAV or OGG format)
             $audioData = $response;
         } else {
-            // Try to parse as JSON for error handling
+            // Parse JSON response from fal.ai
             $result = json_decode($response, true);
-            if ($result && isset($result['error'])) {
+            if ($result && isset($result['audio']['url'])) {
+                // Download audio from URL
+                $audioData = $this->downloadAudioFile($result['audio']['url']);
+            } elseif ($result && isset($result['error'])) {
                 throw new Exception("Chatterbox TTS error: " . $result['error']);
+            } else {
+                throw new Exception("No audio data received from Chatterbox TTS");
             }
-            throw new Exception("No audio data received from Chatterbox TTS");
         }
         
         if ($saveFile) {
