@@ -140,7 +140,6 @@ if ($_POST && !isset($_POST['action'])) {
     // Debug log the settings being saved
     error_log("DEBUG: Saving settings with preferredTerms: '" . ($settings['preferredTerms'] ?? 'NOT SET') . "'");
     error_log("DEBUG: POST data for preferredTerms: '" . ($_POST['preferredTerms'] ?? 'NOT IN POST') . "'");
-    ];
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: index.php?saved=1');
