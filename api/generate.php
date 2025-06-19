@@ -639,16 +639,28 @@ class BriefingGenerator {
             return $this->smartFallbackSelection($filteredItems, $storyCount, $selectedCategoryDistribution);
         }
         
-        // Parse selection
-        $selectedIndexes = array_map('trim', explode(',', $response));
-        $selectedStories = [];
+        // Parse selection - extract only numbers from AI response, ignoring explanatory text
+        preg_match_all('/\b\d+\b/', $response, $matches);
+        $selectedIndexes = $matches[0] ?? [];
         
+        // If no numbers found, use fallback
+        if (empty($selectedIndexes)) {
+            $this->debugLog("AI returned no valid numbers: " . substr($response, 0, 200) . "... Using fallback selection.", 'WARNING');
+            return $this->smartFallbackSelection($filteredItems, $storyCount, $selectedCategoryDistribution);
+        }
+        
+        $selectedStories = [];
         foreach ($selectedIndexes as $index) {
             $arrayIndex = intval($index) - 1;
             if (isset($filteredItems[$arrayIndex])) {
                 $story = $filteredItems[$arrayIndex];
                 $this->debugLog("Parsing selection #" . $index . ": [" . ($story['source'] ?? 'Unknown') . "] " . substr($story['title'], 0, 60) . "...");
                 $selectedStories[] = $story;
+                
+                // Stop when we have enough stories
+                if (count($selectedStories) >= $storyCount) {
+                    break;
+                }
             }
         }
         

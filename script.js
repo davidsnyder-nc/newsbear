@@ -171,8 +171,9 @@ class NewsBriefApp {
     }
 
     async pollStatus(sessionId) {
-        const maxAttempts = 150; // 5 minutes total for complex briefings
+        const maxAttempts = 5; // Maximum 10 seconds of polling
         let attempts = 0;
+        let consecutiveErrors = 0;
 
         while (attempts < maxAttempts && this.isGenerating) {
             try {
@@ -205,11 +206,18 @@ class NewsBriefApp {
 
             } catch (error) {
                 console.error('Polling error:', error);
+                consecutiveErrors++;
+                
+                // Stop immediately on clear failures
+                if (consecutiveErrors >= 2 || error.message.includes('Unable to fetch content') || error.message.includes('API key') || error.message.includes('Generation failed')) {
+                    this.addDebugLogEntry(`Generation failed: ${error.message}`, 'error');
+                    this.showError(error.message);
+                    return;
+                }
+                
                 this.addDebugLogEntry(`Polling error (attempt ${attempts}): ${error.message}`, 'warning');
-                // Don't immediately fail - continue polling
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 attempts++;
-                continue;
             }
         }
 

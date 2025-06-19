@@ -1,0 +1,60 @@
+
+NewsBear Logo
+NewsBear
+Cooking up your daily digest...
+Generation Log
+Clear
+[10:12:48 AM] Debug log initialized - waiting for generation to start...
+[10:12:55 AM] [10:12:49] STATUS: Starting generation... (0%)
+[10:12:55 AM] [10:12:49] === Starting briefing generation ===
+[10:12:55 AM] [10:12:49] Session ID: briefing_68541ae14b2966.93797533
+[10:12:55 AM] [10:12:49] Selected categories: general
+[10:12:55 AM] [10:12:49] Audio length: 15-20
+[10:12:55 AM] [10:12:49] Story count: default
+[10:12:55 AM] [10:12:49] === STEP 1: FETCHING NEWS ===
+[10:12:55 AM] [10:12:49] Checking enabled sources: GNews=YES, NewsAPI=YES, Guardian=YES, NYT=YES
+[10:12:55 AM] [10:12:49] Selected categories: general
+[10:12:55 AM] [10:12:49] STATUS: Fetching headlines... (10%)
+[10:12:55 AM] [10:12:49] Fetching from news APIs (GNews, NewsAPI, Guardian, NYT, Local)...
+[10:12:55 AM] [10:12:54] News APIs returned 56 articles
+[10:12:55 AM] [10:12:54] Fetching from configured RSS feeds...
+[10:12:55 AM] [10:12:54] RSS feeds returned 0 articles
+[10:12:55 AM] [10:12:54] Total content collected: 52 items from all sources
+[10:12:55 AM] [10:12:54] SUCCESS: Retrieved 52 total news items from all sources
+[10:12:55 AM] [10:12:54] === STEP 2: CHECKING TOPIC OVERLAP ===
+[10:12:55 AM] [10:12:54] STATUS: Checking for smart briefing... (20%)
+[10:12:55 AM] [10:12:54] Found 0 topics already covered today (for deduplication)
+[10:12:55 AM] [10:12:54] === STEP 3: AI STORY SELECTION ===
+[10:12:55 AM] [10:12:54] STATUS: Selecting stories using AI... (30%)
+[10:12:55 AM] [10:12:54] Sending 52 news items to AI for story selection
+[10:12:55 AM] [10:12:54] Attempting AI story selection with gemini...
+[10:12:55 AM] [10:12:55] AI response from gemini (took 1s): I need the full list of available stories to select 22-25 for the briefing, following all the specif...
+[10:12:55 AM] [10:12:55] AI selection completed: 0 stories chosen
+[10:12:55 AM] [10:12:55] === STEP 4: VALIDATING STORY AUTHENTICITY ===
+[10:12:55 AM] [10:12:55] Accepted 0 of 0 stories from configured sources
+[10:12:55 AM] [10:12:55] Story validation completed: 0 stories passed authenticity checks
+[10:12:55 AM] [10:12:55] Content analysis: 0 authentic news stories, 0 weather/entertainment items
+[10:12:55 AM] [10:12:55] === FATAL ERROR OCCURRED ===
+[10:12:55 AM] [10:12:55] Error message: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:12:55 AM] [10:12:55] Error location: /home/runner/workspace/api/generate.php line 188
+[10:12:55 AM] [10:12:55] STATUS: Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection. (0%)
+[10:12:55 AM] Polling error (attempt 0): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:12:57 AM] Polling error (attempt 1): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:12:59 AM] Polling error (attempt 2): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:01 AM] Polling error (attempt 3): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:03 AM] Polling error (attempt 4): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:06 AM] Polling error (attempt 5): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:08 AM] Polling error (attempt 6): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:10 AM] Polling error (attempt 7): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:12 AM] Polling error (attempt 8): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:14 AM] Polling error (attempt 9): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:16 AM] Polling error (attempt 10): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:18 AM] Polling error (attempt 11): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:20 AM] Polling error (attempt 12): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:22 AM] Polling error (attempt 13): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:24 AM] Polling error (attempt 14): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:26 AM] Polling error (attempt 15): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:28 AM] Polling error (attempt 16): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:31 AM] Polling error (attempt 17): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:33 AM] Polling error (attempt 18): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
+[10:13:35 AM] Polling error (attempt 19): Error: Unable to fetch content from enabled sources: weather, TV/movies, GNews, NewsAPI, Guardian, New York Times. Please check your API keys and internet connection.
