@@ -1015,9 +1015,9 @@ function displayHistoryItems(briefings) {
                 </div>
             </div>
             
+            ${audioHtml}
             ${topicsHtml}
             ${sourcesHtml}
-            ${audioHtml}
             ${textHtml}
         `;
         
