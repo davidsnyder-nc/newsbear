@@ -8,19 +8,31 @@ A cutting-edge personalized news briefing application that leverages advanced AI
 
 ### Core Functionality
 - **AI-Powered Content Generation**: Uses OpenAI, Gemini, or Claude for intelligent news curation and script generation
-- **Multi-Source News Integration**: Aggregates from GNews, NewsAPI, Guardian, NY Times, and more
+- **Multi-Source News Integration**: Aggregates from GNews, NewsAPI, Guardian, NY Times, RSS feeds, and custom sources
 - **Audio Report Generation**: Text-to-Speech with multiple voice options (American, British, Australian)
+- **Automated Scheduling**: Create recurring daily briefings with custom times and content preferences
 - **Personalized Briefings**: Customizable length (3-20 minutes), categories, and content filters
-- **Weather Integration**: Local weather reports included in briefings
+- **Weather Integration**: Local weather reports included in briefings based on ZIP code
 - **Entertainment Content**: TV shows and movie updates via TMDB API
 - **Local News**: ZIP code-based local news integration
+- **Gaming News**: Dedicated gaming category with RSS feed integration from gaming sources
+
+### Scheduling System
+- **Multiple Daily Schedules**: Set up different briefings throughout the day
+- **Category-Specific Scheduling**: Each schedule can target specific news categories
+- **Flexible Content Options**: Include/exclude weather, local news, TV/movies, and specific categories
+- **Audio/Text Output**: Choose format per schedule (MP3 audio or text-only)
+- **Day-of-Week Selection**: Run schedules on specific days or daily
+- **Real-time Execution**: Automatic briefing generation at scheduled times
 
 ### Technical Features
-- **Tabbed Settings Interface**: Organized configuration across Basic, Content, API, AI Services, and Advanced tabs
-- **Briefing History**: Access and replay previous news briefings
+- **Tabbed Settings Interface**: Organized configuration across Basic, Content, API, AI Services, Advanced, and Scheduling tabs
+- **Briefing History**: Access and replay previous news briefings with audio playback
 - **Responsive Design**: Mobile-friendly interface with Tailwind CSS
 - **Content Filtering**: Block unwanted terms and customize content
 - **Multiple AI Providers**: Fallback support across different AI services
+- **RSS Feed Integration**: Custom RSS feeds for specialized content categories
+- **Schedule Management**: Create, edit, delete, and toggle scheduled briefings
 
 ## 🚀 Quick Start
 
@@ -43,14 +55,19 @@ A cutting-edge personalized news briefing application that leverages advanced AI
    chmod 755 config data downloads
    ```
 
-3. **Start the server**
+3. **Start the application**
    ```bash
-   php -S 0.0.0.0:5000 -t .
+   # Start the web server
+   php -S 0.0.0.0:5000 -t . &
+   
+   # Start the scheduler daemon (for automated briefings)
+   php scheduler.php &
    ```
 
 4. **Access the application**
    - Open http://localhost:5000 in your browser
    - Navigate to Settings to configure your API keys
+   - Set up automated schedules in the Scheduling tab
 
 ## ⚙️ Configuration
 
@@ -112,12 +129,32 @@ export WEATHER_API_KEY="your_weather_key"
    - Wait for processing (usually 30-60 seconds)
    - Download MP3 or read text version
 
+### Setting Up Automated Schedules
+
+1. **Create Schedule**
+   - Go to Settings → Scheduling
+   - Click "Add New Schedule"
+   - Set time (24-hour format)
+   - Choose days of the week
+
+2. **Configure Content**
+   - Select specific categories for this schedule
+   - Choose whether to include weather, local news, TV/movies
+   - Set output format (MP3 audio or text-only)
+
+3. **Manage Schedules**
+   - Toggle schedules on/off without deleting
+   - Edit existing schedules
+   - View schedule status and last run time
+   - Delete schedules no longer needed
+
 ### Managing Briefings
 
 - **History**: Access all previous briefings via the History page
 - **Audio Playback**: Built-in audio player with progress control
 - **Text Export**: Copy briefing text to clipboard
 - **Delete**: Remove unwanted briefings
+- **Scheduled Content**: View briefings generated automatically by schedules
 
 ## 🏗️ Architecture
 
@@ -127,17 +164,21 @@ export WEATHER_API_KEY="your_weather_key"
 newsbear/
 ├── api/                    # API endpoints
 │   ├── generate.php        # Main briefing generation
-│   └── status.php         # Status checking
+│   ├── status.php         # Status checking
+│   └── scheduling.php     # Schedule management API
 ├── includes/              # Core PHP classes
 │   ├── AIService.php      # AI provider integration
 │   ├── NewsAPI.php        # News source aggregation
 │   ├── TTSService.php     # Text-to-speech conversion
 │   ├── WeatherService.php # Weather data integration
 │   ├── TMDBService.php    # Movie/TV data
-│   └── BriefingHistory.php # History management
+│   ├── BriefingHistory.php # History management
+│   └── ScheduleManager.php # Scheduling system
 ├── config/                # Configuration files
 ├── data/                  # Generated briefings and history
+│   └── schedules/         # Schedule configuration files
 ├── attached_assets/       # Logos and static assets
+├── scheduler.php          # Background scheduling daemon
 ├── index.php             # Main application
 ├── settings.php          # Configuration interface
 ├── history.php           # Briefing history
@@ -148,10 +189,12 @@ newsbear/
 
 - **Frontend**: Vanilla JavaScript with Tailwind CSS
 - **Backend**: PHP with modular class structure
-- **AI Integration**: Multi-provider support with fallbacks
+- **AI Integration**: Multi-provider support with fallbacks (OpenAI, Gemini, Claude)
 - **Audio Generation**: Google Text-to-Speech integration
 - **Data Storage**: JSON-based file storage
 - **News Aggregation**: Multiple API sources with deduplication
+- **Scheduling Engine**: Background daemon for automated briefing generation
+- **RSS Integration**: Custom RSS feed parsing for specialized content
 
 ## 🛠️ Development
 
@@ -229,6 +272,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Ensure Google TTS API key is configured
 - Check TTS service quota
 - Verify voice selection compatibility
+
+**"Scheduled briefings not running"**
+- Verify scheduler daemon is running: `ps aux | grep scheduler.php`
+- Check file permissions on config and data directories
+- Ensure at least one schedule is enabled and properly configured
+- Review schedule times are in correct timezone format
+
+**"Schedule not found" or "Cannot update schedule"**
+- Check data/schedules directory exists and is writable
+- Verify schedule files are valid JSON format
+- Restart scheduler daemon after configuration changes
 
 ### Getting Help
 
