@@ -148,7 +148,14 @@ class BriefingHistory {
      * Get total count of briefings
      */
     public function getBriefingCount() {
-        return count($this->getAllBriefings());
+        $allBriefings = $this->getAllBriefings();
+        
+        // Filter out placeholder entries for accurate count
+        $allBriefings = array_filter($allBriefings, function($briefing) {
+            return !isset($briefing['text']) || $briefing['text'] !== 'Scheduled briefing started successfully';
+        });
+        
+        return count($allBriefings);
     }
 
     /**
@@ -156,6 +163,11 @@ class BriefingHistory {
      */
     public function getBriefings($limit = 10, $offset = 0) {
         $allBriefings = $this->getAllBriefings();
+        
+        // Filter out placeholder entries from scheduler
+        $allBriefings = array_filter($allBriefings, function($briefing) {
+            return !isset($briefing['text']) || $briefing['text'] !== 'Scheduled briefing started successfully';
+        });
         
         // Sort by timestamp descending (newest first)
         usort($allBriefings, function($a, $b) {
