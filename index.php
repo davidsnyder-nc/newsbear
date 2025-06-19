@@ -127,18 +127,15 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
                     
                     <div id="download-section" class="mb-4 hidden">
                         <div class="audio-container">
-                            <div class="mb-3 flex justify-between items-center">
-                                <div>
+                            <div class="mb-3">
+                                <div class="flex items-center mb-3">
                                     <i class="fas fa-volume-up text-blue-600 mr-2"></i>
                                     <span class="text-sm font-medium text-gray-700">Your News Briefing</span>
                                 </div>
-                                <a id="download-link" href="#" download class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center">
-                                    <i class="fas fa-download mr-1"></i>Download
-                                </a>
                             </div>
                             
                             <!-- Enhanced Audio Player -->
-                            <div class="custom-audio-player" id="main-audio-player">
+                            <div class="custom-audio-player mb-4" id="main-audio-player">
                                 <audio id="briefing-player" preload="auto" class="hidden">
                                     <source id="audio-source" src="" type="audio/mpeg">
                                 </audio>
@@ -167,6 +164,13 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
                                         <input type="range" class="volume-slider w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer" min="0" max="100" value="100">
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <!-- Download Button -->
+                            <div class="text-center">
+                                <a id="download-link" href="#" download class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm flex items-center justify-center w-full sm:w-auto sm:inline-flex">
+                                    <i class="fas fa-download mr-2"></i>Download MP3
+                                </a>
                             </div>
                         </div>
                     </div>
