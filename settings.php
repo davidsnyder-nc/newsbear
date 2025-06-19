@@ -104,6 +104,7 @@ if ($_POST && !isset($_POST['action'])) {
         'aiSelection' => $_POST['aiSelection'] ?? 'openai',
         'aiGeneration' => $_POST['aiGeneration'] ?? 'gemini',
         'blockedTerms' => $_POST['blockedTerms'] ?? '',
+        'preferredTerms' => $_POST['preferredTerms'] ?? '',
         'categories' => $_POST['categories'] ?? ['general'],
         'debugMode' => isset($_POST['debugMode']) ? true : false,
         'verboseLogging' => isset($_POST['verboseLogging']) ? true : false,
@@ -162,7 +163,9 @@ $defaults = [
     'aiSelection' => 'openai',
     'aiGeneration' => 'gemini',
     'blockedTerms' => '',
+    'preferredTerms' => '',
     'categories' => ['general', 'technology', 'science', 'health', 'entertainment'],
+    'rssFeeds' => [],
     'gnewsApiKey' => '',
     'newsApiKey' => '',
     'guardianApiKey' => '',
@@ -223,6 +226,8 @@ function getRssCustomCategories() {
         return [];
     }
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
