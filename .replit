@@ -16,6 +16,10 @@ author = "agent"
 task = "workflow.run"
 args = "News Brief Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Scheduler"
+
 [[workflows.workflow]]
 name = "News Brief Server"
 author = "agent"
@@ -24,6 +28,14 @@ author = "agent"
 task = "shell.exec"
 args = "php -S 0.0.0.0:5000 -t ."
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Scheduler"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "while true; do php scheduler.php; sleep 60; done"
 
 [deployment]
 run = ["sh", "-c", "php -S 0.0.0.0:5000 -t ."]
