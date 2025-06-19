@@ -1,4 +1,16 @@
 <?php
+session_start();
+require_once __DIR__ . '/../includes/AuthManager.php';
+
+$auth = new AuthManager();
+
+// Check authentication if enabled
+if ($auth->isAuthEnabled() && !$auth->isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Authentication required']);
+    exit;
+}
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');

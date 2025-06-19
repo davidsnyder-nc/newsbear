@@ -1,4 +1,16 @@
 <?php
+session_start();
+require_once '../includes/AuthManager.php';
+
+$auth = new AuthManager();
+
+// Check authentication if enabled
+if ($auth->isAuthEnabled() && !$auth->isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Authentication required']);
+    exit;
+}
+
 // Set timezone for correct timestamps
 date_default_timezone_set('America/New_York');
 

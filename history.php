@@ -1,4 +1,10 @@
 <?php
+session_start();
+require_once 'includes/AuthManager.php';
+
+$auth = new AuthManager();
+$auth->requireAuth();
+
 // Set timezone for correct timestamps
 date_default_timezone_set('America/New_York');
 

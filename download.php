@@ -1,4 +1,10 @@
 <?php
+session_start();
+require_once 'includes/AuthManager.php';
+
+$auth = new AuthManager();
+$auth->requireAuth();
+
 // Download handler for MP3 files with forced download headers
 if (!isset($_GET['file'])) {
     http_response_code(400);
