@@ -51,7 +51,7 @@ if (file_exists($settingsFile)) {
                 <a href="settings.php" class="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
                     <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8">
                     <h1 class="text-4xl sm:text-5xl font-bold leading-none">
-                        <span class="text-gray-800">News</span><span style="color: #3A2B1F;">Bear</span>
+                        <span class="text-gray-800">News</span><span class="text-amber-900" style="color: #3A2B1F !important;">Bear</span>
                     </h1>
                 </a>
             </div>
