@@ -144,7 +144,6 @@ if ($_POST && !isset($_POST['action'])) {
     error_log("DEBUG: Categories being saved: " . json_encode($settings['categories']));
     error_log("DEBUG: POST categories data: " . json_encode($_POST['categories'] ?? 'NOT SET'));
     error_log("DEBUG: RSS Feeds POST data: " . json_encode($_POST['rssFeeds'] ?? 'NOT SET'));
-    error_log("DEBUG: RSS Feeds processed: " . json_encode($settings['rssFeeds']));
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: settings.php?saved=1');
@@ -430,6 +429,10 @@ function getRssCustomCategories() {
             </div>
 
             <form id="settings-form" method="POST" class="space-y-8">
+                <!-- Hidden fields to preserve current category selections -->
+                <?php foreach ($settings['categories'] ?? ['general'] as $category): ?>
+                <input type="hidden" name="categories[]" value="<?= htmlspecialchars($category) ?>">
+                <?php endforeach; ?>
                 <!-- Basic Settings Tab -->
                 <div id="basic-content" class="tab-content">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
