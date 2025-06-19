@@ -274,6 +274,9 @@ class BriefingGenerator {
         error_log("fetchNews: Got " . count($newsItems) . " items from NewsAPI");
         $allNews = array_merge($allNews, $newsItems);
         
+        // Apply content filtering (blocked/preferred terms)
+        $allNews = $this->applyContentFilters($allNews);
+        
         // Local news is now handled within fetchFromAllSources
         
         // Weather is handled separately in generateBriefingContent() to ensure it appears first
@@ -295,18 +298,25 @@ class BriefingGenerator {
             }
         }
         
-        // Deduplicate and filter
-        return $this->deduplicateAndFilter($allNews);
+        return $allNews;
     }
     
-    private function deduplicateAndFilter($news) {
+    private function applyContentFilters($news) {
         $filtered = [];
+        $preferred = [];
         $seenTitles = [];
+        
         $blockedTerms = array_map('trim', explode(',', strtolower($this->settings['blockedTerms'] ?? '')));
         $blockedTerms = array_filter($blockedTerms);
         
+        $preferredTerms = array_map('trim', explode(',', strtolower($this->settings['preferredTerms'] ?? '')));
+        $preferredTerms = array_filter($preferredTerms);
+        
         if (!empty($blockedTerms)) {
             error_log("Blocked terms active: " . implode(', ', $blockedTerms));
+        }
+        if (!empty($preferredTerms)) {
+            error_log("Preferred terms active: " . implode(', ', $preferredTerms));
         }
         
         foreach ($news as $item) {
@@ -316,25 +326,49 @@ class BriefingGenerator {
                 continue;
             }
             
-            // Skip blocked terms
+            $title = $item['title'] ?? '';
+            $content = $item['content'] ?? '';
+            
+            // Check for blocked terms first
             $blocked = false;
             foreach ($blockedTerms as $term) {
-                if (stripos($item['title'], $term) !== false || stripos($item['content'] ?? '', $term) !== false) {
-                    error_log("BLOCKED TERM: Article '" . $item['title'] . "' blocked for term: " . $term);
+                if (stripos($title, $term) !== false || stripos($content, $term) !== false) {
+                    error_log("BLOCKED TERM: Article '" . $title . "' blocked for term: " . $term);
                     $blocked = true;
                     break;
                 }
             }
             
-            if (!$blocked) {
-                $seenTitles[] = $titleKey;
-                $filtered[] = $item;
+            if ($blocked) {
+                continue;
+            }
+            
+            // Check for preferred terms
+            $isPreferred = false;
+            foreach ($preferredTerms as $term) {
+                if (stripos($title, $term) !== false || stripos($content, $term) !== false) {
+                    error_log("PREFERRED TERM: Article '" . $title . "' marked as preferred for term: " . $term);
+                    $isPreferred = true;
+                    break;
+                }
+            }
+            
+            $seenTitles[] = $titleKey;
+            
+            if ($isPreferred) {
+                // Mark preferred articles for priority selection
+                $item['isPreferred'] = true;
+                $preferred[] = $item;
             } else {
-                error_log("Article blocked: " . $item['title']);
+                $filtered[] = $item;
             }
         }
         
-        return $filtered;
+        // Combine preferred articles first, then regular articles
+        $result = array_merge($preferred, $filtered);
+        error_log("Content filtering: " . count($preferred) . " preferred, " . count($filtered) . " regular articles");
+        
+        return $result;
     }
     
     private function filterByCategories($newsItems) {
