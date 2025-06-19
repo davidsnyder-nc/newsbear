@@ -1405,7 +1405,9 @@ class BriefingGenerator {
             'OpenWeatherMap', 'TMDB', 'Weather API', 'NBC News', 
             'The Washington Post', 'Bloomberg', 'Earth.com', 'ScienceAlert', 
             'Deadline', 'CNN', 'BBC News', 'Reuters', 'Associated Press',
-            'Polygon', 'IGN', 'GameSpot', 'Kotaku', 'PC Gamer', 'Rock Paper Shotgun'
+            'Polygon', 'IGN', 'GameSpot', 'Kotaku', 'PC Gamer', 'Rock Paper Shotgun',
+            'Forbes', 'TechSpot', 'CNBC', 'WDIV ClickOnDetroit', 'Gizchina.com',
+            'Fortune', 'BGR', 'SlashGear'
         ];
         
         foreach ($stories as $i => $story) {

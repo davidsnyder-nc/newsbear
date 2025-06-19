@@ -49,54 +49,7 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Circular loading animation around logo */
-.logo-loading-container {
-    position: relative;
-    display: inline-block;
-}
-
-.logo-loading-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 320px;
-    height: 320px;
-    transform: translate(-50%, -50%);
-    border: 5px solid transparent;
-    border-top: 5px solid #8B4513;
-    border-radius: 50%;
-    animation: logo-spin 2s linear infinite;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
-.logo-loading-ring.active {
-    opacity: 1;
-}
-
-.logo-loading-ring::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    right: -6px;
-    bottom: -6px;
-    border: 3px solid transparent;
-    border-top: 3px solid #A0522D;
-    border-radius: 50%;
-    animation: logo-spin-reverse 1.5s linear infinite;
-}
-
-@keyframes logo-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes logo-spin-reverse {
-    0% { transform: rotate(360deg); }
-    100% { transform: rotate(0deg); }
-}
+/* Removed circular loading animation - no longer needed */
 
 /* Hover effects for cards */
 .bg-white:hover {

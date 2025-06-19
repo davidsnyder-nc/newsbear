@@ -216,13 +216,11 @@ class NewsBriefApp {
         const successContainer = document.getElementById('success-container');
         const errorContainer = document.getElementById('error-container');
         const generateBtn = document.getElementById('generate-btn');
-        const logoLoadingRing = document.getElementById('logo-loading-ring');
         
         if (statusContainer) statusContainer.classList.remove('hidden');
         if (successContainer) successContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.add('hidden');
         if (generateBtn) generateBtn.style.display = 'none';
-        if (logoLoadingRing) logoLoadingRing.classList.add('active');
         
         this.startWittyMessages();
     }
