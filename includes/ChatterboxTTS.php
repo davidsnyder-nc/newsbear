@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://api-inference.huggingface.co/models/ResembleAI/chatterbox';
+    private $baseUrl = 'https://resembleai-chatterbox.hf.space/api/predict';
     
     public function __construct($settings = null) {
         if ($settings) {
@@ -66,13 +66,18 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
+        // Hugging Face Spaces API format
         $data = [
-            'inputs' => $text,
-            'parameters' => $voiceSettings
+            'data' => [
+                $text,              // text_input
+                null,               // audio_prompt_path_input (optional)
+                1.0,                // exaggeration_input
+                0.7,                // temperature_input
+                42                  // seed_input
+            ]
         ];
         
         $headers = [
-            'Authorization: Bearer ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
@@ -104,8 +109,14 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Response should be audio data directly
-        $audioData = $response;
+        // Parse Hugging Face Spaces response
+        $responseData = json_decode($response, true);
+        if (!$responseData || !isset($responseData['data'])) {
+            throw new Exception("Invalid response format from Chatterbox TTS API");
+        }
+        
+        // The audio data is base64 encoded in the response
+        $audioData = base64_decode($responseData['data'][0]);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
