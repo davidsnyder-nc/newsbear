@@ -120,7 +120,8 @@ class NewsBriefApp {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout for complex briefings
             
-            const response = await fetch(endpoint, {
+            // Start generation and immediately begin polling for logs
+            const responsePromise = fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,6 +129,13 @@ class NewsBriefApp {
                 body: JSON.stringify({}),
                 signal: controller.signal
             });
+
+            // Start polling for the latest log file immediately
+            setTimeout(() => {
+                this.startLatestLogPolling();
+            }, 100);
+
+            const response = await responsePromise;
             
             clearTimeout(timeoutId);
 
@@ -137,8 +145,9 @@ class NewsBriefApp {
 
             const result = await response.json();
 
-            // Always start log polling if we have a session ID
+            // Continue with actual session ID if available
             if (result.sessionId) {
+                this.stopLogPolling();
                 this.startLogPolling(result.sessionId);
             }
 
@@ -794,6 +803,38 @@ class NewsBriefApp {
         } catch (error) {
             console.warn('Error polling debug logs:', error);
         }
+    }
+
+    startLatestLogPolling() {
+        if (!this.debugLogEnabled || this.logPollingInterval) return;
+        
+        this.lastLogCount = 0;
+        let lastFoundSession = null;
+        
+        this.logPollingInterval = setInterval(async () => {
+            try {
+                // Poll for the latest debug log file
+                const response = await fetch(`api/debug_log.php?session=latest&_t=${Date.now()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.sessionId && data.sessionId !== lastFoundSession) {
+                        lastFoundSession = data.sessionId;
+                        console.log('Found new session:', data.sessionId);
+                    }
+                    
+                    if (data.logs && data.logs.length > this.lastLogCount) {
+                        const newLogs = data.logs.slice(this.lastLogCount);
+                        console.log('Adding', newLogs.length, 'new debug log entries');
+                        newLogs.forEach(log => {
+                            this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
+                        });
+                        this.lastLogCount = data.logs.length;
+                    }
+                }
+            } catch (error) {
+                console.warn('Error polling latest debug logs:', error);
+            }
+        }, 250);
     }
 
     stopLogPolling() {

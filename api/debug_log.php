@@ -13,11 +13,29 @@ if (empty($sessionId)) {
     exit;
 }
 
-// Read debug log for the session
-$logFile = "/tmp/newsbear_debug_$sessionId.log";
 $logs = [];
+$logFile = '';
+$actualSessionId = $sessionId;
 
-if (file_exists($logFile)) {
+// Handle "latest" session - find the most recent debug log file
+if ($sessionId === 'latest') {
+    $debugFiles = glob('/tmp/newsbear_debug_*.log');
+    if (!empty($debugFiles)) {
+        // Sort by modification time, newest first
+        usort($debugFiles, function($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+        $logFile = $debugFiles[0];
+        // Extract session ID from filename
+        if (preg_match('/newsbear_debug_(.+)\.log$/', $logFile, $matches)) {
+            $actualSessionId = $matches[1];
+        }
+    }
+} else {
+    $logFile = "/tmp/newsbear_debug_$sessionId.log";
+}
+
+if (!empty($logFile) && file_exists($logFile)) {
     $logContent = file_get_contents($logFile);
     $lines = array_filter(explode("\n", $logContent), 'strlen');
     
@@ -35,5 +53,5 @@ if (file_exists($logFile)) {
     }
 }
 
-echo json_encode(['logs' => $logs]);
+echo json_encode(['logs' => $logs, 'sessionId' => $actualSessionId]);
 ?>
