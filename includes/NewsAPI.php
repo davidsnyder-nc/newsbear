@@ -53,8 +53,12 @@ class NewsAPI {
             }
         }
         
-        // Fetch from each enabled source
-        if ($this->gnewsKey) {
+        // Only fetch from general news APIs if 'general' category is selected
+        $shouldFetchGeneral = in_array('general', $categories);
+        error_log("Should fetch general news: " . ($shouldFetchGeneral ? "YES" : "NO") . " - Categories: " . implode(', ', $categories));
+        
+        // Fetch from each enabled source (only if general category is selected)
+        if ($this->gnewsKey && $shouldFetchGeneral) {
             try {
                 $gnewsArticles = $this->fetchFromGNews($categories);
                 error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
@@ -68,10 +72,10 @@ class NewsAPI {
                 error_log("GNews fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("GNews: API key not available");
+            error_log("GNews: " . (!$this->gnewsKey ? "API key not available" : "Skipped - general category not selected"));
         }
         
-        if ($this->newsApiKey) {
+        if ($this->newsApiKey && $shouldFetchGeneral) {
             try {
                 $newsApiArticles = $this->fetchFromNewsAPI($categories);
                 error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
@@ -85,10 +89,10 @@ class NewsAPI {
                 error_log("NewsAPI fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("NewsAPI: API key not available");
+            error_log("NewsAPI: " . (!$this->newsApiKey ? "API key not available" : "Skipped - general category not selected"));
         }
         
-        if ($this->guardianKey) {
+        if ($this->guardianKey && $shouldFetchGeneral) {
             try {
                 $guardianArticles = $this->fetchFromGuardian($categories);
                 error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
@@ -97,10 +101,10 @@ class NewsAPI {
                 error_log("Guardian fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("Guardian: API key not available");
+            error_log("Guardian: " . (!$this->guardianKey ? "API key not available" : "Skipped - general category not selected"));
         }
         
-        if ($this->nytKey) {
+        if ($this->nytKey && $shouldFetchGeneral) {
             try {
                 $nytNews = $this->fetchFromNYT($categories);
                 error_log("NYT fetch returned " . count($nytNews) . " articles");
@@ -113,6 +117,8 @@ class NewsAPI {
             } catch (Exception $e) {
                 error_log("NYT fetch error: " . $e->getMessage());
             }
+        } else {
+            error_log("NYT: " . (!$this->nytKey ? "API key not available" : "Skipped - general category not selected"));
         }
         
         // Use AI to classify articles that came in as "general"
