@@ -1488,10 +1488,21 @@ class BriefingGenerator {
         $logFile = "/tmp/newsbear_debug_{$this->sessionId}.log";
         $timestamp = date('H:i:s');
         $logEntry = "[$timestamp] $message\n";
-        file_put_contents($logFile, $logEntry, FILE_APPEND);
+        file_put_contents($logFile, $logEntry, FILE_APPEND | LOCK_EX);
+        
+        // Force immediate flush to disk for real-time display
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate($logFile, true);
+        }
         
         // Also log to error_log for workflow console visibility
         error_log("NewsBear Debug [$timestamp]: $message");
+        
+        // Force output buffer flush for immediate file writing
+        if (ob_get_level()) {
+            ob_flush();
+        }
+        flush();
     }
     
     public function getSessionId() {
