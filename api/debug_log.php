@@ -17,23 +17,7 @@ $logs = [];
 $logFile = '';
 $actualSessionId = $sessionId;
 
-// Handle "latest" session - find the most recent debug log file
-if ($sessionId === 'latest') {
-    $debugFiles = glob('/tmp/newsbear_debug_*.log');
-    if (!empty($debugFiles)) {
-        // Sort by modification time, newest first
-        usort($debugFiles, function($a, $b) {
-            return filemtime($b) - filemtime($a);
-        });
-        $logFile = $debugFiles[0];
-        // Extract session ID from filename
-        if (preg_match('/newsbear_debug_(.+)\.log$/', $logFile, $matches)) {
-            $actualSessionId = $matches[1];
-        }
-    }
-} else {
-    $logFile = "/tmp/newsbear_debug_$sessionId.log";
-}
+$logFile = "/tmp/newsbear_debug_$sessionId.log";
 
 if (!empty($logFile) && file_exists($logFile)) {
     $logContent = file_get_contents($logFile);

@@ -130,11 +130,6 @@ class NewsBriefApp {
                 signal: controller.signal
             });
 
-            // Start polling for the latest log file immediately
-            setTimeout(() => {
-                this.startLatestLogPolling();
-            }, 100);
-
             const response = await responsePromise;
             
             clearTimeout(timeoutId);
@@ -145,9 +140,8 @@ class NewsBriefApp {
 
             const result = await response.json();
 
-            // Continue with actual session ID if available
+            // Start log polling with the actual session ID
             if (result.sessionId) {
-                this.stopLogPolling();
                 this.startLogPolling(result.sessionId);
             }
 
@@ -781,61 +775,32 @@ class NewsBriefApp {
         
         this.logPollingInterval = setInterval(() => {
             this.fetchDebugLogs(sessionId);
-        }, 250); // Poll every 250ms for more responsive updates during generation
+        }, 500); // Poll every 500ms to reduce server load
     }
 
     async fetchDebugLogs(sessionId) {
         try {
             const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
             if (response.ok) {
-                const data = await response.json();
-                console.log('Debug polling response:', data.logs ? data.logs.length : 'no logs', 'lastCount:', this.lastLogCount);
-                if (data.logs && data.logs.length > this.lastLogCount) {
-                    // Only add new logs since last poll
-                    const newLogs = data.logs.slice(this.lastLogCount);
-                    console.log('Adding', newLogs.length, 'new debug log entries');
-                    newLogs.forEach(log => {
-                        this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
-                    });
-                    this.lastLogCount = data.logs.length;
-                }
-            }
-        } catch (error) {
-            console.warn('Error polling debug logs:', error);
-        }
-    }
-
-    startLatestLogPolling() {
-        if (!this.debugLogEnabled || this.logPollingInterval) return;
-        
-        this.lastLogCount = 0;
-        let lastFoundSession = null;
-        
-        this.logPollingInterval = setInterval(async () => {
-            try {
-                // Poll for the latest debug log file
-                const response = await fetch(`api/debug_log.php?session=latest&_t=${Date.now()}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.sessionId && data.sessionId !== lastFoundSession) {
-                        lastFoundSession = data.sessionId;
-                        console.log('Found new session:', data.sessionId);
-                    }
-                    
+                const text = await response.text();
+                if (text.trim()) {
+                    const data = JSON.parse(text);
                     if (data.logs && data.logs.length > this.lastLogCount) {
+                        // Only add new logs since last poll
                         const newLogs = data.logs.slice(this.lastLogCount);
-                        console.log('Adding', newLogs.length, 'new debug log entries');
                         newLogs.forEach(log => {
                             this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
                         });
                         this.lastLogCount = data.logs.length;
                     }
                 }
-            } catch (error) {
-                console.warn('Error polling latest debug logs:', error);
             }
-        }, 250);
+        } catch (error) {
+            // Silently handle JSON parsing errors during polling
+        }
     }
+
+
 
     stopLogPolling() {
         if (this.logPollingInterval) {
