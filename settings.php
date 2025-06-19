@@ -221,6 +221,7 @@ $defaults = [
     'geminiEnabled' => true,
     'claudeEnabled' => true,
     'googleTtsEnabled' => true,
+    'chatterboxEnabled' => false,
     'debugMode' => false,
     'verboseLogging' => false,
     'showLogWindow' => false,
@@ -1981,6 +1982,20 @@ function populateScheduleForm(schedule) {
     
     // Set active status
     document.querySelector('input[name="scheduleActive"]').checked = schedule.active !== false;
+}
+
+function toggleTtsOptions() {
+    const ttsProvider = document.querySelector('select[name="ttsProvider"]').value;
+    const googleOptions = document.getElementById('google-voice-options');
+    const chatterboxInfo = document.getElementById('chatterbox-info');
+    
+    if (ttsProvider === 'google') {
+        googleOptions.style.display = 'block';
+        chatterboxInfo.style.display = 'none';
+    } else if (ttsProvider === 'chatterbox') {
+        googleOptions.style.display = 'none';
+        chatterboxInfo.style.display = 'block';
+    }
 }
 </script>
 
