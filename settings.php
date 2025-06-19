@@ -319,29 +319,37 @@ function getRssCustomCategories() {
                 <!-- Desktop tabs with icons only -->
                 <nav class="hidden sm:flex -mb-px justify-center" role="tablist">
                     <div class="flex space-x-6">
-                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-3 px-3 border-b-2 border-blue-500 font-medium text-blue-600 hover:text-blue-700" role="tab" title="Basic Settings">
+                        <button type="button" onclick="showTab('basic')" id="basic-tab" class="py-2 px-3 border-b-2 border-blue-500 font-medium text-blue-600 hover:text-blue-700 flex flex-col items-center" role="tab" title="Basic Settings">
                             <i class="fas fa-cog text-lg"></i>
+                            <span class="text-xs mt-1">Basic</span>
                         </button>
-                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Content & Categories">
+                        <button type="button" onclick="showTab('content')" id="content-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="Content & Categories">
                             <i class="fas fa-newspaper text-lg"></i>
+                            <span class="text-xs mt-1">Content</span>
                         </button>
-                        <button type="button" onclick="showTab('rss')" id="rss-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="RSS Feeds">
+                        <button type="button" onclick="showTab('rss')" id="rss-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="RSS Feeds">
                             <i class="fas fa-rss text-lg"></i>
+                            <span class="text-xs mt-1">RSS</span>
                         </button>
-                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="API Keys">
+                        <button type="button" onclick="showTab('api')" id="api-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="API Keys">
                             <i class="fas fa-key text-lg"></i>
+                            <span class="text-xs mt-1">API</span>
                         </button>
-                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="AI Services">
+                        <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="AI Services">
                             <i class="fas fa-robot text-lg"></i>
+                            <span class="text-xs mt-1">AI</span>
                         </button>
-                        <button type="button" onclick="showTab('scheduling')" id="scheduling-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Scheduling">
+                        <button type="button" onclick="showTab('scheduling')" id="scheduling-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="Scheduling">
                             <i class="fas fa-clock text-lg"></i>
+                            <span class="text-xs mt-1">Schedule</span>
                         </button>
-                        <button type="button" onclick="showTab('history')" id="history-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="History">
+                        <button type="button" onclick="showTab('history')" id="history-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="History">
                             <i class="fas fa-history text-lg"></i>
+                            <span class="text-xs mt-1">History</span>
                         </button>
-                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Advanced">
+                        <button type="button" onclick="showTab('advanced')" id="advanced-tab" class="py-2 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 flex flex-col items-center" role="tab" title="Advanced">
                             <i class="fas fa-tools text-lg"></i>
+                            <span class="text-xs mt-1">Advanced</span>
                         </button>
                     </div>
                 </nav>
