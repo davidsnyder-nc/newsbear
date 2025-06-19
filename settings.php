@@ -129,6 +129,28 @@ if ($_POST && !isset($_POST['action'])) {
     error_log("DEBUG: POST categories data: " . json_encode($_POST['categories'] ?? 'NOT SET'));
     error_log("DEBUG: RSS Feeds POST data: " . json_encode($_POST['rssFeeds'] ?? 'NOT SET'));
     
+    // Handle RSS feeds separately
+    if (isset($_POST['rssFeeds']) && is_array($_POST['rssFeeds'])) {
+        $processedFeeds = processRssFeeds($_POST['rssFeeds']);
+        $rssFile = 'data/rss_feeds.json';
+        
+        // Create data directory if it doesn't exist
+        if (!is_dir('data')) {
+            mkdir('data', 0755, true);
+        }
+        
+        file_put_contents($rssFile, json_encode($processedFeeds, JSON_PRETTY_PRINT));
+        error_log("DEBUG: Saved RSS feeds to file: " . json_encode($processedFeeds));
+    } else {
+        // No RSS feeds in POST data, save empty array
+        $rssFile = 'data/rss_feeds.json';
+        if (!is_dir('data')) {
+            mkdir('data', 0755, true);
+        }
+        file_put_contents($rssFile, json_encode([], JSON_PRETTY_PRINT));
+        error_log("DEBUG: No RSS feeds in POST data, saved empty array");
+    }
+    
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: settings.php?saved=1');
     exit;
