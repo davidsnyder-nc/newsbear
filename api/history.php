@@ -50,17 +50,25 @@ try {
             
             // Load topics from briefing data
             if (isset($briefing['topics'])) {
-                $topics = json_decode($briefing['topics'], true);
-                if (is_array($topics)) {
-                    $formattedBriefing['topics'] = $topics;
+                if (is_string($briefing['topics'])) {
+                    $topics = json_decode($briefing['topics'], true);
+                    if (is_array($topics)) {
+                        $formattedBriefing['topics'] = $topics;
+                    }
+                } elseif (is_array($briefing['topics'])) {
+                    $formattedBriefing['topics'] = $briefing['topics'];
                 }
             }
             
             // Load sources from briefing data
             if (isset($briefing['sources'])) {
-                $sources = json_decode($briefing['sources'], true);
-                if (is_array($sources)) {
-                    $formattedBriefing['sources'] = $sources;
+                if (is_string($briefing['sources'])) {
+                    $sources = json_decode($briefing['sources'], true);
+                    if (is_array($sources)) {
+                        $formattedBriefing['sources'] = $sources;
+                    }
+                } elseif (is_array($briefing['sources'])) {
+                    $formattedBriefing['sources'] = $briefing['sources'];
                 }
             }
             
