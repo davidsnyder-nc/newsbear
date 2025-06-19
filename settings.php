@@ -557,12 +557,7 @@ function getRssCustomCategories() {
                             </button>
                         </div>
                         
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <p class="text-sm text-blue-800">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                RSS feeds will be treated like news API sources. Each feed can be assigned to existing categories or create new ones.
-                            </p>
-                        </div>
+
                         
                         <div id="rss-feeds-container" class="space-y-4">
                             <!-- RSS feeds will be dynamically added here -->
