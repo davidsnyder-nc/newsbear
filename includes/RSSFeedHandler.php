@@ -228,7 +228,7 @@ class RSSFeedHandler {
             $category = $feed['category'];
             
             // If it's not a standard category, it's a custom category
-            if (!in_array($category, $standardCategories) && !in_array($category, $categories)) {
+            if (!in_array(strtolower($category), array_map('strtolower', $standardCategories)) && !in_array($category, $categories)) {
                 $categories[] = $category;
             }
             
