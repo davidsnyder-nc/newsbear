@@ -1614,7 +1614,8 @@ function deleteSchedule(scheduleId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                loadSchedules();
+                schedulesCache = null; // Clear cache
+                loadSchedules(true); // Force refresh
             } else {
                 alert('Failed to delete schedule');
             }
