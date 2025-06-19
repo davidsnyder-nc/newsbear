@@ -294,10 +294,30 @@ class ScheduleManager {
         
         $result = json_decode($response, true);
         
-        if (!$result || !$result['success']) {
+        // Handle different response formats from generate.php
+        if (!$result) {
+            throw new Exception('API error: Invalid response format');
+        }
+        
+        // Check for error status
+        if (isset($result['status']) && $result['status'] === 'error') {
             throw new Exception('API error: ' . ($result['message'] ?? 'Unknown error'));
         }
         
+        // For asynchronous briefing generation, 'processing' status indicates success
+        if (isset($result['status']) && $result['status'] === 'processing' && isset($result['sessionId'])) {
+            // Briefing started successfully - this is considered a success for scheduled briefings
+            return [
+                'text' => 'Scheduled briefing started successfully',
+                'topics' => [],
+                'sources' => [],
+                'audio_file' => null,
+                'duration' => 0,
+                'sessionId' => $result['sessionId']
+            ];
+        }
+        
+        // Handle completion responses (for synchronous calls)
         return [
             'text' => $result['text'] ?? '',
             'topics' => $this->extractTopicsFromText($result['text'] ?? ''),
