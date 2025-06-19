@@ -58,6 +58,11 @@ class NewsAPI {
             try {
                 $gnewsArticles = $this->fetchFromGNews($categories);
                 error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
+                if (!empty($gnewsArticles)) {
+                    foreach ($gnewsArticles as $article) {
+                        error_log("GNews article: " . $article['title'] . " from " . $article['source']);
+                    }
+                }
                 $allNews = array_merge($allNews, $gnewsArticles);
             } catch (Exception $e) {
                 error_log("GNews fetch error: " . $e->getMessage());
@@ -70,6 +75,11 @@ class NewsAPI {
             try {
                 $newsApiArticles = $this->fetchFromNewsAPI($categories);
                 error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
+                if (!empty($newsApiArticles)) {
+                    foreach ($newsApiArticles as $article) {
+                        error_log("NewsAPI article: " . $article['title'] . " from " . $article['source']);
+                    }
+                }
                 $allNews = array_merge($allNews, $newsApiArticles);
             } catch (Exception $e) {
                 error_log("NewsAPI fetch error: " . $e->getMessage());
@@ -94,6 +104,11 @@ class NewsAPI {
             try {
                 $nytNews = $this->fetchFromNYT($categories);
                 error_log("NYT fetch returned " . count($nytNews) . " articles");
+                if (!empty($nytNews)) {
+                    foreach ($nytNews as $article) {
+                        error_log("NYT article: " . $article['title'] . " from " . $article['source']);
+                    }
+                }
                 $allNews = array_merge($allNews, $nytNews);
             } catch (Exception $e) {
                 error_log("NYT fetch error: " . $e->getMessage());
