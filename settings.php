@@ -1183,8 +1183,7 @@ function addCustomCategory(feedCounter) {
     
     // Set the new category as selected for this feed
     const select = document.querySelector(`select[name="rssFeeds[${feedCounter}][category]"]`);
-    const categoryValue = categoryName.toLowerCase().replace(/\s+/g, '_');
-    select.value = categoryValue;
+    select.value = categoryName;
     
     // Hide the new category input
     document.getElementById(`new-category-${feedCounter}`).classList.add('hidden');
