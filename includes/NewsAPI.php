@@ -96,28 +96,27 @@ class NewsAPI {
                 $guardianArticles = $this->fetchFromGuardian($categories);
                 error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
                 $allNews = array_merge($allNews, $guardianArticles);
+                $apiStatus['guardian'] = count($guardianArticles) > 0 ? 'success' : 'no results';
             } catch (Exception $e) {
                 error_log("Guardian fetch error: " . $e->getMessage());
+                $apiStatus['guardian'] = 'failed: ' . $e->getMessage();
             }
         } else {
-            error_log("Guardian: " . (!$this->guardianKey ? "API key not available" : "Skipped - no supported categories selected"));
+            $apiStatus['guardian'] = !$this->guardianKey ? 'no API key' : 'categories not supported';
         }
         
         if ($this->nytKey && $shouldFetchFromMainAPIs) {
             try {
                 $nytNews = $this->fetchFromNYT($categories);
                 error_log("NYT fetch returned " . count($nytNews) . " articles");
-                if (!empty($nytNews)) {
-                    foreach ($nytNews as $article) {
-                        error_log("NYT article: " . $article['title'] . " from " . $article['source']);
-                    }
-                }
                 $allNews = array_merge($allNews, $nytNews);
+                $apiStatus['nyt'] = count($nytNews) > 0 ? 'success' : 'no results';
             } catch (Exception $e) {
                 error_log("NYT fetch error: " . $e->getMessage());
+                $apiStatus['nyt'] = 'failed: ' . $e->getMessage();
             }
         } else {
-            error_log("NYT: " . (!$this->nytKey ? "API key not available" : "Skipped - no supported categories selected"));
+            $apiStatus['nyt'] = !$this->nytKey ? 'no API key' : 'categories not supported';
         }
         
         // Use AI to classify articles that came in as "general"
@@ -130,20 +129,36 @@ class NewsAPI {
             error_log("Category classification error: " . $e->getMessage());
         }
         
-        error_log("Total news articles before return: " . count($allNews));
+        // Log comprehensive API status report
+        error_log("=== API STATUS REPORT ===");
+        foreach ($apiStatus as $api => $status) {
+            error_log("$api: $status");
+        }
+        error_log("Total news articles fetched: " . count($allNews));
+        error_log("========================");
         
-        // If no articles were fetched and no RSS content, throw error
+        // If no articles were fetched, provide detailed error information
         if (empty($allNews)) {
-            $enabledSources = [];
-            if ($this->gnewsKey) $enabledSources[] = 'GNews';
-            if ($this->newsApiKey) $enabledSources[] = 'NewsAPI';
-            if ($this->guardianKey) $enabledSources[] = 'Guardian';
-            if ($this->nytKey) $enabledSources[] = 'New York Times';
+            $failureReasons = [];
+            $workingAPIs = [];
+            $rateLimitedAPIs = [];
             
-            if (empty($enabledSources)) {
-                throw new Exception('No news API sources are enabled. Please configure at least one news API in settings.');
+            foreach ($apiStatus as $api => $status) {
+                if ($status === 'success') {
+                    $workingAPIs[] = $api;
+                } elseif (strpos($status, 'Rate limit exceeded') !== false) {
+                    $rateLimitedAPIs[] = $api;
+                } elseif (strpos($status, 'failed:') !== false) {
+                    $failureReasons[] = "$api: " . str_replace('failed: ', '', $status);
+                }
+            }
+            
+            if (!empty($rateLimitedAPIs)) {
+                throw new Exception('Rate limits exceeded for: ' . implode(', ', $rateLimitedAPIs) . '. Please wait before trying again or check your API usage limits.');
+            } elseif (!empty($failureReasons)) {
+                throw new Exception('API failures detected: ' . implode('; ', $failureReasons));
             } else {
-                throw new Exception('Unable to fetch content from enabled sources: ' . implode(', ', $enabledSources) . '. Please check your API keys and internet connection.');
+                throw new Exception('No news content available from any enabled sources. Check your internet connection and API keys.');
             }
         }
         
