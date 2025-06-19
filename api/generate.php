@@ -74,6 +74,10 @@ class BriefingGenerator {
     }
     
     private function processInBackground() {
+        // Set execution timeout to 5 minutes
+        set_time_limit(300);
+        ini_set('max_execution_time', 300);
+        
         try {
             // Initialize briefing history
             $history = new BriefingHistory();
@@ -564,24 +568,31 @@ class BriefingGenerator {
         // Try AI services with fallback
         $aiServices = $this->getEnabledAIServices();
         $response = null;
+        $maxServiceTimeout = 45; // 45 seconds per service
         
         foreach ($aiServices as $modelName) {
             try {
+                $startTime = time();
+                error_log("Attempting AI story selection with {$modelName}");
+                
                 $response = $aiService->generateText($prompt, $modelName);
+                $duration = time() - $startTime;
+                
                 if ($response) {
-                    error_log("AI story selection response: " . $response);
+                    error_log("AI story selection response from {$modelName} (took {$duration}s): " . $response);
                     break; // Success, stop trying other services
                 }
             } catch (Exception $e) {
-                error_log("AI service {$modelName} failed in story selection: " . $e->getMessage());
+                $duration = time() - $startTime;
+                error_log("AI service {$modelName} failed in story selection after {$duration}s: " . $e->getMessage());
                 // Continue to next AI service
             }
         }
         
         if (!$response) {
-            // Fallback: select first stories based on count
-            $count = $this->getNumericStoryCount($storyCount);
-            return array_slice($filteredItems, 0, $count);
+            error_log("All AI services failed for story selection, using smart fallback");
+            // Smart fallback: distribute stories across categories and sources
+            return $this->smartFallbackSelection($filteredItems, $storyCount, $selectedCategoryDistribution);
         }
         
         // Parse selection
@@ -667,6 +678,55 @@ class BriefingGenerator {
         }
         
         return array_slice($rebalanced, 0, $targetCount);
+    }
+    
+    private function smartFallbackSelection($items, $storyCount, $categoryDistribution) {
+        $count = $this->getNumericStoryCount($storyCount);
+        $selected = [];
+        
+        // Group items by category
+        $byCategory = [];
+        foreach ($items as $item) {
+            $category = $item['category'] ?? 'general';
+            if (!isset($byCategory[$category])) {
+                $byCategory[$category] = [];
+            }
+            $byCategory[$category][] = $item;
+        }
+        
+        // Distribute based on category requirements
+        foreach ($categoryDistribution as $category => $needed) {
+            if (isset($byCategory[$category]) && $needed > 0) {
+                $available = $byCategory[$category];
+                $toTake = min($needed, count($available));
+                
+                // Take first stories from this category
+                for ($i = 0; $i < $toTake; $i++) {
+                    if (isset($available[$i])) {
+                        $selected[] = $available[$i];
+                        error_log("Fallback selected: [" . $category . "] " . $available[$i]['title']);
+                    }
+                }
+            }
+        }
+        
+        // Fill remaining slots with any available stories
+        if (count($selected) < $count) {
+            $remaining = $count - count($selected);
+            $excludedTitles = array_column($selected, 'title');
+            
+            foreach ($items as $item) {
+                if ($remaining <= 0) break;
+                if (!in_array($item['title'], $excludedTitles)) {
+                    $selected[] = $item;
+                    $remaining--;
+                    error_log("Fallback filled: " . $item['title']);
+                }
+            }
+        }
+        
+        // Apply source diversity enforcement
+        return $this->enforceSourceDiversity($selected, $items, $count);
     }
     
     private function shuffleBySource($articles) {
