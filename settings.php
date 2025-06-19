@@ -1596,8 +1596,15 @@ function deleteSchedule(scheduleId) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">AI Service</label>
                             <select name="scheduleAiSelection" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <?php if ($settings['openaiEnabled'] ?? false): ?>
                                 <option value="openai">OpenAI (GPT)</option>
+                                <?php endif; ?>
+                                <?php if ($settings['geminiEnabled'] ?? false): ?>
                                 <option value="gemini">Google Gemini</option>
+                                <?php endif; ?>
+                                <?php if ($settings['claudeEnabled'] ?? false): ?>
+                                <option value="claude">Claude</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
