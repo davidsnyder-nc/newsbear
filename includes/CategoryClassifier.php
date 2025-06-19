@@ -76,7 +76,7 @@ class CategoryClassifier {
             // Apply classifications to articles
             $classifiedArticles = [];
             foreach ($articles as $index => $article) {
-                $newCategory = $classifications[$index] ?? 'general';
+                $newCategory = strtolower($classifications[$index] ?? 'general');
                 $article['category'] = $newCategory;
                 $classifiedArticles[] = $article;
                 

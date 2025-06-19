@@ -104,7 +104,7 @@ class RSSFeedHandler {
                 'content' => $content,
                 'url' => $link,
                 'source' => $feedConfig['name'],
-                'category' => $category,
+                'category' => strtolower($category),
                 'publishedAt' => $this->parseDate($pubDate),
                 'urlToImage' => $this->extractImageFromContent($description),
                 'isRss' => true
@@ -153,7 +153,7 @@ class RSSFeedHandler {
                 'content' => $cleanContent,
                 'url' => $link,
                 'source' => $feedConfig['name'],
-                'category' => $category,
+                'category' => strtolower($category),
                 'publishedAt' => $this->parseDate($updated),
                 'urlToImage' => $this->extractImageFromContent($content),
                 'isRss' => true
