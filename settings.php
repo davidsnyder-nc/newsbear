@@ -35,8 +35,54 @@ function getRssFeeds() {
     return $rssHandler->getRssFeeds();
 }
 
+// Handle AJAX requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+    
+    if ($action === 'get_categories') {
+        header('Content-Type: application/json');
+        
+        // Load current settings to get all categories
+        $settings = [];
+        if (file_exists('config/user_settings.json')) {
+            $settings = json_decode(file_get_contents('config/user_settings.json'), true);
+        }
+        
+        // Standard categories
+        $categories = [
+            ['value' => 'general', 'label' => 'General'],
+            ['value' => 'business', 'label' => 'Business'],
+            ['value' => 'technology', 'label' => 'Technology'],
+            ['value' => 'science', 'label' => 'Science'],
+            ['value' => 'health', 'label' => 'Health'],
+            ['value' => 'entertainment', 'label' => 'Entertainment'],
+            ['value' => 'sports', 'label' => 'Sports']
+        ];
+        
+        // Add custom categories from RSS feeds
+        if (isset($settings['rssFeeds']) && is_array($settings['rssFeeds'])) {
+            $customCategories = [];
+            foreach ($settings['rssFeeds'] as $feed) {
+                if (isset($feed['customCategory']) && !empty($feed['customCategory'])) {
+                    $customCategory = $feed['customCategory'];
+                    if (!isset($customCategories[$customCategory])) {
+                        $customCategories[$customCategory] = true;
+                        $categories[] = [
+                            'value' => strtolower($customCategory),
+                            'label' => $customCategory
+                        ];
+                    }
+                }
+            }
+        }
+        
+        echo json_encode(['success' => true, 'categories' => $categories]);
+        exit;
+    }
+}
+
 // Handle form submission
-if ($_POST) {
+if ($_POST && !isset($_POST['action'])) {
     $settings = [
         'generateMp3' => isset($_POST['generateMp3']) ? true : false,
         'includeWeather' => isset($_POST['includeWeather']) ? true : false,
@@ -1303,8 +1349,67 @@ function loadExistingRssFeeds() {
 function showNewScheduleModal() {
     const modal = document.getElementById('schedule-modal');
     if (modal) {
+        loadAvailableCategories();
         modal.classList.remove('hidden');
     }
+}
+
+function loadAvailableCategories() {
+    // Load user settings to get all available categories
+    return fetch('settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=get_categories'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            populateScheduleCategories(data.categories);
+            return data.categories;
+        }
+        throw new Error('Failed to load categories');
+    })
+    .catch(error => {
+        console.error('Error loading categories:', error);
+        // Fallback to default categories
+        const defaultCategories = [
+            { value: 'general', label: 'General' },
+            { value: 'business', label: 'Business' },
+            { value: 'technology', label: 'Technology' },
+            { value: 'science', label: 'Science' },
+            { value: 'health', label: 'Health' },
+            { value: 'entertainment', label: 'Entertainment' },
+            { value: 'sports', label: 'Sports' }
+        ];
+        populateScheduleCategories(defaultCategories);
+        return defaultCategories;
+    });
+}
+
+function populateScheduleCategories(categories) {
+    const container = document.getElementById('schedule-categories-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    categories.forEach(category => {
+        const label = document.createElement('label');
+        label.className = 'flex items-center';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = 'scheduleCategories';
+        checkbox.value = category.value;
+        checkbox.className = 'mr-2';
+        
+        const span = document.createElement('span');
+        span.className = 'text-sm';
+        span.textContent = category.label;
+        
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        container.appendChild(label);
+    });
 }
 
 function hideScheduleModal() {
@@ -1497,8 +1602,10 @@ function editSchedule(scheduleId) {
         if (data.success && data.schedules) {
             const schedule = data.schedules.find(s => s.id === scheduleId);
             if (schedule) {
-                populateScheduleForm(schedule);
-                showNewScheduleModal();
+                loadAvailableCategories().then(() => {
+                    populateScheduleForm(schedule);
+                    showNewScheduleModal();
+                });
             }
         }
     })
@@ -1638,35 +1745,8 @@ function populateScheduleForm(schedule) {
                     
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">News Categories</label>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="general" class="mr-2">
-                                <span class="text-sm">General</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="business" class="mr-2">
-                                <span class="text-sm">Business</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="technology" class="mr-2">
-                                <span class="text-sm">Technology</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="science" class="mr-2">
-                                <span class="text-sm">Science</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="health" class="mr-2">
-                                <span class="text-sm">Health</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="entertainment" class="mr-2">
-                                <span class="text-sm">Entertainment</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" name="scheduleCategories" value="sports" class="mr-2">
-                                <span class="text-sm">Sports</span>
-                            </label>
+                        <div id="schedule-categories-container" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <!-- Categories will be populated dynamically -->
                         </div>
                     </div>
                     
