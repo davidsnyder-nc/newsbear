@@ -87,13 +87,19 @@ class BriefingGenerator {
             $history->cleanupOldTopics();
             
             // Step 1: Fetch news
-            $this->debugLog("Fetching news from all enabled sources");
+            $this->debugLog("=== STEP 1: FETCHING NEWS ===");
+            $this->debugLog("Checking enabled sources: GNews=" . ($this->settings['gnewsEnabled'] ? 'YES' : 'NO') . 
+                          ", NewsAPI=" . ($this->settings['newsApiEnabled'] ? 'YES' : 'NO') . 
+                          ", Guardian=" . ($this->settings['guardianEnabled'] ? 'YES' : 'NO') . 
+                          ", NYT=" . ($this->settings['nytEnabled'] ? 'YES' : 'NO'));
+            $this->debugLog("Selected categories: " . implode(', ', $this->selectedCategories));
             $this->updateStatus('Fetching headlines...', 10);
             $newsItems = $this->fetchNews();
-            $this->debugLog("Retrieved " . count($newsItems) . " news items");
+            $this->debugLog("SUCCESS: Retrieved " . count($newsItems) . " total news items from all sources");
             
             // Ensure we have real news content before proceeding
             if (empty($newsItems)) {
+                $this->debugLog("ERROR: No news items retrieved from any source", 'ERROR');
                 // Check if we're doing category-specific briefing with RSS content
                 $isSpecificCategoryOnly = count($this->selectedCategories) == 1 && !in_array('general', $this->selectedCategories);
                 if ($isSpecificCategoryOnly) {
@@ -104,34 +110,39 @@ class BriefingGenerator {
             }
             
             // Step 2: Check for topic overlap with today's briefings
+            $this->debugLog("=== STEP 2: CHECKING TOPIC OVERLAP ===");
             $this->updateStatus('Checking for smart briefing...', 20);
             $todaysTopics = $history->getTodaysTopics();
+            $this->debugLog("Found " . count($todaysTopics) . " topics already covered today (for deduplication)");
             
             // Step 3: AI story selection (filter out covered topics)
+            $this->debugLog("=== STEP 3: AI STORY SELECTION ===");
             $this->updateStatus('Selecting stories using AI...', 30);
-            error_log("News items sent to AI for selection: " . count($newsItems));
-            
-            // Debug: Check if this is where the issue occurs
-            if (empty($newsItems)) {
-                error_log("ERROR: newsItems is empty after fetchNews()");
-            } else {
-                error_log("SUCCESS: newsItems contains " . count($newsItems) . " articles");
-            }
+            $this->debugLog("Sending " . count($newsItems) . " news items to AI for story selection");
             
             $selectedStories = $this->selectStories($newsItems, $todaysTopics);
-            error_log("Stories selected by AI: " . count($selectedStories));
+            $this->debugLog("AI selection completed: " . count($selectedStories) . " stories chosen");
+            
+            // Log selected story details
+            foreach ($selectedStories as $i => $story) {
+                $this->debugLog("Selected story " . ($i + 1) . ": [" . ($story['source'] ?? 'Unknown') . "] " . substr($story['title'] ?? 'No title', 0, 80) . "...");
+            }
             
             // Validate all selected stories are from authentic sources
+            $this->debugLog("=== STEP 4: VALIDATING STORY AUTHENTICITY ===");
             $validatedStories = $this->validateAuthenticStories($selectedStories);
+            $this->debugLog("Story validation completed: " . count($validatedStories) . " stories passed authenticity checks");
             
             // Check if we have any authentic news content
             $hasNewsContent = false;
+            $newsSourceCount = 0;
             foreach ($validatedStories as $story) {
                 if (isset($story['source']) && !in_array($story['source'], ['Weather Service', 'The Movie Database'])) {
                     $hasNewsContent = true;
-                    break;
+                    $newsSourceCount++;
                 }
             }
+            $this->debugLog("Content analysis: " . $newsSourceCount . " authentic news stories, " . (count($validatedStories) - $newsSourceCount) . " weather/entertainment items");
             
             // If no news APIs are enabled and no local news found, create briefing with only weather/TV
             $newsAPIsEnabled = ($this->settings['gnewsEnabled'] ?? false) || 
@@ -173,9 +184,13 @@ class BriefingGenerator {
                 }
             }
             
-            // Step 4: Generate briefing content
+            // Step 5: Generate briefing content
+            $this->debugLog("=== STEP 5: GENERATING BRIEFING CONTENT ===");
             $this->updateStatus('Summarizing with AI...', 60);
+            $this->debugLog("Starting AI content generation with " . count($validatedStories) . " validated stories");
             $briefingContent = $this->generateBriefingContent($validatedStories);
+            $wordCount = str_word_count($briefingContent);
+            $this->debugLog("Content generation completed: " . $wordCount . " words, " . strlen($briefingContent) . " characters");
             
             $generateMp3 = $this->settings['generateMp3'] ?? true;
             
@@ -197,12 +212,12 @@ class BriefingGenerator {
             $history->addTopics($coveredTopics);
             
             if ($generateMp3) {
-                // Step 5: Generate audio
+                // Step 6: Generate audio
+                $this->debugLog("=== STEP 6: GENERATING AUDIO ===");
                 $this->updateStatus('Generating audio...', 80);
-                error_log("AI Generated content length: " . strlen($briefingContent) . " characters");
-                error_log("AI Generated word count: " . str_word_count($briefingContent));
-                error_log("Content preview (first 300 chars): " . substr($briefingContent, 0, 300));
+                $this->debugLog("Starting text-to-speech conversion for " . $wordCount . " word briefing");
                 $audioFile = $this->generateAudio($briefingContent);
+                $this->debugLog("Audio generation " . ($audioFile ? "completed successfully: " . basename($audioFile) : "failed"));
                 
                 // Extract source links from news stories for history
                 $sourcesData = [];
@@ -229,7 +244,10 @@ class BriefingGenerator {
                     'sources' => $sourcesData
                 ]);
                 
-                // Step 6: Complete with MP3
+                // Step 7: Complete with MP3
+                $this->debugLog("=== BRIEFING GENERATION COMPLETED ===");
+                $this->debugLog("Final result: MP3 audio file created successfully");
+                $this->debugLog("Total sources used: " . count($sourcesData) . " news sources");
                 $this->updateStatus('Complete!', 100, true, true, $audioFile);
             } else {
                 // Extract source links for text-only briefings too
@@ -258,6 +276,9 @@ class BriefingGenerator {
                 ]);
                 
                 // Text-only output
+                $this->debugLog("=== BRIEFING GENERATION COMPLETED ===");
+                $this->debugLog("Final result: Text-only briefing created successfully");
+                $this->debugLog("Total sources used: " . count($sourcesData) . " news sources");
                 $this->updateStatus('Complete!', 100, true, true, null, $briefingContent);
             }
             
