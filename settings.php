@@ -24,7 +24,8 @@ function processRssFeeds($rssFeeds) {
             ];
             
             // Handle custom category - now custom categories are stored directly as the category value
-            if (!in_array($feed['category'], ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'])) {
+            $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'];
+            if (!in_array(strtolower($feed['category']), $standardCategories)) {
                 // This is a custom category, store the actual category name
                 $processedFeed['customCategory'] = $feed['category'];
             }
@@ -281,9 +282,14 @@ function getRssCustomCategories() {
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
                     <i class="fas fa-cog mr-2"></i>Settings
                 </h1>
-                <button type="button" onclick="saveAndGoHome()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm sm:text-base">
-                    <i class="fas fa-save mr-2"></i>Home
-                </button>
+                <div class="flex gap-3">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm sm:text-base">
+                        <i class="fas fa-save mr-2"></i>Save Settings
+                    </button>
+                    <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm sm:text-base inline-flex items-center">
+                        <i class="fas fa-home mr-2"></i>Go Home
+                    </a>
+                </div>
             </div>
             
             <?php if (isset($_GET['saved'])): ?>
@@ -897,10 +903,7 @@ function showTab(tabName) {
     }
 }
 
-function saveAndGoHome() {
-    // Submit the form to save settings
-    document.querySelector('form').submit();
-}
+
 
 function toggleDarkThemeFromSettings() {
     const darkThemeToggle = document.getElementById('darkTheme');
