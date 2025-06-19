@@ -137,8 +137,12 @@ class NewsBriefApp {
 
             const result = await response.json();
 
-            if (result.status === 'processing') {
+            // Always start log polling if we have a session ID
+            if (result.sessionId) {
                 this.startLogPolling(result.sessionId);
+            }
+
+            if (result.status === 'processing') {
                 await this.pollStatus(result.sessionId);
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
@@ -763,26 +767,33 @@ class NewsBriefApp {
         // Reset log tracking
         this.lastLogCount = 0;
         
-        this.logPollingInterval = setInterval(async () => {
-            try {
-                const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Debug polling response:', data.logs ? data.logs.length : 'no logs', 'lastCount:', this.lastLogCount);
-                    if (data.logs && data.logs.length > this.lastLogCount) {
-                        // Only add new logs since last poll
-                        const newLogs = data.logs.slice(this.lastLogCount);
-                        console.log('Adding', newLogs.length, 'new debug log entries');
-                        newLogs.forEach(log => {
-                            this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
-                        });
-                        this.lastLogCount = data.logs.length;
-                    }
-                }
-            } catch (error) {
-                console.warn('Error polling debug logs:', error);
-            }
+        // Fetch logs immediately first
+        this.fetchDebugLogs(sessionId);
+        
+        this.logPollingInterval = setInterval(() => {
+            this.fetchDebugLogs(sessionId);
         }, 250); // Poll every 250ms for more responsive updates during generation
+    }
+
+    async fetchDebugLogs(sessionId) {
+        try {
+            const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Debug polling response:', data.logs ? data.logs.length : 'no logs', 'lastCount:', this.lastLogCount);
+                if (data.logs && data.logs.length > this.lastLogCount) {
+                    // Only add new logs since last poll
+                    const newLogs = data.logs.slice(this.lastLogCount);
+                    console.log('Adding', newLogs.length, 'new debug log entries');
+                    newLogs.forEach(log => {
+                        this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
+                    });
+                    this.lastLogCount = data.logs.length;
+                }
+            }
+        } catch (error) {
+            console.warn('Error polling debug logs:', error);
+        }
     }
 
     stopLogPolling() {
