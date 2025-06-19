@@ -211,68 +211,51 @@ class ScheduleManager {
      * Generate briefing based on schedule settings
      */
     private function generateScheduledBriefing($settings) {
-        $newsAPI = new NewsAPI();
-        $aiService = new AIService();
+        // Use the same briefing generation logic as the main generate.php API
+        // by calling it directly to ensure consistency
         
-        // Get news based on settings
-        $newsData = [];
-        
-        // Weather
-        if ($settings['includeWeather'] ?? false) {
-            $weatherData = $newsAPI->getWeatherData($settings['zipCode'] ?? '');
-            if ($weatherData) {
-                $newsData['weather'] = $weatherData;
-            }
-        }
-        
-        // TV/Movie news
-        if ($settings['includeTV'] ?? false) {
-            $tvData = $newsAPI->getTVMovieNews();
-            if ($tvData) {
-                $newsData['entertainment'] = $tvData;
-            }
-        }
-        
-        // Local news
-        if ($settings['includeLocal'] ?? false) {
-            $localData = $newsAPI->getLocalNews($settings['zipCode'] ?? '');
-            if ($localData) {
-                $newsData['local'] = $localData;
-            }
-        }
-        
-        // General news
-        $generalNews = $newsAPI->getNews();
-        if ($generalNews) {
-            $newsData['general'] = $generalNews;
-        }
-        
-        // Generate briefing text
-        $aiModel = $settings['aiSelection'] ?? 'openai';
-        $timeFrame = $settings['timeFrame'] ?? 'auto';
-        $audioLength = $settings['audioLength'] ?? '5-10';
-        $customHeader = $settings['customHeader'] ?? '';
-        
-        $briefingText = $aiService->generateBriefing($newsData, $aiModel, $timeFrame, $audioLength, $customHeader);
-        
-        $result = [
-            'text' => $briefingText,
-            'topics' => $this->extractTopicsFromNews($newsData),
-            'sources' => $this->extractSourcesFromNews($newsData)
+        $requestData = [
+            'generateMp3' => $settings['generateMp3'] ?? false,
+            'includeWeather' => $settings['includeWeather'] ?? false,
+            'includeLocal' => $settings['includeLocal'] ?? false,
+            'includeTV' => $settings['includeTV'] ?? false,
+            'zipCode' => $settings['zipCode'] ?? '',
+            'timeFrame' => $settings['timeFrame'] ?? 'auto',
+            'audioLength' => $settings['audioLength'] ?? '5-10',
+            'aiSelection' => $settings['aiSelection'] ?? 'openai',
+            'customHeader' => $settings['customHeader'] ?? ''
         ];
         
-        // Generate audio if requested
-        if ($settings['generateMp3'] ?? false) {
-            $ttsService = new TTSService();
-            $audioResult = $ttsService->generateAudio($briefingText);
-            
-            if ($audioResult['success']) {
-                $result['audio_file'] = $audioResult['file'];
-                $result['duration'] = $audioResult['duration'] ?? 0;
-            }
-        }
+        // Simulate a briefing generation request
+        $_POST = $requestData;
         
-        return $result;
+        // Start output buffering to capture the API response
+        ob_start();
+        
+        try {
+            // Include and execute the generate.php logic
+            include __DIR__ . '/../api/generate.php';
+            $output = ob_get_contents();
+            ob_end_clean();
+            
+            // Parse the JSON response
+            $result = json_decode($output, true);
+            
+            if ($result && $result['success']) {
+                return [
+                    'text' => $result['text'] ?? '',
+                    'topics' => $this->extractTopicsFromText($result['text'] ?? ''),
+                    'sources' => $result['sources'] ?? [],
+                    'audio_file' => $result['audio_file'] ?? null,
+                    'duration' => $result['duration'] ?? 0
+                ];
+            } else {
+                throw new Exception('Failed to generate briefing: ' . ($result['message'] ?? 'Unknown error'));
+            }
+        } catch (Exception $e) {
+            ob_end_clean();
+            throw new Exception('Briefing generation failed: ' . $e->getMessage());
+        }
     }
     
     /**
@@ -300,6 +283,29 @@ class ScheduleManager {
         }
         
         return null;
+    }
+    
+    /**
+     * Extract topics from briefing text
+     */
+    private function extractTopicsFromText($text) {
+        $topics = [];
+        
+        // Simple topic extraction from text content
+        $lines = explode("\n", $text);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (strlen($line) > 20 && strlen($line) < 100) {
+                // Likely a news headline or topic
+                $topics[] = [
+                    'title' => $line,
+                    'category' => 'general',
+                    'timestamp' => time()
+                ];
+            }
+        }
+        
+        return array_slice($topics, 0, 10); // Limit to 10 topics
     }
     
     /**

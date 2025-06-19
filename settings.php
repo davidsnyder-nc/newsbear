@@ -767,6 +767,11 @@ function showTab(tabName) {
     if (tabName === 'history') {
         loadHistoryPage(1);
     }
+    
+    // Load schedules when scheduling tab is selected
+    if (tabName === 'scheduling') {
+        loadSchedules();
+    }
 }
 
 function saveAndGoHome() {
