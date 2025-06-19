@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://queue.fal.run/fal-ai/xtts-v2';
+    private $baseUrl = 'https://queue.fal.run/fal-ai/chatterbox';
     
     public function __construct($settings = null) {
         if ($settings) {
@@ -66,11 +66,9 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // XTTS v2 API format for fal.ai
+        // Chatterbox TTS API format for fal.ai
         $data = [
-            'text' => $text,
-            'language' => 'en',
-            'speaker_url' => 'https://github.com/coqui-ai/TTS/raw/dev/tests/data/ljspeech/wavs/LJ001-0001.wav'
+            'text' => $text
         ];
         
         $headers = [
@@ -106,8 +104,14 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // For TTS models, the response is direct audio data
-        $audioData = $response;
+        // Parse the queue response
+        $queueResponse = json_decode($response, true);
+        if (!$queueResponse || !isset($queueResponse['request_id'])) {
+            throw new Exception("Invalid queue response from Chatterbox TTS");
+        }
+        
+        // Poll for completion
+        $audioData = $this->pollForCompletion($queueResponse['status_url'], $queueResponse['response_url']);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
@@ -121,6 +125,88 @@ class ChatterboxTTS {
             
             file_put_contents($filepath, $audioData);
             return "data/history/{$filename}";
+        }
+        
+        return $audioData;
+    }
+    
+    private function pollForCompletion($statusUrl, $responseUrl) {
+        $maxAttempts = 60; // 5 minutes max wait time
+        $attempt = 0;
+        
+        while ($attempt < $maxAttempts) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $statusUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Key ' . $this->apiKey,
+                'Content-Type: application/json'
+            ]);
+            
+            $statusResponse = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode !== 200) {
+                throw new Exception("Failed to check Chatterbox TTS status: HTTP {$httpCode}");
+            }
+            
+            $status = json_decode($statusResponse, true);
+            
+            if ($status['status'] === 'COMPLETED') {
+                // Get the actual result
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $responseUrl);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Key ' . $this->apiKey,
+                    'Content-Type: application/json'
+                ]);
+                
+                $resultResponse = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                
+                if ($httpCode !== 200) {
+                    throw new Exception("Failed to get Chatterbox TTS result: HTTP {$httpCode}");
+                }
+                
+                $result = json_decode($resultResponse, true);
+                
+                // Download the audio file
+                if (isset($result['audio_url'])) {
+                    return $this->downloadAudioFile($result['audio_url']);
+                } else {
+                    throw new Exception("No audio URL in Chatterbox TTS response");
+                }
+            } elseif ($status['status'] === 'FAILED') {
+                $error = $status['error'] ?? 'Unknown error';
+                throw new Exception("Chatterbox TTS generation failed: {$error}");
+            }
+            
+            // Wait before next poll
+            sleep(5);
+            $attempt++;
+        }
+        
+        throw new Exception("Chatterbox TTS generation timed out");
+    }
+    
+    private function downloadAudioFile($audioUrl) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $audioUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        
+        $audioData = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            throw new Exception("Failed to download Chatterbox TTS audio: HTTP {$httpCode}");
         }
         
         return $audioData;
