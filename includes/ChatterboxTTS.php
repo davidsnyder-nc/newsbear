@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://fal.run/fal-ai/chatterbox';
+    private $baseUrl = 'https://fal.run/fal-ai/resemble-chatterbox-tts';
     
     public function __construct($settings = null) {
         if ($settings) {

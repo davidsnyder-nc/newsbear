@@ -551,6 +551,12 @@ function isCategoryChecked($category) {
                                 <div id="chatterbox-info" style="display: <?= ($settings['ttsProvider'] ?? 'google') === 'chatterbox' ? 'block' : 'none' ?>">
                                     <div class="space-y-4">
                                         <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">fal.ai API Key</label>
+                                            <input type="password" name="falApiKey" value="<?= getValue('falApiKey') ?>" placeholder="Enter your fal.ai API key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://fal.ai" target="_blank" class="text-blue-600 hover:underline">fal.ai</a></p>
+                                        </div>
+
+                                        <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">Chatterbox Voice Style</label>
                                             <select name="chatterboxVoice" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                                                 <option value="news_anchor" <?= isSelected('chatterboxVoice', 'news_anchor') ?>>News Anchor - Professional, authoritative delivery</option>
