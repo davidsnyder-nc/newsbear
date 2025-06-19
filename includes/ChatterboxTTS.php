@@ -2,13 +2,13 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://110602490-chatterbox-tts.hf.space/api/v1/predict';
+    private $baseUrl = 'https://api-inference.huggingface.co/models/ResembleAI/chatterbox';
     
     public function __construct($settings = null) {
         if ($settings) {
-            $this->apiKey = $settings['falApiKey'] ?? getenv('FAL_API_KEY');
+            $this->apiKey = $settings['huggingfaceApiKey'] ?? getenv('HUGGINGFACE_API_KEY');
         } else {
-            $this->apiKey = getenv('FAL_API_KEY');
+            $this->apiKey = getenv('HUGGINGFACE_API_KEY');
         }
     }
     
@@ -66,13 +66,13 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for Hugging Face Spaces
+        // Chatterbox TTS API format for Hugging Face Inference
         $data = [
-            'data' => [$text],
-            'fn_index' => 0
+            'inputs' => $text
         ];
         
         $headers = [
+            'Authorization: Bearer ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
@@ -104,14 +104,19 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Parse the Hugging Face Spaces response
+        // Parse the Hugging Face Inference response
         $result = json_decode($response, true);
-        if (!$result || !isset($result['data'])) {
+        if (!$result) {
             throw new Exception("Invalid response from Chatterbox TTS");
         }
         
-        // Extract audio data from response
-        $audioData = $this->extractAudioFromHFResponse($result);
+        // Handle audio response from Hugging Face Inference API
+        if (is_string($response) && strpos($response, 'RIFF') === 0) {
+            // Direct audio data
+            $audioData = $response;
+        } else {
+            throw new Exception("No audio data found in Chatterbox TTS response");
+        }
         
         if ($saveFile) {
             $filename = $this->generateFilename();

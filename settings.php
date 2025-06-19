@@ -780,8 +780,8 @@ function isCategoryChecked($category) {
                                         <input type="checkbox" name="chatterboxEnabled" <?= isChecked('chatterboxEnabled') ?> class="mr-3 h-4 w-4">
                                         Chatterbox TTS (Open Source)
                                     </label>
-                                    <input type="password" name="falApiKey" value="<?= getValue('falApiKey') ?>" placeholder="fal.ai API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://docs.fal.ai/authentication/key-based" target="_blank" class="text-blue-600 hover:underline">fal.ai</a> (Free tier: ~1000 requests/month)</p>
+                                    <input type="password" name="huggingfaceApiKey" value="<?= getValue('huggingfaceApiKey') ?>" placeholder="Hugging Face API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://huggingface.co/settings/tokens" target="_blank" class="text-blue-600 hover:underline">huggingface.co</a> (Free for basic usage)</p>
                                 </div>
                                 
                                 <div>
