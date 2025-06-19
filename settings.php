@@ -606,7 +606,7 @@ function getRssCustomCategories() {
                                 </button>
                             </div>
                             
-                            <div id="rss-feeds-container" class="space-y-4">
+                            <div id="rss-feeds-container" class="space-y-4 mt-6">
                                 <!-- RSS feeds will be dynamically added here -->
                             </div>
                             
