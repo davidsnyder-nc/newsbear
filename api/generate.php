@@ -673,6 +673,8 @@ class BriefingGenerator {
         }
         
         $selectedStories = [];
+        $targetCount = $this->getNumericStoryCount($storyCount);
+        
         foreach ($selectedIndexes as $index) {
             $arrayIndex = intval($index) - 1;
             if (isset($filteredItems[$arrayIndex])) {
@@ -681,16 +683,48 @@ class BriefingGenerator {
                 $selectedStories[] = $story;
                 
                 // Stop when we have enough stories
-                if (count($selectedStories) >= $storyCount) {
+                if (count($selectedStories) >= $targetCount) {
                     break;
                 }
             }
         }
         
-        // If we still don't have enough stories, use fallback selection
-        if (count($selectedStories) < max(1, $storyCount / 2)) {
-            $this->debugLog("Insufficient stories selected (" . count($selectedStories) . "), using fallback selection", 'WARNING');
-            return $this->smartFallbackSelection($filteredItems, $storyCount, $selectedCategoryDistribution);
+        // If we don't have enough stories from AI selection, supplement with additional stories
+        if (count($selectedStories) < $targetCount) {
+            $this->debugLog("Only " . count($selectedStories) . " stories selected by AI, need " . $targetCount . ". Adding supplemental stories...");
+            
+            // Get titles of already selected stories to avoid duplicates
+            $selectedTitles = array_column($selectedStories, 'title');
+            
+            foreach ($filteredItems as $story) {
+                if (count($selectedStories) >= $targetCount) {
+                    break;
+                }
+                
+                // Skip if already selected
+                if (!in_array($story['title'], $selectedTitles)) {
+                    $selectedStories[] = $story;
+                    $this->debugLog("Supplemental story added: [" . ($story['source'] ?? 'Unknown') . "] " . substr($story['title'], 0, 60) . "...");
+                }
+            }
+        }
+        if (count($selectedStories) < $storyCount) {
+            $this->debugLog("AI selected " . count($selectedStories) . " stories, need " . $storyCount . ". Adding more stories...", 'INFO');
+            
+            // Get titles of already selected stories to avoid duplicates
+            $selectedTitles = array_column($selectedStories, 'title');
+            
+            // Add more stories from available items until we reach target
+            foreach ($filteredItems as $story) {
+                if (count($selectedStories) >= $storyCount) break;
+                
+                if (!in_array($story['title'], $selectedTitles)) {
+                    $selectedStories[] = $story;
+                    $this->debugLog("Added supplemental story: " . substr($story['title'], 0, 60) . "...");
+                }
+            }
+            
+            $this->debugLog("Final selection: " . count($selectedStories) . " stories (target: " . $storyCount . ")");
         }
         
         // Validate and enforce source diversity
@@ -1487,15 +1521,24 @@ class BriefingGenerator {
     private function getNumericStoryCount($storyCount) {
         // Convert string range to numeric value for fallback
         switch ($storyCount) {
-            case '3-4':
-                return 4;
-            case '4-6':
-                return 5;
-            case '6-8':
+            case '3-5':
+            case '5-7':
                 return 7;
-            case '8-12':
+            case '8-10':
                 return 10;
+            case '15-18':
+                return 18;
+            case '22-25':
+                return 25;
             default:
+                // If it's already numeric, return as is
+                if (is_numeric($storyCount)) {
+                    return intval($storyCount);
+                }
+                // Parse range format like "X-Y" and return the higher number
+                if (preg_match('/(\d+)-(\d+)/', $storyCount, $matches)) {
+                    return intval($matches[2]);
+                }
                 return 5;
         }
     }
