@@ -977,7 +977,7 @@ function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
         </div>
     `;
     
-    container.insertAdjacentHTML('beforeend', feedHtml);
+    container.insertAdjacentHTML('afterbegin', feedHtml);
     noMessage.style.display = 'none';
 }
 
