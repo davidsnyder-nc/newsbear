@@ -134,7 +134,7 @@ if ($_POST && !isset($_POST['action'])) {
         'geminiEnabled' => isset($_POST['geminiEnabled']) ? true : false,
         'claudeEnabled' => isset($_POST['claudeEnabled']) ? true : false,
         'googleTtsEnabled' => isset($_POST['googleTtsEnabled']) ? true : false,
-        'rssFeeds' => processRssFeeds($_POST['rssFeeds'] ?? []),
+        // RSS feeds are handled separately in data/rss_feeds.json, not in main settings
         'lastUpdated' => date('c')
     ];
     
@@ -143,6 +143,8 @@ if ($_POST && !isset($_POST['action'])) {
     error_log("DEBUG: POST data for preferredTerms: '" . ($_POST['preferredTerms'] ?? 'NOT IN POST') . "'");
     error_log("DEBUG: Categories being saved: " . json_encode($settings['categories']));
     error_log("DEBUG: POST categories data: " . json_encode($_POST['categories'] ?? 'NOT SET'));
+    error_log("DEBUG: RSS Feeds POST data: " . json_encode($_POST['rssFeeds'] ?? 'NOT SET'));
+    error_log("DEBUG: RSS Feeds processed: " . json_encode($settings['rssFeeds']));
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: settings.php?saved=1');
