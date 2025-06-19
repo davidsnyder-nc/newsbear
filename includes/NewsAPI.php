@@ -32,25 +32,26 @@ class NewsAPI {
     public function fetchFromAllSources($categories, $zipCode = null, $includeLocal = false) {
         $allNews = [];
         
-        // Fetch from RSS feeds first
+        // Fetch local news FIRST if requested and zip code provided
+        if ($includeLocal && $zipCode) {
+            try {
+                $localNews = $this->fetchLocalNewsFromRSS($zipCode);
+                $allNews = array_merge($allNews, $localNews);
+                error_log("Local news fetch: Found " . count($localNews) . " local articles (added first)");
+            } catch (Exception $e) {
+                error_log("Local news fetch error: " . $e->getMessage());
+            }
+        }
+        
+        // Then fetch from RSS feeds 
         try {
             require_once __DIR__ . '/RSSFeedHandler.php';
             $rssHandler = new RSSFeedHandler();
             $rssNews = $rssHandler->getAllRssArticles(10);
             $allNews = array_merge($allNews, $rssNews);
-            error_log("RSS fetch: Found " . count($rssNews) . " articles from RSS feeds");
+            error_log("RSS fetch: Found " . count($rssNews) . " articles from RSS feeds (added after local)");
         } catch (Exception $e) {
             error_log("RSS feed fetch error: " . $e->getMessage());
-        }
-        
-        // Fetch local news if requested and zip code provided
-        if ($includeLocal && $zipCode) {
-            try {
-                $localNews = $this->fetchLocalNewsFromRSS($zipCode);
-                $allNews = array_merge($allNews, $localNews);
-            } catch (Exception $e) {
-                error_log("Local news fetch error: " . $e->getMessage());
-            }
         }
         
         // Only fetch from general news APIs if 'general' category is selected
