@@ -393,12 +393,26 @@ class BriefingGenerator {
             return $articles;
         }
         
+        // Define gaming sources that should be excluded when gaming is not selected
+        $gamingSources = [
+            'nintendo life', 'gamesradar+', 'kotaku', 'polygon', 'ign', 'gamespot', 
+            'destructoid', 'eurogamer', 'rock paper shotgun', 'pcgamer', 'gamasutra',
+            'gaming', 'game informer', 'gamesindustry.biz'
+        ];
+        
         $filtered = [];
         $excluded = [];
         
         foreach ($articles as $article) {
-            // Normalize article category to lowercase
+            // Normalize article category and source
             $articleCategory = strtolower($article['category'] ?? '');
+            $articleSource = strtolower($article['source'] ?? '');
+            
+            // Override category for known gaming sources if gaming not selected
+            if (!in_array('gaming', $selectedCategories) && in_array($articleSource, $gamingSources)) {
+                $articleCategory = 'gaming';
+                $this->debugLog("Source-based override: '" . $article['source'] . "' classified as gaming");
+            }
             
             // Always include special system categories based on settings
             if ($articleCategory === 'weather' && ($this->settings['includeWeather'] ?? false)) {
@@ -508,8 +522,8 @@ class BriefingGenerator {
     private function selectStories($newsItems, $todaysTopics = []) {
         $aiService = new AIService($this->settings);
         
-        // Filter news items by selected categories
-        $filteredItems = $this->filterByCategories($newsItems);
+        // News items are already category-filtered at this point
+        $filteredItems = $newsItems;
         
         // Shuffle articles by source to ensure better diversity
         $filteredItems = $this->shuffleBySource($filteredItems);
