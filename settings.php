@@ -652,6 +652,47 @@ function getRssCustomCategories() {
                     </div>
                 </div>
                 
+                <!-- History Tab -->
+                <div id="history-content" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-medium text-gray-800">Briefing History</h3>
+                            <div class="flex space-x-2">
+                                <button type="button" onclick="refreshHistory()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
+                                    <i class="fas fa-refresh mr-2"></i>Refresh
+                                </button>
+                                <button type="button" onclick="showCleanupModal()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md">
+                                    <i class="fas fa-trash mr-2"></i>Cleanup
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="history-loading" class="text-center py-8">
+                            <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-4"></i>
+                            <p class="text-gray-600">Loading briefing history...</p>
+                        </div>
+                        
+                        <div id="history-list" class="hidden space-y-4">
+                            <!-- History items will be loaded here -->
+                        </div>
+                        
+                        <div id="history-empty" class="hidden text-center py-8">
+                            <i class="fas fa-history text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-600">No briefings found in history.</p>
+                        </div>
+                        
+                        <div id="history-pagination" class="hidden flex justify-center items-center space-x-4 mt-6">
+                            <button onclick="loadHistoryPage(currentHistoryPage - 1)" id="prev-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left mr-2"></i>Previous
+                            </button>
+                            <span id="page-info" class="text-sm text-gray-600"></span>
+                            <button onclick="loadHistoryPage(currentHistoryPage + 1)" id="next-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
+                                Next<i class="fas fa-chevron-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Save Button -->
                 <div class="text-center">
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md">
@@ -694,6 +735,11 @@ function showTab(tabName) {
     const mobileSelect = document.getElementById('mobile-tab-select');
     if (mobileSelect) {
         mobileSelect.value = tabName;
+    }
+    
+    // Load history data when history tab is selected
+    if (tabName === 'history') {
+        loadHistoryPage(1);
     }
 }
 
@@ -788,6 +834,165 @@ function removeRssFeed(feedId) {
             noMessage.style.display = 'block';
         }
     }
+}
+
+// History management variables
+let currentHistoryPage = 1;
+let totalHistoryPages = 1;
+
+// History management functions
+function refreshHistory() {
+    loadHistoryPage(1);
+}
+
+function loadHistoryPage(page) {
+    currentHistoryPage = page;
+    const loadingDiv = document.getElementById('history-loading');
+    const listDiv = document.getElementById('history-list');
+    const emptyDiv = document.getElementById('history-empty');
+    const paginationDiv = document.getElementById('history-pagination');
+    
+    // Show loading
+    loadingDiv.classList.remove('hidden');
+    listDiv.classList.add('hidden');
+    emptyDiv.classList.add('hidden');
+    paginationDiv.classList.add('hidden');
+    
+    // Fetch history data
+    fetch(`api/history.php?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            loadingDiv.classList.add('hidden');
+            
+            if (data.success && data.briefings && data.briefings.length > 0) {
+                displayHistoryItems(data.briefings);
+                updatePagination(data.pagination);
+                listDiv.classList.remove('hidden');
+                paginationDiv.classList.remove('hidden');
+            } else {
+                emptyDiv.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading history:', error);
+            loadingDiv.classList.add('hidden');
+            emptyDiv.classList.remove('hidden');
+        });
+}
+
+function displayHistoryItems(briefings) {
+    const listDiv = document.getElementById('history-list');
+    listDiv.innerHTML = '';
+    
+    briefings.forEach(briefing => {
+        const item = document.createElement('div');
+        item.className = 'bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+        
+        const date = new Date(briefing.timestamp).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        item.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <h4 class="font-medium text-gray-800 mb-2">${briefing.title || 'News Briefing'}</h4>
+                    <p class="text-sm text-gray-600 mb-2">${date}</p>
+                    <div class="text-xs text-gray-500">
+                        ${briefing.categories ? briefing.categories.join(', ') : 'General'}
+                    </div>
+                </div>
+                <div class="flex space-x-2 ml-4">
+                    ${briefing.mp3_file ? `<a href="${briefing.mp3_file}" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-download"></i></a>` : ''}
+                    ${briefing.text_file ? `<a href="${briefing.text_file}" class="text-green-600 hover:text-green-800 text-sm"><i class="fas fa-file-text"></i></a>` : ''}
+                    <button onclick="deleteHistoryItem('${briefing.id}')" class="text-red-600 hover:text-red-800 text-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        listDiv.appendChild(item);
+    });
+}
+
+function updatePagination(pagination) {
+    totalHistoryPages = pagination.totalPages;
+    currentHistoryPage = pagination.currentPage;
+    
+    document.getElementById('page-info').textContent = `Page ${currentHistoryPage} of ${totalHistoryPages}`;
+    document.getElementById('prev-page').disabled = currentHistoryPage <= 1;
+    document.getElementById('next-page').disabled = currentHistoryPage >= totalHistoryPages;
+}
+
+function deleteHistoryItem(briefingId) {
+    if (confirm('Are you sure you want to delete this briefing?')) {
+        fetch('api/history.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'delete',
+                briefing_id: briefingId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadHistoryPage(currentHistoryPage);
+            } else {
+                alert('Failed to delete briefing');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting briefing:', error);
+            alert('Error deleting briefing');
+        });
+    }
+}
+
+function showCleanupModal() {
+    const modal = confirm('Choose cleanup option:\nOK = Delete briefings older than 30 days\nCancel = Delete all briefings');
+    
+    if (modal === true) {
+        cleanupHistory(30);
+    } else if (modal === false) {
+        if (confirm('Are you sure you want to delete ALL briefings? This cannot be undone.')) {
+            cleanupHistory(0);
+        }
+    }
+}
+
+function cleanupHistory(days) {
+    const action = days > 0 ? 'clear_old' : 'clear_all';
+    
+    fetch('api/history.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: action,
+            days: days
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Cleanup completed');
+            loadHistoryPage(1);
+        } else {
+            alert('Cleanup failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error during cleanup:', error);
+        alert('Error during cleanup');
+    });
 }
 
 // Transition from loading theme to proper dark theme
