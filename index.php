@@ -44,30 +44,21 @@ if (file_exists($settingsFile)) {
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- Header -->
-        <header class="mb-8 relative">
-            <!-- Logo and Title Section -->
-            <div class="flex items-center justify-center">
-                <!-- Logo and Title -->
-                <a href="settings.php" class="flex items-center hover:opacity-80 transition-opacity">
-                    <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-20 h-20 sm:w-24 sm:h-24 mr-3 sm:mr-4">
-                    <div class="text-left">
-                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-none mb-0">NewsBear</h1>
-                    </div>
-                </a>
-                
-                <!-- Navigation Buttons -->
-                <div class="ml-auto">
-                    <button id="new-btn" class="text-green-600 hover:text-green-800 transition duration-200 px-3 py-2 rounded-lg border border-green-300 hover:bg-green-50 text-sm hidden">
-                        <i class="fas fa-plus mr-2"></i>
-                        New
-                    </button>
-                </div>
-            </div>
-        </header>
-
         <!-- Main Content -->
-        <div class="relative">
+        <div class="relative flex flex-col items-center justify-center min-h-[60vh]">
+            <!-- Logo and Title Section -->
+            <div class="text-center mb-8">
+                <a href="settings.php" class="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
+                    <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-24 h-24 sm:w-32 sm:h-32 mb-4">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 leading-none">NewsBear</h1>
+                </a>
+            </div>
+            
+            <!-- Hidden New Button -->
+            <button id="new-btn" class="text-green-600 hover:text-green-800 transition duration-200 px-3 py-2 rounded-lg border border-green-300 hover:bg-green-50 text-sm hidden mb-4">
+                <i class="fas fa-plus mr-2"></i>
+                New
+            </button>
             <!-- Status Display -->
             <div id="status-container" class="mb-8 hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-8 mx-8">
@@ -162,15 +153,13 @@ if (file_exists($settingsFile)) {
             </div>
 
             <!-- Generate Button -->
-            <div class="flex justify-center">
-                <button 
-                    id="generate-btn" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
-                >
-                    <i class="fas fa-microphone text-2xl"></i>
-                    <span>Create My News Brief</span>
-                </button>
-            </div>
+            <button 
+                id="generate-btn" 
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
+            >
+                <i class="fas fa-microphone text-2xl"></i>
+                <span>Create My News Brief</span>
+            </button>
         </div>
     </div>
 
