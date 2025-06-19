@@ -305,6 +305,10 @@ class BriefingGenerator {
         $blockedTerms = array_map('trim', explode(',', strtolower($this->settings['blockedTerms'] ?? '')));
         $blockedTerms = array_filter($blockedTerms);
         
+        if (!empty($blockedTerms)) {
+            error_log("Blocked terms active: " . implode(', ', $blockedTerms));
+        }
+        
         foreach ($news as $item) {
             // Skip duplicates
             $titleKey = strtolower(trim($item['title']));
@@ -316,6 +320,7 @@ class BriefingGenerator {
             $blocked = false;
             foreach ($blockedTerms as $term) {
                 if (stripos($item['title'], $term) !== false || stripos($item['content'] ?? '', $term) !== false) {
+                    error_log("BLOCKED TERM: Article '" . $item['title'] . "' blocked for term: " . $term);
                     $blocked = true;
                     break;
                 }
@@ -324,6 +329,8 @@ class BriefingGenerator {
             if (!$blocked) {
                 $seenTitles[] = $titleKey;
                 $filtered[] = $item;
+            } else {
+                error_log("Article blocked: " . $item['title']);
             }
         }
         
