@@ -33,16 +33,42 @@ try {
                 'title' => $briefing['title'] ?? 'News Briefing',
                 'timestamp' => $briefing['timestamp'],
                 'categories' => isset($briefing['categories']) ? explode(',', $briefing['categories']) : ['General'],
-                'mp3_file' => $briefing['mp3_file'] ?? null,
-                'text_file' => $briefing['text_file'] ?? null
+                'audio_file' => $briefing['audio_file'] ?? $briefing['mp3_file'] ?? null,
+                'text_file' => $briefing['text_file'] ?? null,
+                'format' => isset($briefing['audio_file']) || isset($briefing['mp3_file']) ? 'mp3' : 'text',
+                'duration' => $briefing['duration'] ?? 0,
+                'topics' => [],
+                'sources' => [],
+                'text_content' => null
             ];
             
-            // Check if files actually exist
-            if ($formattedBriefing['mp3_file'] && !file_exists('../' . $formattedBriefing['mp3_file'])) {
-                $formattedBriefing['mp3_file'] = null;
+            // Check if audio file actually exists
+            if ($formattedBriefing['audio_file'] && !file_exists('../' . $formattedBriefing['audio_file'])) {
+                $formattedBriefing['audio_file'] = null;
+                $formattedBriefing['format'] = 'text';
             }
-            if ($formattedBriefing['text_file'] && !file_exists('../' . $formattedBriefing['text_file'])) {
-                $formattedBriefing['text_file'] = null;
+            
+            // Load topics from briefing data
+            if (isset($briefing['topics'])) {
+                $topics = json_decode($briefing['topics'], true);
+                if (is_array($topics)) {
+                    $formattedBriefing['topics'] = $topics;
+                }
+            }
+            
+            // Load sources from briefing data
+            if (isset($briefing['sources'])) {
+                $sources = json_decode($briefing['sources'], true);
+                if (is_array($sources)) {
+                    $formattedBriefing['sources'] = $sources;
+                }
+            }
+            
+            // Load text content
+            if (isset($briefing['text_content'])) {
+                $formattedBriefing['text_content'] = $briefing['text_content'];
+            } elseif ($formattedBriefing['text_file'] && file_exists('../' . $formattedBriefing['text_file'])) {
+                $formattedBriefing['text_content'] = file_get_contents('../' . $formattedBriefing['text_file']);
             }
             
             $formattedBriefings[] = $formattedBriefing;

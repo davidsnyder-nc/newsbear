@@ -264,6 +264,47 @@ function getRssCustomCategories() {
 
             </div>
 
+            <!-- History Tab (Outside Form) -->
+            <div id="history-content" class="tab-content hidden">
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-800">Briefing History</h3>
+                        <div class="flex space-x-2">
+                            <button type="button" onclick="refreshHistory()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
+                                <i class="fas fa-refresh mr-2"></i>Refresh
+                            </button>
+                            <button type="button" onclick="showCleanupModal()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md">
+                                <i class="fas fa-trash mr-2"></i>Cleanup
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="history-loading" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-4"></i>
+                        <p class="text-gray-600">Loading briefing history...</p>
+                    </div>
+                    
+                    <div id="history-list" class="hidden space-y-4 bg-white rounded-lg shadow-md divide-y divide-gray-200">
+                        <!-- History items will be loaded here -->
+                    </div>
+                    
+                    <div id="history-empty" class="hidden text-center py-8">
+                        <i class="fas fa-history text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-600">No briefings found in history.</p>
+                    </div>
+                    
+                    <div id="history-pagination" class="hidden flex justify-center items-center space-x-4 mt-6">
+                        <button type="button" onclick="loadHistoryPage(currentHistoryPage - 1)" id="prev-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
+                            <i class="fas fa-chevron-left mr-2"></i>Previous
+                        </button>
+                        <span id="page-info" class="text-sm text-gray-600"></span>
+                        <button type="button" onclick="loadHistoryPage(currentHistoryPage + 1)" id="next-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
+                            Next<i class="fas fa-chevron-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <form method="POST" class="space-y-8">
                 <!-- Basic Settings Tab -->
                 <div id="basic-content" class="tab-content">
@@ -652,49 +693,8 @@ function getRssCustomCategories() {
                     </div>
                 </div>
                 
-                <!-- History Tab -->
-                <div id="history-content" class="tab-content hidden">
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-medium text-gray-800">Briefing History</h3>
-                            <div class="flex space-x-2">
-                                <button type="button" onclick="refreshHistory()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
-                                    <i class="fas fa-refresh mr-2"></i>Refresh
-                                </button>
-                                <button type="button" onclick="showCleanupModal()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md">
-                                    <i class="fas fa-trash mr-2"></i>Cleanup
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div id="history-loading" class="text-center py-8">
-                            <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-4"></i>
-                            <p class="text-gray-600">Loading briefing history...</p>
-                        </div>
-                        
-                        <div id="history-list" class="hidden space-y-4">
-                            <!-- History items will be loaded here -->
-                        </div>
-                        
-                        <div id="history-empty" class="hidden text-center py-8">
-                            <i class="fas fa-history text-gray-400 text-4xl mb-4"></i>
-                            <p class="text-gray-600">No briefings found in history.</p>
-                        </div>
-                        
-                        <div id="history-pagination" class="hidden flex justify-center items-center space-x-4 mt-6">
-                            <button onclick="loadHistoryPage(currentHistoryPage - 1)" id="prev-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
-                                <i class="fas fa-chevron-left mr-2"></i>Previous
-                            </button>
-                            <span id="page-info" class="text-sm text-gray-600"></span>
-                            <button onclick="loadHistoryPage(currentHistoryPage + 1)" id="next-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
-                                Next<i class="fas fa-chevron-right ml-2"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Save Button -->
-                <div class="text-center">
+                <!-- Save Button (Hidden for History Tab) -->
+                <div id="save-button-container" class="text-center">
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md">
                         <i class="fas fa-save mr-2"></i>Save All Settings
                     </button>
@@ -735,6 +735,16 @@ function showTab(tabName) {
     const mobileSelect = document.getElementById('mobile-tab-select');
     if (mobileSelect) {
         mobileSelect.value = tabName;
+    }
+    
+    // Show/hide save button based on tab
+    const saveButtonContainer = document.getElementById('save-button-container');
+    if (saveButtonContainer) {
+        if (tabName === 'history') {
+            saveButtonContainer.classList.add('hidden');
+        } else {
+            saveButtonContainer.classList.remove('hidden');
+        }
     }
     
     // Load history data when history tab is selected
@@ -886,9 +896,9 @@ function displayHistoryItems(briefings) {
     
     briefings.forEach(briefing => {
         const item = document.createElement('div');
-        item.className = 'bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow';
+        item.className = 'border-b border-gray-200 p-4 md:p-6';
         
-        const date = new Date(briefing.timestamp).toLocaleDateString('en-US', {
+        const date = new Date(briefing.timestamp * 1000).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -896,27 +906,143 @@ function displayHistoryItems(briefings) {
             minute: '2-digit'
         });
         
-        item.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div class="flex-1">
-                    <h4 class="font-medium text-gray-800 mb-2">${briefing.title || 'News Briefing'}</h4>
-                    <p class="text-sm text-gray-600 mb-2">${date}</p>
-                    <div class="text-xs text-gray-500">
-                        ${briefing.categories ? briefing.categories.join(', ') : 'General'}
+        // Build topics HTML
+        let topicsHtml = '';
+        if (briefing.topics && briefing.topics.length > 0) {
+            topicsHtml = `
+                <div class="mb-3">
+                    <div class="flex flex-wrap gap-1">
+                        ${briefing.topics.slice(0, 8).map(topic => {
+                            const topicTitle = typeof topic === 'object' ? topic.title : topic;
+                            return `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">${topicTitle}</span>`;
+                        }).join('')}
                     </div>
                 </div>
-                <div class="flex space-x-2 ml-4">
-                    ${briefing.mp3_file ? `<a href="${briefing.mp3_file}" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-download"></i></a>` : ''}
-                    ${briefing.text_file ? `<a href="${briefing.text_file}" class="text-green-600 hover:text-green-800 text-sm"><i class="fas fa-file-text"></i></a>` : ''}
-                    <button onclick="deleteHistoryItem('${briefing.id}')" class="text-red-600 hover:text-red-800 text-sm">
-                        <i class="fas fa-trash"></i>
+            `;
+        }
+        
+        // Build sources HTML
+        let sourcesHtml = '';
+        if (briefing.sources && briefing.sources.length > 0) {
+            sourcesHtml = `
+                <div class="mb-3">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-link mr-1"></i>News Sources:
+                    </h4>
+                    <div class="space-y-1">
+                        ${briefing.sources.map(source => `
+                            <div class="text-xs bg-blue-50 border border-blue-200 rounded p-2">
+                                <a href="${source.url}" target="_blank" class="text-blue-700 hover:text-blue-900 font-medium">
+                                    ${source.title}
+                                </a>
+                                <span class="text-gray-500 ml-2">(${source.source})</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Build audio player HTML
+        let audioHtml = '';
+        if (briefing.audio_file) {
+            audioHtml = `
+                <div id="audio-${briefing.id}" class="hidden mt-4 audio-container">
+                    <div class="mb-3">
+                        <i class="fas fa-volume-up text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700">Audio Playback</span>
+                    </div>
+                    <div class="custom-audio-player" data-audio-src="${briefing.audio_file}">
+                        <audio preload="auto" class="hidden">
+                            <source src="${briefing.audio_file}" type="audio/mpeg">
+                        </audio>
+                        <div class="flex items-center space-x-3 mb-3">
+                            <button class="play-pause-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
+                                <i class="fas fa-play text-sm"></i>
+                            </button>
+                            <div class="flex-1">
+                                <div class="progress-container bg-gray-300 rounded-full h-2 cursor-pointer relative">
+                                    <div class="progress-bar bg-blue-600 rounded-full h-2 transition-all duration-100" style="width: 0%"></div>
+                                    <div class="progress-handle absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-600 rounded-full shadow-md cursor-pointer opacity-0 hover:opacity-100 transition-opacity" style="left: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="time-display text-sm text-gray-600 font-mono min-w-max">
+                                <span class="current-time">0:00</span> / <span class="duration">0:00</span>
+                            </div>
+                            <div class="volume-control flex items-center space-x-2">
+                                <button class="volume-btn text-gray-600 hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Build text content HTML
+        let textHtml = '';
+        if (briefing.text_content) {
+            textHtml = `
+                <div id="text-${briefing.id}" class="hidden mt-4 text-container">
+                    <div class="mb-3">
+                        <i class="fas fa-file-text text-green-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700">Briefing Text</span>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm leading-relaxed max-h-96 overflow-y-auto">
+                        ${briefing.text_content.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        item.innerHTML = `
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
+                <div class="flex-1">
+                    <h3 class="text-base md:text-lg font-semibold text-gray-800">
+                        ${date}
+                    </h3>
+                    <div class="flex items-center text-xs md:text-sm text-gray-600 mt-1">
+                        <i class="fas fa-${briefing.audio_file ? 'volume-up' : 'file-text'} mr-2"></i>
+                        ${briefing.audio_file ? 'Audio' : 'Text'}
+                        ${briefing.duration ? ` | ${briefing.duration} min` : ''}
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    ${briefing.audio_file ? `
+                        <button onclick="toggleHistoryAudio('${briefing.id}')" class="bg-green-600 hover:bg-green-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                            <i class="fas fa-play mr-1"></i>Play
+                        </button>
+                        <a href="${briefing.audio_file}" class="bg-green-700 hover:bg-green-800 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm" download>
+                            <i class="fas fa-download mr-1"></i>Download
+                        </a>
+                    ` : `
+                        <button onclick="generateHistoryAudio('${briefing.id}')" class="bg-purple-600 hover:bg-purple-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                            <i class="fas fa-microphone mr-1"></i>Create MP3
+                        </button>
+                    `}
+                    <button onclick="toggleHistoryText('${briefing.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                        <i class="fas fa-eye mr-1"></i>Text
+                    </button>
+                    <button onclick="deleteHistoryItem('${briefing.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                        <i class="fas fa-trash mr-1"></i>Delete
                     </button>
                 </div>
             </div>
+            
+            ${topicsHtml}
+            ${sourcesHtml}
+            ${audioHtml}
+            ${textHtml}
         `;
         
         listDiv.appendChild(item);
     });
+    
+    // Initialize audio players after DOM is updated
+    setTimeout(() => {
+        initializeHistoryAudioPlayers();
+    }, 100);
 }
 
 function updatePagination(pagination) {
@@ -993,6 +1119,591 @@ function cleanupHistory(days) {
         console.error('Error during cleanup:', error);
         alert('Error during cleanup');
     });
+}
+
+// History-specific functions
+function toggleHistoryAudio(briefingId) {
+    const audioDiv = document.getElementById('audio-' + briefingId);
+    if (audioDiv) {
+        audioDiv.classList.toggle('hidden');
+    }
+}
+
+function toggleHistoryText(briefingId) {
+    const textDiv = document.getElementById('text-' + briefingId);
+    if (textDiv) {
+        textDiv.classList.toggle('hidden');
+    }
+}
+
+function generateHistoryAudio(briefingId) {
+    // Implementation for generating audio from existing briefing
+    alert('Audio generation for existing briefings will be implemented in the next update.');
+}
+
+function initializeHistoryAudioPlayers() {
+    const audioPlayers = document.querySelectorAll('.custom-audio-player');
+    
+    audioPlayers.forEach(player => {
+        const audio = player.querySelector('audio');
+        const playPauseBtn = player.querySelector('.play-pause-btn');
+        const progressContainer = player.querySelector('.progress-container');
+        const progressBar = player.querySelector('.progress-bar');
+        const progressHandle = player.querySelector('.progress-handle');
+        const currentTimeSpan = player.querySelector('.current-time');
+        const durationSpan = player.querySelector('.duration');
+        const volumeBtn = player.querySelector('.volume-btn');
+        
+        if (!audio || !playPauseBtn) return;
+        
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                // Pause all other audio players
+                document.querySelectorAll('.custom-audio-player audio').forEach(otherAudio => {
+                    if (otherAudio !== audio && !otherAudio.paused) {
+                        otherAudio.pause();
+                        const otherBtn = otherAudio.closest('.custom-audio-player').querySelector('.play-pause-btn i');
+                        if (otherBtn) otherBtn.className = 'fas fa-play text-sm';
+                    }
+                });
+                
+                audio.play();
+                playPauseBtn.querySelector('i').className = 'fas fa-pause text-sm';
+            } else {
+                audio.pause();
+                playPauseBtn.querySelector('i').className = 'fas fa-play text-sm';
+            }
+        });
+        
+        // Progress tracking
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+                progressHandle.style.left = progress + '%';
+                
+                if (currentTimeSpan) {
+                    currentTimeSpan.textContent = formatTime(audio.currentTime);
+                }
+            }
+        });
+        
+        // Duration display
+        audio.addEventListener('loadedmetadata', () => {
+            if (durationSpan) {
+                durationSpan.textContent = formatTime(audio.duration);
+            }
+        });
+        
+        // Progress seeking
+        if (progressContainer) {
+            progressContainer.addEventListener('click', (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const progress = clickX / rect.width;
+                audio.currentTime = progress * audio.duration;
+            });
+        }
+        
+        // Auto-reset when ended
+        audio.addEventListener('ended', () => {
+            playPauseBtn.querySelector('i').className = 'fas fa-play text-sm';
+            progressBar.style.width = '0%';
+            progressHandle.style.left = '0%';
+            if (currentTimeSpan) {
+                currentTimeSpan.textContent = '0:00';
+            }
+        });
+    });
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+}
+
+// Transition from loading theme to proper dark theme
+document.addEventListener('DOMContentLoaded', function() {
+    showTab('basic');
+    
+    const savedTheme = localStorage.getItem('darkTheme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const darkThemeToggle = document.getElementById('darkTheme');
+    
+    if (savedTheme === 'true' || (savedTheme === null && systemPrefersDark)) {
+        document.documentElement.classList.remove('dark-theme-loading');
+        document.body.classList.add('dark-theme');
+        if (darkThemeToggle) {
+            darkThemeToggle.checked = true;
+        }
+    }
+    
+    // Load existing RSS feeds
+    loadExistingRssFeeds();
+});
+
+function loadExistingRssFeeds() {
+    // This will be populated from PHP when feeds exist
+    const existingFeeds = <?php echo json_encode(getRssFeeds()); ?>;
+    
+    if (existingFeeds && existingFeeds.length > 0) {
+        existingFeeds.forEach(feed => {
+            addRssFeed(feed.url, feed.name, feed.category);
+            
+            // Set custom category if applicable
+            if (feed.category === 'custom' && feed.customCategory) {
+                const customInput = document.querySelector(`input[name="rssFeeds[${rssFeedCounter}][customCategory]"]`);
+                if (customInput) {
+                    customInput.value = feed.customCategory;
+                    document.getElementById(`custom-category-${rssFeedCounter}`).classList.remove('hidden');
+                }
+            }
+        });
+    }
+}
+</script>
+</body>
+</html>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Feed URL</label>
+                    <input type="url" name="rssFeeds[${rssFeedCounter}][url]" value="${url}" placeholder="https://example.com/feed.xml" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                    <input type="text" name="rssFeeds[${rssFeedCounter}][name]" value="${name}" placeholder="Source Name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="general" ${category === 'general' ? 'selected' : ''}>General</option>
+                        <option value="business" ${category === 'business' ? 'selected' : ''}>Business</option>
+                        <option value="entertainment" ${category === 'entertainment' ? 'selected' : ''}>Entertainment</option>
+                        <option value="health" ${category === 'health' ? 'selected' : ''}>Health</option>
+                        <option value="science" ${category === 'science' ? 'selected' : ''}>Science</option>
+                        <option value="sports" ${category === 'sports' ? 'selected' : ''}>Sports</option>
+                        <option value="technology" ${category === 'technology' ? 'selected' : ''}>Technology</option>
+                        <option value="custom" ${category === 'custom' ? 'selected' : ''}>Custom Category</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 hidden" id="custom-category-${rssFeedCounter}">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Category Name</label>
+                <input type="text" name="rssFeeds[${rssFeedCounter}][customCategory]" placeholder="Enter custom category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', feedHtml);
+    noMessage.style.display = 'none';
+    
+    // Add event listener for custom category toggle
+    const categorySelect = document.querySelector(`select[name="rssFeeds[${rssFeedCounter}][category]"]`);
+    categorySelect.addEventListener('change', function() {
+        const customDiv = document.getElementById(`custom-category-${rssFeedCounter}`);
+        if (this.value === 'custom') {
+            customDiv.classList.remove('hidden');
+        } else {
+            customDiv.classList.add('hidden');
+        }
+    });
+}
+
+function removeRssFeed(feedId) {
+    const feedElement = document.getElementById(feedId);
+    if (feedElement) {
+        feedElement.remove();
+        
+        // Check if any feeds remain
+        const container = document.getElementById('rss-feeds-container');
+        const noMessage = document.getElementById('no-rss-message');
+        if (container.children.length === 0) {
+            noMessage.style.display = 'block';
+        }
+    }
+}
+
+// History management variables
+let currentHistoryPage = 1;
+let totalHistoryPages = 1;
+
+// History management functions
+function refreshHistory() {
+    loadHistoryPage(1);
+}
+
+function loadHistoryPage(page) {
+    currentHistoryPage = page;
+    const loadingDiv = document.getElementById('history-loading');
+    const listDiv = document.getElementById('history-list');
+    const emptyDiv = document.getElementById('history-empty');
+    const paginationDiv = document.getElementById('history-pagination');
+    
+    // Show loading
+    loadingDiv.classList.remove('hidden');
+    listDiv.classList.add('hidden');
+    emptyDiv.classList.add('hidden');
+    paginationDiv.classList.add('hidden');
+    
+    // Fetch history data
+    fetch(`api/history.php?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            loadingDiv.classList.add('hidden');
+            
+            if (data.success && data.briefings && data.briefings.length > 0) {
+                displayHistoryItems(data.briefings);
+                updatePagination(data.pagination);
+                listDiv.classList.remove('hidden');
+                paginationDiv.classList.remove('hidden');
+            } else {
+                emptyDiv.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading history:', error);
+            loadingDiv.classList.add('hidden');
+            emptyDiv.classList.remove('hidden');
+        });
+}
+
+function displayHistoryItems(briefings) {
+    const listDiv = document.getElementById('history-list');
+    listDiv.innerHTML = '';
+    
+    briefings.forEach(briefing => {
+        const item = document.createElement('div');
+        item.className = 'border-b border-gray-200 p-4 md:p-6';
+        
+        const date = new Date(briefing.timestamp * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Build topics HTML
+        let topicsHtml = '';
+        if (briefing.topics && briefing.topics.length > 0) {
+            topicsHtml = `
+                <div class="mb-3">
+                    <div class="flex flex-wrap gap-1">
+                        ${briefing.topics.slice(0, 8).map(topic => {
+                            const topicTitle = typeof topic === 'object' ? topic.title : topic;
+                            return `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">${topicTitle}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Build sources HTML
+        let sourcesHtml = '';
+        if (briefing.sources && briefing.sources.length > 0) {
+            sourcesHtml = `
+                <div class="mb-3">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-link mr-1"></i>News Sources:
+                    </h4>
+                    <div class="space-y-1">
+                        ${briefing.sources.map(source => `
+                            <div class="text-xs bg-blue-50 border border-blue-200 rounded p-2">
+                                <a href="${source.url}" target="_blank" class="text-blue-700 hover:text-blue-900 font-medium">
+                                    ${source.title}
+                                </a>
+                                <span class="text-gray-500 ml-2">(${source.source})</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Build audio player HTML
+        let audioHtml = '';
+        if (briefing.audio_file) {
+            audioHtml = `
+                <div id="audio-${briefing.id}" class="hidden mt-4 audio-container">
+                    <div class="mb-3">
+                        <i class="fas fa-volume-up text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700">Audio Playback</span>
+                    </div>
+                    <div class="custom-audio-player" data-audio-src="${briefing.audio_file}">
+                        <audio preload="auto" class="hidden">
+                            <source src="${briefing.audio_file}" type="audio/mpeg">
+                        </audio>
+                        <div class="flex items-center space-x-3 mb-3">
+                            <button class="play-pause-btn bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors">
+                                <i class="fas fa-play text-sm"></i>
+                            </button>
+                            <div class="flex-1">
+                                <div class="progress-container bg-gray-300 rounded-full h-2 cursor-pointer relative">
+                                    <div class="progress-bar bg-blue-600 rounded-full h-2 transition-all duration-100" style="width: 0%"></div>
+                                    <div class="progress-handle absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-blue-600 rounded-full shadow-md cursor-pointer opacity-0 hover:opacity-100 transition-opacity" style="left: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="time-display text-sm text-gray-600 font-mono min-w-max">
+                                <span class="current-time">0:00</span> / <span class="duration">0:00</span>
+                            </div>
+                            <div class="volume-control flex items-center space-x-2">
+                                <button class="volume-btn text-gray-600 hover:text-blue-600 transition-colors">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Build text content HTML
+        let textHtml = '';
+        if (briefing.text_content) {
+            textHtml = `
+                <div id="text-${briefing.id}" class="hidden mt-4 text-container">
+                    <div class="mb-3">
+                        <i class="fas fa-file-text text-green-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700">Briefing Text</span>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm leading-relaxed max-h-96 overflow-y-auto">
+                        ${briefing.text_content.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        item.innerHTML = `
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
+                <div class="flex-1">
+                    <h3 class="text-base md:text-lg font-semibold text-gray-800">
+                        ${date}
+                    </h3>
+                    <div class="flex items-center text-xs md:text-sm text-gray-600 mt-1">
+                        <i class="fas fa-${briefing.audio_file ? 'volume-up' : 'file-text'} mr-2"></i>
+                        ${briefing.audio_file ? 'Audio' : 'Text'}
+                        ${briefing.duration ? ` | ${briefing.duration} min` : ''}
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    ${briefing.audio_file ? `
+                        <button onclick="toggleHistoryAudio('${briefing.id}')" class="bg-green-600 hover:bg-green-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                            <i class="fas fa-play mr-1"></i>Play
+                        </button>
+                        <a href="${briefing.audio_file}" class="bg-green-700 hover:bg-green-800 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm" download>
+                            <i class="fas fa-download mr-1"></i>Download
+                        </a>
+                    ` : `
+                        <button onclick="generateHistoryAudio('${briefing.id}')" class="bg-purple-600 hover:bg-purple-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                            <i class="fas fa-microphone mr-1"></i>Create MP3
+                        </button>
+                    `}
+                    <button onclick="toggleHistoryText('${briefing.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                        <i class="fas fa-eye mr-1"></i>Text
+                    </button>
+                    <button onclick="deleteHistoryItem('${briefing.id}')" class="bg-red-600 hover:bg-red-700 text-white px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                        <i class="fas fa-trash mr-1"></i>Delete
+                    </button>
+                </div>
+            </div>
+            
+            ${topicsHtml}
+            ${sourcesHtml}
+            ${audioHtml}
+            ${textHtml}
+        `;
+        
+        listDiv.appendChild(item);
+    });
+    
+    // Initialize audio players after DOM is updated
+    setTimeout(() => {
+        initializeHistoryAudioPlayers();
+    }, 100);
+}
+
+function updatePagination(pagination) {
+    totalHistoryPages = pagination.totalPages;
+    currentHistoryPage = pagination.currentPage;
+    
+    document.getElementById('page-info').textContent = `Page ${currentHistoryPage} of ${totalHistoryPages}`;
+    document.getElementById('prev-page').disabled = currentHistoryPage <= 1;
+    document.getElementById('next-page').disabled = currentHistoryPage >= totalHistoryPages;
+}
+
+function deleteHistoryItem(briefingId) {
+    if (confirm('Are you sure you want to delete this briefing?')) {
+        fetch('api/history.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'delete',
+                briefing_id: briefingId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadHistoryPage(currentHistoryPage);
+            } else {
+                alert('Failed to delete briefing');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting briefing:', error);
+            alert('Error deleting briefing');
+        });
+    }
+}
+
+function showCleanupModal() {
+    const modal = confirm('Choose cleanup option:\nOK = Delete briefings older than 30 days\nCancel = Delete all briefings');
+    
+    if (modal === true) {
+        cleanupHistory(30);
+    } else if (modal === false) {
+        if (confirm('Are you sure you want to delete ALL briefings? This cannot be undone.')) {
+            cleanupHistory(0);
+        }
+    }
+}
+
+function cleanupHistory(days) {
+    const action = days > 0 ? 'clear_old' : 'clear_all';
+    
+    fetch('api/history.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: action,
+            days: days
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Cleanup completed');
+            loadHistoryPage(1);
+        } else {
+            alert('Cleanup failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error during cleanup:', error);
+        alert('Error during cleanup');
+    });
+}
+
+// History-specific functions
+function toggleHistoryAudio(briefingId) {
+    const audioDiv = document.getElementById('audio-' + briefingId);
+    if (audioDiv) {
+        audioDiv.classList.toggle('hidden');
+    }
+}
+
+function toggleHistoryText(briefingId) {
+    const textDiv = document.getElementById('text-' + briefingId);
+    if (textDiv) {
+        textDiv.classList.toggle('hidden');
+    }
+}
+
+function generateHistoryAudio(briefingId) {
+    // Implementation for generating audio from existing briefing
+    alert('Audio generation for existing briefings will be implemented in the next update.');
+}
+
+function initializeHistoryAudioPlayers() {
+    const audioPlayers = document.querySelectorAll('.custom-audio-player');
+    
+    audioPlayers.forEach(player => {
+        const audio = player.querySelector('audio');
+        const playPauseBtn = player.querySelector('.play-pause-btn');
+        const progressContainer = player.querySelector('.progress-container');
+        const progressBar = player.querySelector('.progress-bar');
+        const progressHandle = player.querySelector('.progress-handle');
+        const currentTimeSpan = player.querySelector('.current-time');
+        const durationSpan = player.querySelector('.duration');
+        const volumeBtn = player.querySelector('.volume-btn');
+        
+        if (!audio || !playPauseBtn) return;
+        
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                // Pause all other audio players
+                document.querySelectorAll('.custom-audio-player audio').forEach(otherAudio => {
+                    if (otherAudio !== audio && !otherAudio.paused) {
+                        otherAudio.pause();
+                        const otherBtn = otherAudio.closest('.custom-audio-player').querySelector('.play-pause-btn i');
+                        if (otherBtn) otherBtn.className = 'fas fa-play text-sm';
+                    }
+                });
+                
+                audio.play();
+                playPauseBtn.querySelector('i').className = 'fas fa-pause text-sm';
+            } else {
+                audio.pause();
+                playPauseBtn.querySelector('i').className = 'fas fa-play text-sm';
+            }
+        });
+        
+        // Progress tracking
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+                progressHandle.style.left = progress + '%';
+                
+                if (currentTimeSpan) {
+                    currentTimeSpan.textContent = formatTime(audio.currentTime);
+                }
+            }
+        });
+        
+        // Duration display
+        audio.addEventListener('loadedmetadata', () => {
+            if (durationSpan) {
+                durationSpan.textContent = formatTime(audio.duration);
+            }
+        });
+        
+        // Progress seeking
+        if (progressContainer) {
+            progressContainer.addEventListener('click', (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const progress = clickX / rect.width;
+                audio.currentTime = progress * audio.duration;
+            });
+        }
+        
+        // Auto-reset when ended
+        audio.addEventListener('ended', () => {
+            playPauseBtn.querySelector('i').className = 'fas fa-play text-sm';
+            progressBar.style.width = '0%';
+            progressHandle.style.left = '0%';
+            if (currentTimeSpan) {
+                currentTimeSpan.textContent = '0:00';
+            }
+        });
+    });
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
 }
 
 // Transition from loading theme to proper dark theme
