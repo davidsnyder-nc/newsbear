@@ -207,7 +207,7 @@ function getRssCustomCategories() {
                     <i class="fas fa-cog mr-2"></i>Settings
                 </h1>
                 <button type="button" onclick="saveAndGoHome()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm sm:text-base">
-                    <i class="fas fa-save mr-2"></i>Save and Back to Home
+                    <i class="fas fa-save mr-2"></i>Home
                 </button>
             </div>
             
@@ -692,13 +692,6 @@ function getRssCustomCategories() {
                         </div>
                     </div>
                 </div>
-                
-                <!-- Save Button (Hidden for History Tab) -->
-                <div id="save-button-container" class="text-center">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md">
-                        <i class="fas fa-save mr-2"></i>Save All Settings
-                    </button>
-                </div>
             </form>
         </div>
     </div>
@@ -737,15 +730,7 @@ function showTab(tabName) {
         mobileSelect.value = tabName;
     }
     
-    // Show/hide save button based on tab
-    const saveButtonContainer = document.getElementById('save-button-container');
-    if (saveButtonContainer) {
-        if (tabName === 'history') {
-            saveButtonContainer.classList.add('hidden');
-        } else {
-            saveButtonContainer.classList.remove('hidden');
-        }
-    }
+
     
     // Load history data when history tab is selected
     if (tabName === 'history') {
