@@ -103,7 +103,6 @@ class NewsBriefApp {
         this.hideResults();
         this.showStatus();
         this.disableButton();
-        this.switchToRedLogo();
 
         try {
             const endpoint = 'api/generate.php';
@@ -202,16 +201,13 @@ class NewsBriefApp {
         const successContainer = document.getElementById('success-container');
         const errorContainer = document.getElementById('error-container');
         const generateBtn = document.getElementById('generate-btn');
-        const demoBtn = document.getElementById('demo-btn');
         
         if (statusContainer) statusContainer.classList.remove('hidden');
         if (successContainer) successContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.add('hidden');
         if (generateBtn) generateBtn.style.display = 'none';
-        if (demoBtn) demoBtn.style.display = 'none';
         
         this.startWittyMessages();
-        this.switchToRedLogo();
     }
 
     updateStatus(message, progress = 0) {
@@ -314,14 +310,12 @@ class NewsBriefApp {
         const errorContainer = document.getElementById('error-container');
         const errorText = document.getElementById('error-text');
         const generateBtn = document.getElementById('generate-btn');
-        const demoBtn = document.getElementById('demo-btn');
         
         if (statusContainer) statusContainer.classList.add('hidden');
         if (successContainer) successContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.remove('hidden');
         if (errorText) errorText.textContent = message;
         if (generateBtn) generateBtn.style.display = 'flex';
-        if (demoBtn) demoBtn.style.display = 'block';
     }
 
     hideResults() {
