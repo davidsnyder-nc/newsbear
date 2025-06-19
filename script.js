@@ -111,6 +111,7 @@ class NewsBriefApp {
         this.currentStep = 0;
         this.hideResults();
         this.showStatus();
+        this.showDebugLog();
         this.disableButton();
 
         try {
@@ -137,6 +138,7 @@ class NewsBriefApp {
             const result = await response.json();
 
             if (result.status === 'processing') {
+                this.startLogPolling(result.sessionId);
                 await this.pollStatus(result.sessionId);
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
@@ -277,6 +279,9 @@ class NewsBriefApp {
         if (generateBtn) generateBtn.style.display = 'flex';
         if (demoBtn) demoBtn.style.display = 'block';
         if (logoLoadingRing) logoLoadingRing.classList.remove('active');
+        
+        this.addDebugLogEntry('=== Briefing generation completed successfully ===', 'success');
+        this.stopLogPolling();
 
         const downloadSection = document.getElementById('download-section');
         const briefingTextSection = document.getElementById('text-section');
@@ -331,6 +336,9 @@ class NewsBriefApp {
         if (errorText) errorText.textContent = message;
         if (generateBtn) generateBtn.style.display = 'flex';
         if (logoLoadingRing) logoLoadingRing.classList.remove('active');
+        
+        this.addDebugLogEntry(`=== Error occurred: ${message} ===`, 'error');
+        this.stopLogPolling();
     }
 
     hideResults() {

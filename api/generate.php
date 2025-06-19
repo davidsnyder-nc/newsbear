@@ -79,11 +79,15 @@ class BriefingGenerator {
         ini_set('max_execution_time', 300);
         
         try {
+            // Initialize debug logging
+            $this->debugLog("Starting briefing generation process");
+            
             // Initialize briefing history
             $history = new BriefingHistory();
             $history->cleanupOldTopics();
             
             // Step 1: Fetch news
+            $this->debugLog("Fetching news from all enabled sources");
             $this->updateStatus('Fetching headlines...', 10);
             $newsItems = $this->fetchNews();
             
