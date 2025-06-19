@@ -54,12 +54,13 @@ class NewsAPI {
             error_log("RSS feed fetch error: " . $e->getMessage());
         }
         
-        // Only fetch from general news APIs if 'general' category is selected
-        $shouldFetchGeneral = in_array('general', $categories);
-        error_log("Should fetch general news: " . ($shouldFetchGeneral ? "YES" : "NO") . " - Categories: " . implode(', ', $categories));
+        // Fetch from main news APIs for any supported categories (not just general)
+        $supportedCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'];
+        $shouldFetchFromMainAPIs = !empty(array_intersect($categories, $supportedCategories));
+        error_log("Should fetch from main APIs: " . ($shouldFetchFromMainAPIs ? "YES" : "NO") . " - Categories: " . implode(', ', $categories));
         
-        // Fetch from each enabled source (only if general category is selected)
-        if ($this->gnewsKey && $shouldFetchGeneral) {
+        // Fetch from each enabled source for supported categories
+        if ($this->gnewsKey && $shouldFetchFromMainAPIs) {
             try {
                 $gnewsArticles = $this->fetchFromGNews($categories);
                 error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
@@ -73,10 +74,10 @@ class NewsAPI {
                 error_log("GNews fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("GNews: " . (!$this->gnewsKey ? "API key not available" : "Skipped - general category not selected"));
+            error_log("GNews: " . (!$this->gnewsKey ? "API key not available" : "Skipped - no supported categories selected"));
         }
         
-        if ($this->newsApiKey && $shouldFetchGeneral) {
+        if ($this->newsApiKey && $shouldFetchFromMainAPIs) {
             try {
                 $newsApiArticles = $this->fetchFromNewsAPI($categories);
                 error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
@@ -90,10 +91,10 @@ class NewsAPI {
                 error_log("NewsAPI fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("NewsAPI: " . (!$this->newsApiKey ? "API key not available" : "Skipped - general category not selected"));
+            error_log("NewsAPI: " . (!$this->newsApiKey ? "API key not available" : "Skipped - no supported categories selected"));
         }
         
-        if ($this->guardianKey && $shouldFetchGeneral) {
+        if ($this->guardianKey && $shouldFetchFromMainAPIs) {
             try {
                 $guardianArticles = $this->fetchFromGuardian($categories);
                 error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
@@ -102,10 +103,10 @@ class NewsAPI {
                 error_log("Guardian fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("Guardian: " . (!$this->guardianKey ? "API key not available" : "Skipped - general category not selected"));
+            error_log("Guardian: " . (!$this->guardianKey ? "API key not available" : "Skipped - no supported categories selected"));
         }
         
-        if ($this->nytKey && $shouldFetchGeneral) {
+        if ($this->nytKey && $shouldFetchFromMainAPIs) {
             try {
                 $nytNews = $this->fetchFromNYT($categories);
                 error_log("NYT fetch returned " . count($nytNews) . " articles");
@@ -119,7 +120,7 @@ class NewsAPI {
                 error_log("NYT fetch error: " . $e->getMessage());
             }
         } else {
-            error_log("NYT: " . (!$this->nytKey ? "API key not available" : "Skipped - general category not selected"));
+            error_log("NYT: " . (!$this->nytKey ? "API key not available" : "Skipped - no supported categories selected"));
         }
         
         // Use AI to classify articles that came in as "general"
