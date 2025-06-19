@@ -118,7 +118,7 @@ class NewsBriefApp {
             const endpoint = 'api/generate.php';
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout for complex briefings
             
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -164,7 +164,7 @@ class NewsBriefApp {
     }
 
     async pollStatus(sessionId) {
-        const maxAttempts = 60; // 2 minutes total - much faster
+        const maxAttempts = 150; // 5 minutes total for complex briefings
         let attempts = 0;
 
         while (attempts < maxAttempts && this.isGenerating) {
@@ -186,6 +186,7 @@ class NewsBriefApp {
                     throw new Error(result.message || 'Generation failed');
                 } else if (result.status === 'processing') {
                     this.updateStatus(result.message || this.statusSteps[this.currentStep], result.progress || (this.currentStep / this.statusSteps.length) * 100);
+                    this.addDebugLogEntry(`Status: ${result.message} (${result.progress || 0}%)`, 'info');
                     
                     if (this.currentStep < this.statusSteps.length - 1) {
                         this.currentStep++;
@@ -197,13 +198,16 @@ class NewsBriefApp {
 
             } catch (error) {
                 console.error('Polling error:', error);
-                this.showError(error.message || 'Status check failed');
-                return;
+                this.addDebugLogEntry(`Polling error (attempt ${attempts}): ${error.message}`, 'warning');
+                // Don't immediately fail - continue polling
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                attempts++;
+                continue;
             }
         }
 
         if (attempts >= maxAttempts) {
-            this.showError('Generation timed out. Please try again.');
+            this.showError('Generation took longer than expected. The briefing may have completed - check your history or try refreshing the page.');
         }
     }
 
