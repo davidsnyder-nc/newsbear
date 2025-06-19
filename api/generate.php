@@ -333,7 +333,13 @@ class BriefingGenerator {
         // Fetch from RSS feeds
         $this->debugLog("Fetching from configured RSS feeds...");
         $rssItems = $this->fetchRSSNews();
-        $this->debugLog("RSS feeds returned " . count($rssItems) . " articles");
+        $this->debugLog("RSS feeds returned " . count($rssItems) . " articles after category filtering");
+        
+        // Debug: Log which RSS articles made it through filtering
+        foreach ($rssItems as $rssItem) {
+            $this->debugLog("RSS article included: '" . $rssItem['title'] . "' (category: " . $rssItem['category'] . ", source: " . $rssItem['source'] . ")");
+        }
+        
         $allNews = array_merge($allNews, $rssItems);
         
         // Apply content filtering (blocked/preferred terms)
