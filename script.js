@@ -761,24 +761,27 @@ class NewsBriefApp {
     startLogPolling(sessionId) {
         if (!this.debugLogEnabled || this.logPollingInterval) return;
         
-        // Clear any existing entries first
-        this.clearDebugLog();
+        // Reset log tracking
+        this.lastLogCount = 0;
         
         this.logPollingInterval = setInterval(async () => {
             try {
                 const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.logs && data.logs.length > 0) {
-                        data.logs.forEach(log => {
+                    if (data.logs && data.logs.length > this.lastLogCount) {
+                        // Only add new logs since last poll
+                        const newLogs = data.logs.slice(this.lastLogCount);
+                        newLogs.forEach(log => {
                             this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
                         });
+                        this.lastLogCount = data.logs.length;
                     }
                 }
             } catch (error) {
                 console.warn('Error polling debug logs:', error);
             }
-        }, 1000); // Poll every second for better stability
+        }, 500); // Poll every 500ms for responsive updates
     }
 
     stopLogPolling() {
