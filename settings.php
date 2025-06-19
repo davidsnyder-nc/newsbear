@@ -211,6 +211,7 @@ $defaults = [
     'huggingfaceApiKey' => '',
     'ttsProvider' => 'google',
     'voiceSelection' => 'en-US-Neural2-D',
+    'chatterboxVoice' => 'news_anchor',
     'gnewsEnabled' => true,
     'newsApiEnabled' => true,
     'guardianEnabled' => true,
@@ -541,15 +542,28 @@ function isCategoryChecked($category) {
                                 </div>
                                 
                                 <div id="chatterbox-info" style="display: <?= ($settings['ttsProvider'] ?? 'google') === 'chatterbox' ? 'block' : 'none' ?>">
-                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                        <h4 class="text-sm font-medium text-blue-800 mb-2">Chatterbox TTS Features</h4>
-                                        <ul class="text-xs text-blue-700 space-y-1">
-                                            <li>• Open source TTS model by ResembleAI</li>
-                                            <li>• High-quality natural speech synthesis</li>
-                                            <li>• Emotion and intensity control</li>
-                                            <li>• Competitive with premium services</li>
-                                        </ul>
-                                        <p class="text-xs text-blue-600 mt-2">Requires Hugging Face API key (free tier available)</p>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Chatterbox Voice Style</label>
+                                            <select name="chatterboxVoice" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                                <option value="news_anchor" <?= isSelected('chatterboxVoice', 'news_anchor') ?>>News Anchor - Professional, authoritative delivery</option>
+                                                <option value="conversational" <?= isSelected('chatterboxVoice', 'conversational') ?>>Conversational - Natural, everyday tone</option>
+                                                <option value="dramatic" <?= isSelected('chatterboxVoice', 'dramatic') ?>>Dramatic - Expressive with emphasis</option>
+                                                <option value="calm" <?= isSelected('chatterboxVoice', 'calm') ?>>Calm - Soothing, relaxed delivery</option>
+                                            </select>
+                                            <p class="text-xs text-gray-500 mt-1">Each style adjusts emotion, pacing, and delivery for different moods</p>
+                                        </div>
+                                        
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <h4 class="text-sm font-medium text-blue-800 mb-2">Chatterbox TTS Features</h4>
+                                            <ul class="text-xs text-blue-700 space-y-1">
+                                                <li>• Open source TTS model by ResembleAI</li>
+                                                <li>• High-quality natural speech synthesis</li>
+                                                <li>• Emotion and intensity control</li>
+                                                <li>• Competitive with premium services</li>
+                                            </ul>
+                                            <p class="text-xs text-blue-600 mt-2">Requires Hugging Face API key (free tier available)</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

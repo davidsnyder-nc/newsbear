@@ -63,13 +63,12 @@ class ChatterboxTTS {
     }
     
     private function synthesizeSingleChunk($text, $saveFile = true) {
+        // Get voice settings from user preferences
+        $voiceSettings = $this->getChatterboxVoiceSettings();
+        
         $data = [
             'inputs' => $text,
-            'parameters' => [
-                'voice' => 'default',
-                'speed' => 1.0,
-                'pitch' => 1.0
-            ]
+            'parameters' => $voiceSettings
         ];
         
         $headers = [
@@ -189,6 +188,48 @@ class ChatterboxTTS {
         if ($hour >= 5 && $hour < 12) return 'morning';
         if ($hour >= 12 && $hour < 17) return 'afternoon';
         return 'evening';
+    }
+    
+    private function getChatterboxVoiceSettings() {
+        $voiceStyle = $this->settings['chatterboxVoice'] ?? 'default';
+        
+        switch ($voiceStyle) {
+            case 'news_anchor':
+                return [
+                    'exaggeration' => 0.3,
+                    'cfg' => 0.6,
+                    'speed' => 0.9,
+                    'voice_description' => 'Professional news anchor with clear, authoritative delivery'
+                ];
+            case 'conversational':
+                return [
+                    'exaggeration' => 0.5,
+                    'cfg' => 0.5,
+                    'speed' => 1.0,
+                    'voice_description' => 'Natural, conversational tone for everyday listening'
+                ];
+            case 'dramatic':
+                return [
+                    'exaggeration' => 0.7,
+                    'cfg' => 0.3,
+                    'speed' => 0.8,
+                    'voice_description' => 'Expressive, dramatic delivery with emphasis'
+                ];
+            case 'calm':
+                return [
+                    'exaggeration' => 0.2,
+                    'cfg' => 0.7,
+                    'speed' => 0.85,
+                    'voice_description' => 'Calm, soothing voice ideal for relaxed listening'
+                ];
+            default:
+                return [
+                    'exaggeration' => 0.5,
+                    'cfg' => 0.5,
+                    'speed' => 1.0,
+                    'voice_description' => 'Balanced default voice settings'
+                ];
+        }
     }
 }
 ?>
