@@ -804,8 +804,7 @@ function getRssCustomCategories() {
                                             <input type="checkbox" name="authEnabled" <?= isChecked('authEnabled') ?> class="mr-3 h-4 w-4">
                                             Enable Authentication
                                         </label>
-                                        <p class="text-xs text-gray-500 ml-7">Require login for access to settings and briefing generation (username: admin, password: mindless)</p>
-                                        <p class="text-xs text-gray-500 ml-7">Logs detailed API calls and processing steps</p>
+                                        <p class="text-xs text-gray-500 ml-7">Require login for access to settings and briefing generation</p>
                                     </div>
                                 </div>
                             </div>
