@@ -17,20 +17,21 @@ class CategoryClassifier {
         // Separate articles that need classification from those that don't
         foreach ($articles as $article) {
             $category = strtolower($article['category'] ?? '');
+            $source = $article['source'] ?? '';
             
-            // Skip articles that already have specific categories
-            if ($category && $category !== 'general') {
+            // RSS feeds: Keep their assigned categories (already enforced when fetched)
+            if (isset($article['isRss']) && $article['isRss'] === true) {
                 $classifiedArticles[] = $article;
                 continue;
             }
             
-            // Skip system categories that shouldn't be reclassified
+            // System categories that shouldn't be reclassified
             if (in_array($category, ['weather', 'local', 'entertainment'])) {
                 $classifiedArticles[] = $article;
                 continue;
             }
             
-            // Queue for classification
+            // News API articles: Queue for Gemini classification
             $articlesToClassify[] = $article;
         }
         
