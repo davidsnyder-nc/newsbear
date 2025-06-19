@@ -889,50 +889,83 @@ function buildCategoryOptions(selectedCategory = '') {
     return options;
 }
 
-function addRssFeed(url = '', name = '', category = '') {
+function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
     const container = document.getElementById('rss-feeds-container');
     const noMessage = document.getElementById('no-rss-message');
     
     rssFeedCounter++;
     const feedId = 'rss_feed_' + rssFeedCounter;
+    const displayName = name || `RSS Feed ${rssFeedCounter}`;
+    const isEditMode = isNewFeed;
     
     const feedHtml = `
-        <div class="border border-gray-200 rounded-lg p-4 bg-white" id="${feedId}">
-            <div class="flex justify-between items-start mb-4">
-                <h4 class="font-medium text-gray-800">RSS Feed ${rssFeedCounter}</h4>
-                <button type="button" onclick="removeRssFeed('${feedId}')" class="text-red-600 hover:text-red-800">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Feed URL</label>
-                    <input type="url" name="rssFeeds[${rssFeedCounter}][url]" value="${url}" placeholder="https://example.com/feed.xml" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
-                    <input type="text" name="rssFeeds[${rssFeedCounter}][name]" value="${name}" placeholder="Source Name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                    <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="handleCategoryChange(${rssFeedCounter}, this.value)">
-                        ${buildCategoryOptions(category)}
-                    </select>
-                </div>
-            </div>
-            <div class="mt-4 hidden" id="new-category-${rssFeedCounter}">
-                <div class="flex gap-2">
+        <div class="border border-gray-200 rounded-lg bg-white" id="${feedId}">
+            <!-- Compact View -->
+            <div class="feed-compact-view ${isEditMode ? 'hidden' : ''}" id="compact-${feedId}">
+                <div class="flex items-center justify-between p-3">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">New Category Name</label>
-                        <input type="text" id="new-category-input-${rssFeedCounter}" placeholder="Enter category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <div class="flex items-center gap-3">
+                            <h4 class="font-medium text-gray-800" id="display-name-${feedId}">${displayName}</h4>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full" id="category-badge-${feedId}">${getCategoryDisplayName(category)}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1 truncate" id="url-display-${feedId}">${url}</p>
                     </div>
-                    <div class="flex items-end">
-                        <button type="button" onclick="addCustomCategory(${rssFeedCounter})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm">
-                            Add
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="editRssFeed('${feedId}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                            <i class="fas fa-edit mr-1"></i>Edit
                         </button>
-                        <button type="button" onclick="cancelCustomCategory(${rssFeedCounter})" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm">
-                            Cancel
+                        <button type="button" onclick="removeRssFeed('${feedId}')" class="text-red-600 hover:text-red-800 text-sm">
+                            <i class="fas fa-trash"></i>
                         </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Edit View -->
+            <div class="feed-edit-view ${isEditMode ? '' : 'hidden'}" id="edit-${feedId}">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-medium text-gray-800">Edit RSS Feed</h4>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="saveRssFeed('${feedId}')" class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-2 rounded-md">
+                                <i class="fas fa-save mr-1"></i>Save
+                            </button>
+                            <button type="button" onclick="cancelEditRssFeed('${feedId}')" class="bg-gray-500 hover:bg-gray-600 text-white text-sm px-3 py-2 rounded-md">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Feed URL</label>
+                            <input type="url" name="rssFeeds[${rssFeedCounter}][url]" value="${url}" placeholder="https://example.com/feed.xml" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required id="url-input-${feedId}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
+                            <input type="text" name="rssFeeds[${rssFeedCounter}][name]" value="${name}" placeholder="Source Name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required id="name-input-${feedId}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="handleCategoryChange(${rssFeedCounter}, this.value)" id="category-select-${feedId}">
+                                ${buildCategoryOptions(category)}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-4 hidden" id="new-category-${rssFeedCounter}">
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">New Category Name</label>
+                                <input type="text" id="new-category-input-${rssFeedCounter}" placeholder="Enter category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" onclick="addCustomCategory(${rssFeedCounter})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm">
+                                    Add
+                                </button>
+                                <button type="button" onclick="cancelCustomCategory(${rssFeedCounter})" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -941,6 +974,61 @@ function addRssFeed(url = '', name = '', category = '') {
     
     container.insertAdjacentHTML('beforeend', feedHtml);
     noMessage.style.display = 'none';
+}
+
+function getCategoryDisplayName(category) {
+    const standardCategories = {
+        'general': 'General',
+        'business': 'Business',
+        'entertainment': 'Entertainment',
+        'health': 'Health',
+        'science': 'Science',
+        'sports': 'Sports',
+        'technology': 'Technology'
+    };
+    
+    return standardCategories[category] || category;
+}
+
+function editRssFeed(feedId) {
+    document.getElementById(`compact-${feedId}`).classList.add('hidden');
+    document.getElementById(`edit-${feedId}`).classList.remove('hidden');
+}
+
+function saveRssFeed(feedId) {
+    const nameInput = document.getElementById(`name-input-${feedId}`);
+    const urlInput = document.getElementById(`url-input-${feedId}`);
+    const categorySelect = document.getElementById(`category-select-${feedId}`);
+    
+    // Validate inputs
+    if (!nameInput.value.trim() || !urlInput.value.trim()) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // Update compact view
+    document.getElementById(`display-name-${feedId}`).textContent = nameInput.value;
+    document.getElementById(`url-display-${feedId}`).textContent = urlInput.value;
+    document.getElementById(`category-badge-${feedId}`).textContent = getCategoryDisplayName(categorySelect.value);
+    
+    // Switch to compact view
+    document.getElementById(`edit-${feedId}`).classList.add('hidden');
+    document.getElementById(`compact-${feedId}`).classList.remove('hidden');
+}
+
+function cancelEditRssFeed(feedId) {
+    // If this is a new feed being cancelled, remove it entirely
+    const nameInput = document.getElementById(`name-input-${feedId}`);
+    const urlInput = document.getElementById(`url-input-${feedId}`);
+    
+    if (!nameInput.value.trim() && !urlInput.value.trim()) {
+        removeRssFeed(feedId);
+        return;
+    }
+    
+    // Otherwise, just switch back to compact view
+    document.getElementById(`edit-${feedId}`).classList.add('hidden');
+    document.getElementById(`compact-${feedId}`).classList.remove('hidden');
 }
 
 function handleCategoryChange(feedCounter, value) {
@@ -1439,10 +1527,10 @@ function loadExistingRssFeeds() {
             }
         });
         
-        // Then add the feeds
+        // Then add the feeds (existing feeds start in compact view)
         existingFeeds.forEach(feed => {
             const category = feed.customCategory || feed.category;
-            addRssFeed(feed.url, feed.name, category);
+            addRssFeed(feed.url, feed.name, category, false); // false = not new feed, show in compact view
         });
     }
 }
