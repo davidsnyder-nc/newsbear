@@ -57,10 +57,11 @@ input:focus, select:focus, textarea:focus {
 
 .logo-loading-ring {
     position: absolute;
-    top: -15px;
-    left: -15px;
-    right: -15px;
-    bottom: -15px;
+    top: 50%;
+    left: 50%;
+    width: calc(100% + 40px);
+    height: calc(100% + 40px);
+    transform: translate(-50%, -50%);
     border: 4px solid transparent;
     border-top: 4px solid #8B4513;
     border-radius: 50%;
@@ -76,12 +77,12 @@ input:focus, select:focus, textarea:focus {
 .logo-loading-ring::before {
     content: '';
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
-    border: 2px solid transparent;
-    border-top: 2px solid #A0522D;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border: 3px solid transparent;
+    border-top: 3px solid #A0522D;
     border-radius: 50%;
     animation: logo-spin-reverse 1.5s linear infinite;
 }

@@ -677,7 +677,7 @@ class BriefingGenerator {
             }
         }
         
-        return array_slice($rebalanced, 0, $targetCount);
+        return array_slice($rebalanced, 0, $this->getNumericStoryCount($targetCount));
     }
     
     private function smartFallbackSelection($items, $storyCount, $categoryDistribution) {

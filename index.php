@@ -209,6 +209,24 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
                 </div>
             </div>
 
+            <!-- Debug Log Window -->
+            <div id="debug-log-container" class="mb-8 hidden">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-terminal text-gray-600 mr-2"></i>
+                            <span class="text-sm font-medium text-gray-700">Generation Log</span>
+                        </div>
+                        <button id="clear-log-btn" class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-200">
+                            <i class="fas fa-eraser mr-1"></i>Clear
+                        </button>
+                    </div>
+                    <div id="debug-log-content" class="bg-black text-green-400 rounded p-3 font-mono text-xs max-h-80 overflow-y-auto">
+                        <div class="text-gray-500">Debug log will appear here during briefing generation...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Generate Button -->
             <?php if ($authStatus['enabled'] && !$authStatus['loggedIn']): ?>
                 <button 

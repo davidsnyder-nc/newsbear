@@ -107,6 +107,7 @@ if ($_POST && !isset($_POST['action'])) {
         'categories' => $_POST['categories'] ?? ['general'],
         'debugMode' => isset($_POST['debugMode']) ? true : false,
         'verboseLogging' => isset($_POST['verboseLogging']) ? true : false,
+        'showLogWindow' => isset($_POST['showLogWindow']) ? true : false,
         'authEnabled' => isset($_POST['authEnabled']) ? true : false,
         'gnewsApiKey' => $_POST['gnewsApiKey'] ?? '',
         'newsApiKey' => $_POST['newsApiKey'] ?? '',
@@ -220,6 +221,7 @@ $defaults = [
     'googleTtsEnabled' => true,
     'debugMode' => false,
     'verboseLogging' => false,
+    'showLogWindow' => false,
     'authEnabled' => false
 ];
 
@@ -833,6 +835,12 @@ function isCategoryChecked($category) {
                                             Verbose Logging
                                         </label>
                                         <p class="text-xs text-gray-500 ml-7">Logs detailed information about system operations</p>
+                                        
+                                        <label class="flex items-center text-sm">
+                                            <input type="checkbox" name="showLogWindow" <?= isChecked('showLogWindow') ?> class="mr-3 h-4 w-4">
+                                            Show Debug Log Window
+                                        </label>
+                                        <p class="text-xs text-gray-500 ml-7">Display real-time generation logs on the main page during briefing creation</p>
                                         
                                         <label class="flex items-center text-sm">
                                             <input type="checkbox" name="authEnabled" <?= isChecked('authEnabled') ?> class="mr-3 h-4 w-4">
