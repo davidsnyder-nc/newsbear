@@ -136,9 +136,8 @@ class BriefingGenerator {
                 $storyCountRange = $this->getStoryCountForLength($audioLength);
                 $targetCount = intval(explode('-', $storyCountRange)[1]);
                 
-                // Use filtered items if available, otherwise use all news items
-                $filteredItems = $this->filterByCategories($newsItems);
-                $itemsToUse = !empty($filteredItems) ? $filteredItems : array_slice($newsItems, 0, min(count($newsItems), $targetCount * 2));
+                // Use all available news items for fallback (they're already category-filtered)
+                $itemsToUse = array_slice($newsItems, 0, min(count($newsItems), $targetCount * 2));
                 
                 $this->debugLog("Using " . count($itemsToUse) . " items for fallback selection (from " . count($newsItems) . " total)", 'INFO');
                 $selectedStories = $this->smartFallbackSelection($itemsToUse, $targetCount, []);
@@ -333,14 +332,13 @@ class BriefingGenerator {
         // Fetch from RSS feeds
         $this->debugLog("Fetching from configured RSS feeds...");
         $rssItems = $this->fetchRSSNews();
-        $this->debugLog("RSS feeds returned " . count($rssItems) . " articles after category filtering");
-        
-        // Debug: Log which RSS articles made it through filtering
-        foreach ($rssItems as $rssItem) {
-            $this->debugLog("RSS article included: '" . $rssItem['title'] . "' (category: " . $rssItem['category'] . ", source: " . $rssItem['source'] . ")");
-        }
-        
+        $this->debugLog("RSS feeds returned " . count($rssItems) . " articles (unfiltered)");
         $allNews = array_merge($allNews, $rssItems);
+        
+        // Apply unified category filtering BEFORE content filtering
+        $this->debugLog("Applying unified category filtering...");
+        $allNews = $this->applyCategoryFilter($allNews);
+        $this->debugLog("After category filtering: " . count($allNews) . " articles remain");
         
         // Apply content filtering (blocked/preferred terms)
         $allNews = $this->applyContentFilters($allNews);
@@ -380,23 +378,59 @@ class BriefingGenerator {
         require_once __DIR__ . '/../includes/RSSFeedHandler.php';
         $rssHandler = new RSSFeedHandler();
         
+        // Fetch all RSS articles without filtering - filtering happens later
         $allRSSArticles = $rssHandler->getAllRssArticles(20); // Limit to 20 articles per feed
-        $filteredRSSArticles = [];
         
-        foreach ($allRSSArticles as $article) {
-            // RSS categories are now normalized to lowercase at source
-            $articleCategory = $article['category'] ?? '';
-            $selectedCategoriesLower = array_map('strtolower', $this->selectedCategories);
+        return $allRSSArticles;
+    }
+    
+    private function applyCategoryFilter($articles) {
+        $selectedCategories = array_map('strtolower', $this->selectedCategories);
+        $this->debugLog("Selected categories for filtering: [" . implode(', ', $selectedCategories) . "]");
+        
+        if (empty($selectedCategories)) {
+            $this->debugLog("No categories selected - including all articles");
+            return $articles;
+        }
+        
+        $filtered = [];
+        $excluded = [];
+        
+        foreach ($articles as $article) {
+            // Normalize article category to lowercase
+            $articleCategory = strtolower($article['category'] ?? '');
             
-            if (in_array($articleCategory, $selectedCategoriesLower)) {
-                $this->debugLog("Including RSS article: '" . $article['title'] . "' (category: " . $articleCategory . ")");
-                $filteredRSSArticles[] = $article;
+            // Always include special system categories based on settings
+            if ($articleCategory === 'weather' && ($this->settings['includeWeather'] ?? false)) {
+                $filtered[] = $article;
+                $this->debugLog("Including weather article: " . $article['title']);
+                continue;
+            }
+            
+            if ($articleCategory === 'local' && ($this->settings['includeLocal'] ?? false)) {
+                $filtered[] = $article;
+                $this->debugLog("Including local article: " . $article['title']);
+                continue;
+            }
+            
+            if ($articleCategory === 'entertainment' && ($this->settings['includeTV'] ?? false)) {
+                $filtered[] = $article;
+                $this->debugLog("Including entertainment article: " . $article['title']);
+                continue;
+            }
+            
+            // Check if article category matches any selected category
+            if (in_array($articleCategory, $selectedCategories)) {
+                $filtered[] = $article;
+                $this->debugLog("Including article: '" . $article['title'] . "' (category: " . $articleCategory . ")");
             } else {
-                $this->debugLog("Excluding RSS article: '" . $article['title'] . "' (category: " . $articleCategory . " not in [" . implode(', ', $selectedCategoriesLower) . "])");
+                $excluded[] = $article;
+                $this->debugLog("EXCLUDING article: '" . $article['title'] . "' (category: " . $articleCategory . " not in selected categories)");
             }
         }
         
-        return $filteredRSSArticles;
+        $this->debugLog("Category filtering results: " . count($filtered) . " included, " . count($excluded) . " excluded");
+        return $filtered;
     }
     
     private function applyContentFilters($news) {
@@ -469,67 +503,7 @@ class BriefingGenerator {
         return $result;
     }
     
-    private function filterByCategories($newsItems) {
-        $selectedCategories = $this->settings['categories'] ?? [];
-        
-        // If no categories are selected, return all items
-        if (empty($selectedCategories)) {
-            return $newsItems;
-        }
-        
-        // Normalize selected categories to lowercase for comparison
-        $normalizedSelected = array_map('strtolower', $selectedCategories);
-        
-        // Get all RSS custom categories to understand what's custom vs standard
-        $rssCustomCategories = [];
-        try {
-            require_once __DIR__ . '/../includes/RSSFeedHandler.php';
-            $rssHandler = new RSSFeedHandler();
-            $rssCustomCategories = array_map('strtolower', $rssHandler->getCustomCategories());
-        } catch (Exception $e) {
-            // Continue without RSS categories if there's an error
-        }
-        
-        // Standard news categories that APIs typically support
-        $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'];
-        
-        $filtered = [];
-        foreach ($newsItems as $item) {
-            $itemCategory = $item['category'] ?? '';
-            $normalizedItemCategory = strtolower($itemCategory);
-            
-            // Always include special system categories based on settings
-            if ($normalizedItemCategory === 'weather' && ($this->settings['includeWeather'] ?? false)) {
-                $filtered[] = $item;
-                continue;
-            }
-            
-            if ($normalizedItemCategory === 'local' && ($this->settings['includeLocal'] ?? false)) {
-                $filtered[] = $item;
-                continue;
-            }
-            
-            if ($normalizedItemCategory === 'entertainment' && ($this->settings['includeTV'] ?? false)) {
-                $filtered[] = $item;
-                continue;
-            }
-            
-            // For user-selected categories, include exact matches
-            if (in_array($normalizedItemCategory, $normalizedSelected)) {
-                $filtered[] = $item;
-                error_log("Including item with category '$itemCategory' - matches selected category");
-                continue;
-            }
-            
-            error_log("EXCLUDING article '{$item['title']}' - category '$itemCategory' not in selected: " . implode(', ', $selectedCategories));
-        }
-        
-        error_log("Categories selected: " . implode(', ', $selectedCategories));
-        error_log("News items before category filter: " . count($newsItems));
-        error_log("News items after category filter: " . count($filtered));
-        
-        return $filtered;
-    }
+
     
     private function selectStories($newsItems, $todaysTopics = []) {
         $aiService = new AIService($this->settings);
