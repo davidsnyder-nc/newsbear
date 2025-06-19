@@ -137,6 +137,11 @@ if ($_POST && !isset($_POST['action'])) {
         'lastUpdated' => date('c')
     ];
     
+    // Debug log the settings being saved
+    error_log("DEBUG: Saving settings with preferredTerms: '" . ($settings['preferredTerms'] ?? 'NOT SET') . "'");
+    error_log("DEBUG: POST data for preferredTerms: '" . ($_POST['preferredTerms'] ?? 'NOT IN POST') . "'");
+    ];
+    
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: index.php?saved=1');
     exit;
@@ -221,8 +226,18 @@ function getRssCustomCategories() {
     try {
         require_once __DIR__ . '/includes/RSSFeedHandler.php';
         $rssHandler = new RSSFeedHandler();
-        return $rssHandler->getCustomCategories();
+        $customCategories = $rssHandler->getCustomCategories();
+        
+        // Debug logging
+        if (!empty($customCategories)) {
+            error_log("DEBUG: Found custom RSS categories: " . implode(', ', $customCategories));
+        } else {
+            error_log("DEBUG: No custom RSS categories found");
+        }
+        
+        return $customCategories;
     } catch (Exception $e) {
+        error_log("DEBUG: Error getting custom categories: " . $e->getMessage());
         return [];
     }
 }

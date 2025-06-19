@@ -221,8 +221,19 @@ class RSSFeedHandler {
         $categories = [];
         $rssFeeds = $this->getRssFeeds();
         
+        // Standard news categories
+        $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'];
+        
         foreach ($rssFeeds as $feed) {
-            if ($feed['category'] === 'custom' && !empty($feed['customCategory'])) {
+            $category = $feed['category'];
+            
+            // If it's not a standard category, it's a custom category
+            if (!in_array($category, $standardCategories) && !in_array($category, $categories)) {
+                $categories[] = $category;
+            }
+            
+            // Also check for explicit custom categories
+            if ($category === 'custom' && !empty($feed['customCategory'])) {
                 $categoryName = $feed['customCategory'];
                 if (!in_array($categoryName, $categories)) {
                     $categories[] = $categoryName;
