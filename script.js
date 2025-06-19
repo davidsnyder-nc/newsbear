@@ -775,7 +775,7 @@ class NewsBriefApp {
             } catch (error) {
                 console.warn('Error polling debug logs:', error);
             }
-        }, 1000);
+        }, 500); // Poll every 500ms for more responsive updates
     }
 
     stopLogPolling() {

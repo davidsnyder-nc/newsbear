@@ -955,16 +955,17 @@ class BriefingGenerator {
                 if ($response) {
                     $wordCount = str_word_count($response);
                     $this->debugLog("Content generation completed with {$modelName} (took {$duration}s): {$wordCount} words generated");
-                if ($response) {
                     break; // Success, stop trying other services
                 }
             } catch (Exception $e) {
-                error_log("AI service {$modelName} failed in content generation: " . $e->getMessage());
+                $duration = time() - $startTime;
+                $this->debugLog("AI service {$modelName} failed in content generation after {$duration}s: " . $e->getMessage(), 'ERROR');
                 // Continue to next AI service
             }
         }
         
         if (!$response) {
+            $this->debugLog("All AI services failed for content generation", 'ERROR');
             throw new Exception('All AI services failed to generate content. Please check your API keys and try again.');
         }
         
