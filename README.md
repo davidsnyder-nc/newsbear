@@ -26,13 +26,15 @@ A cutting-edge personalized news briefing application that leverages advanced AI
 - **Real-time Execution**: Automatic briefing generation at scheduled times
 
 ### Technical Features
-- **Tabbed Settings Interface**: Organized configuration across Basic, Content, API, AI Services, Advanced, and Scheduling tabs
-- **Briefing History**: Access and replay previous news briefings with audio playback
-- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
-- **Content Filtering**: Block unwanted terms and customize content
+- **Tabbed Settings Interface**: Organized configuration across Basic, Content, API, AI Services, Advanced, RSS Feeds, and Scheduling tabs
+- **Authentication System**: Optional login protection with toggle for development/production modes
+- **RSS Feed Management**: Custom RSS feeds with dynamic categories, compact view, and edit functionality
+- **Podcast Server Ready**: Infrastructure prepared for future podcast RSS feed generation from briefings
+- **Briefing History**: Access and replay previous news briefings with audio playbook
+- **Responsive Design**: Mobile-friendly interface with Tailwind CSS and dark theme support
+- **Content Filtering**: Block unwanted terms and customize content preferences
 - **Multiple AI Providers**: Fallback support across different AI services
-- **RSS Feed Integration**: Custom RSS feeds for specialized content categories
-- **Schedule Management**: Create, edit, delete, and toggle scheduled briefings
+- **Schedule Management**: Create, edit, delete, and toggle scheduled briefings with real-time status
 
 ## 🚀 Quick Start
 
@@ -68,6 +70,7 @@ A cutting-edge personalized news briefing application that leverages advanced AI
    - Open http://localhost:5000 in your browser
    - Navigate to Settings to configure your API keys
    - Set up automated schedules in the Scheduling tab
+   - Optional: Enable authentication in Advanced Settings for production use
 
 ## ⚙️ Configuration
 
@@ -148,6 +151,36 @@ export WEATHER_API_KEY="your_weather_key"
    - View schedule status and last run time
    - Delete schedules no longer needed
 
+### Managing RSS Feeds
+
+1. **Add Custom RSS Feeds**
+   - Go to Settings → RSS Feeds → RSS Sources
+   - Click "Add RSS Feed"
+   - Enter feed URL, name, and select/create category
+   - Use compact view for easier management
+
+2. **Custom Categories**
+   - Create custom categories during RSS feed setup
+   - Categories automatically appear in briefing generation options
+   - Edit existing feeds to change categories or details
+
+3. **Future Podcast Server**
+   - Infrastructure prepared for hosting generated briefings as podcast feeds
+   - Will allow subscription to your news briefings via podcast apps
+
+### Authentication & Security
+
+1. **Enable Authentication**
+   - Go to Settings → Advanced Settings
+   - Check "Enable Authentication" 
+   - Default credentials: admin/mindless
+   - When enabled, requires login for all functions except landing page
+
+2. **Development Mode**
+   - Keep authentication disabled during development
+   - Enable for production deployment
+   - Logout option available in settings when authenticated
+
 ### Managing Briefings
 
 - **History**: Access all previous briefings via the History page
@@ -168,6 +201,7 @@ newsbear/
 │   └── scheduling.php     # Schedule management API
 ├── includes/              # Core PHP classes
 │   ├── AIService.php      # AI provider integration
+│   ├── AuthManager.php    # Authentication system
 │   ├── NewsAPI.php        # News source aggregation
 │   ├── TTSService.php     # Text-to-speech conversion
 │   ├── WeatherService.php # Weather data integration
@@ -182,6 +216,8 @@ newsbear/
 ├── index.php             # Main application
 ├── settings.php          # Configuration interface
 ├── history.php           # Briefing history
+├── login.php             # Authentication interface
+├── logout.php            # Logout handler
 └── style.css             # Application styling
 ```
 
