@@ -132,7 +132,9 @@ class BriefingGenerator {
             // If AI selection failed but we have articles, use smart fallback
             if (empty($selectedStories) && !empty($newsItems)) {
                 $this->debugLog("AI selection returned no stories but " . count($newsItems) . " articles available. Using smart fallback.", 'WARNING');
-                $targetCount = $this->getTargetStoryCount();
+                $audioLength = $this->settings['audioLength'] ?? '5-10';
+                $storyCountRange = $this->getStoryCountForLength($audioLength);
+                $targetCount = intval(explode('-', $storyCountRange)[1]);
                 $selectedStories = $this->smartFallbackSelection($newsItems, $targetCount, []);
                 $this->debugLog("Fallback selection completed: " . count($selectedStories) . " stories chosen");
             }
@@ -901,7 +903,19 @@ class BriefingGenerator {
         $prompt .= "13. ABSOLUTE REQUIREMENT: ONLY use the exact news stories listed below. NEVER create, invent, imagine, or generate ANY fictional news content under ANY circumstances. If no real news stories are provided, state that no news is available.\n";
         $prompt .= "14. Add proper paragraph breaks between stories for readability\n";
         $prompt .= "15. MANDATORY: You must reach the target word count of {$wordCount} words. If you provide fewer words, you have failed the task. Be verbose and thorough in your coverage.\n";
-        $prompt .= "16. End with a natural conclusion like 'That's all the news for this {$timeFrame}. Have a great day!' or similar\n\n";
+        $prompt .= "16. End with a natural conclusion like 'That's all the news for this {$timeFrame}. Have a great day!' or similar\n";
+        
+        // Add critical instruction to prevent placeholder text for disabled features
+        $disabledSections = [];
+        if (!($this->settings['includeWeather'] ?? false)) $disabledSections[] = 'weather';
+        if (!($this->settings['includeLocal'] ?? false)) $disabledSections[] = 'local news';
+        if (!($this->settings['includeTV'] ?? false)) $disabledSections[] = 'entertainment/TV';
+        
+        if (!empty($disabledSections)) {
+            $prompt .= "17. CRITICAL: Do NOT mention, reference, or create placeholder text for these disabled sections: " . implode(', ', $disabledSections) . ". Simply omit them entirely from the briefing.\n";
+        }
+        
+        $prompt .= "\n";
         
         // Separate local news from other news stories
         $localNewsStories = array_filter($stories, function($story) {
