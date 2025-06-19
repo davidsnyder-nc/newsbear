@@ -1,36 +1,63 @@
 <?php
 
+require_once __DIR__ . '/ChatterboxTTS.php';
+
 class TTSService {
-    private $apiKey;
+    private $settings;
+    private $ttsProvider;
+    private $googleApiKey;
     private $voiceSelection;
+    private $chatterboxTTS;
     
     public function __construct($settings = null) {
-        if ($settings) {
-            $this->apiKey = ($settings['googleTtsEnabled'] ?? true) ? ($settings['googleTtsApiKey'] ?: getenv('GOOGLE_TTS_API_KEY')) : null;
-            $this->voiceSelection = $settings['voiceSelection'] ?? 'en-US-Neural2-D';
-        } else {
-            $this->apiKey = getenv('GOOGLE_TTS_API_KEY');
-            $this->voiceSelection = 'en-US-Neural2-D';
+        $this->settings = $settings ?: [];
+        $this->ttsProvider = $this->settings['ttsProvider'] ?? 'google';
+        
+        // Google TTS setup
+        $this->googleApiKey = ($this->settings['googleTtsEnabled'] ?? true) ? 
+            ($this->settings['googleTtsApiKey'] ?: getenv('GOOGLE_TTS_API_KEY')) : null;
+        $this->voiceSelection = $this->settings['voiceSelection'] ?? 'en-US-Neural2-D';
+        
+        // Chatterbox TTS setup
+        if ($this->ttsProvider === 'chatterbox') {
+            $this->chatterboxTTS = new ChatterboxTTS($this->settings);
         }
     }
     
     public function synthesizeSpeech($ssmlText) {
+        error_log("TTS: Using provider - " . $this->ttsProvider);
+        
+        // Route to appropriate TTS provider
+        switch ($this->ttsProvider) {
+            case 'chatterbox':
+                if (!$this->chatterboxTTS) {
+                    $this->chatterboxTTS = new ChatterboxTTS($this->settings);
+                }
+                return $this->chatterboxTTS->synthesizeSpeech($ssmlText);
+                
+            case 'google':
+            default:
+                return $this->synthesizeWithGoogle($ssmlText);
+        }
+    }
+    
+    private function synthesizeWithGoogle($ssmlText) {
         // Clean up the SSML text
         $ssmlText = $this->cleanSSML($ssmlText);
         
         // Log the input text details
-        error_log("TTS Input - Character count: " . strlen($ssmlText));
-        error_log("TTS Input - Word count: " . str_word_count(strip_tags($ssmlText)));
-        error_log("TTS Input - First 200 chars: " . substr($ssmlText, 0, 200));
-        error_log("TTS Input - Last 200 chars: " . substr($ssmlText, -200));
+        error_log("Google TTS Input - Character count: " . strlen($ssmlText));
+        error_log("Google TTS Input - Word count: " . str_word_count(strip_tags($ssmlText)));
+        error_log("Google TTS Input - First 200 chars: " . substr($ssmlText, 0, 200));
+        error_log("Google TTS Input - Last 200 chars: " . substr($ssmlText, -200));
         
         // Check if text exceeds Google's 5000 byte limit
         if (strlen($ssmlText) > 4800) { // Increased threshold, leave smaller buffer
-            error_log("TTS: Text length exceeds limit, using chunked synthesis");
+            error_log("Google TTS: Text length exceeds limit, using chunked synthesis");
             return $this->synthesizeLongSpeech($ssmlText);
         }
         
-        error_log("TTS: Using single chunk synthesis");
+        error_log("Google TTS: Using single chunk synthesis");
         return $this->synthesizeSingleChunk($ssmlText);
     }
     

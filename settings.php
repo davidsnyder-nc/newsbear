@@ -208,6 +208,8 @@ $defaults = [
     'claudeApiKey' => '',
     'claudePrompt' => 'Generate a comprehensive news briefing script from the provided articles.',
     'googleTtsApiKey' => '',
+    'huggingfaceApiKey' => '',
+    'ttsProvider' => 'google',
     'voiceSelection' => 'en-US-Neural2-D',
     'gnewsEnabled' => true,
     'newsApiEnabled' => true,
@@ -502,7 +504,16 @@ function isCategoryChecked($category) {
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Voice Selection</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Text-to-Speech Provider</label>
+                                    <select name="ttsProvider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="toggleTtsOptions()">
+                                        <option value="google" <?= isSelected('ttsProvider', 'google') ?>>Google TTS (Premium Quality)</option>
+                                        <option value="chatterbox" <?= isSelected('ttsProvider', 'chatterbox') ?>>Chatterbox TTS (Open Source)</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">Choose your preferred text-to-speech engine</p>
+                                </div>
+                                
+                                <div id="google-voice-options" style="display: <?= ($settings['ttsProvider'] ?? 'google') === 'google' ? 'block' : 'none' ?>">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Voice Selection (Google TTS)</label>
                                     <select name="voiceSelection" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                                         <optgroup label="American Male Voices">
                                             <option value="en-US-Neural2-D" <?= isSelected('voiceSelection', 'en-US-Neural2-D') ?>>David - Standard American ($)</option>
@@ -526,6 +537,19 @@ function isCategoryChecked($category) {
                                         </optgroup>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
+                                </div>
+                                
+                                <div id="chatterbox-info" style="display: <?= ($settings['ttsProvider'] ?? 'google') === 'chatterbox' ? 'block' : 'none' ?>">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <h4 class="text-sm font-medium text-blue-800 mb-2">Chatterbox TTS Features</h4>
+                                        <ul class="text-xs text-blue-700 space-y-1">
+                                            <li>• Open source TTS model by ResembleAI</li>
+                                            <li>• High-quality natural speech synthesis</li>
+                                            <li>• Emotion and intensity control</li>
+                                            <li>• Competitive with premium services</li>
+                                        </ul>
+                                        <p class="text-xs text-blue-600 mt-2">Requires Hugging Face API key (free tier available)</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -727,6 +751,15 @@ function isCategoryChecked($category) {
                                     </label>
                                     <input type="password" name="googleTtsApiKey" value="<?= getValue('googleTtsApiKey') ?>" placeholder="Google TTS API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
                                     <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.cloud.google.com/" target="_blank" class="text-blue-600 hover:underline">Google Cloud Console</a></p>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center mb-2 text-sm">
+                                        <input type="checkbox" name="chatterboxEnabled" <?= isChecked('chatterboxEnabled') ?> class="mr-3 h-4 w-4">
+                                        Chatterbox TTS (Open Source)
+                                    </label>
+                                    <input type="password" name="huggingfaceApiKey" value="<?= getValue('huggingfaceApiKey') ?>" placeholder="Hugging Face API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <p class="text-xs text-gray-500 mt-1">Get your free API key at <a href="https://huggingface.co/settings/tokens" target="_blank" class="text-blue-600 hover:underline">huggingface.co</a> (Free tier: ~1000 requests/month)</p>
                                 </div>
                             </div>
                         </div>
