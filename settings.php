@@ -515,8 +515,6 @@ function isCategoryChecked($category) {
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Text-to-Speech Provider</label>
                                     <select name="ttsProvider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="toggleTtsOptions()">
                                         <option value="google" <?= isSelected('ttsProvider', 'google') ?>>Google TTS (Premium Quality)</option>
-                                        <option value="chatterbox" <?= isSelected('ttsProvider', 'chatterbox') ?>>Chatterbox TTS (Open Source)</option>
-                                        <option value="elevenlabs" <?= isSelected('ttsProvider', 'elevenlabs') ?>>ElevenLabs TTS (High Quality)</option>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">Choose your preferred text-to-speech engine</p>
                                 </div>
@@ -548,31 +546,7 @@ function isCategoryChecked($category) {
                                     <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
                                 </div>
                                 
-                                <div id="chatterbox-info" style="display: <?= ($settings['ttsProvider'] ?? 'google') === 'chatterbox' ? 'block' : 'none' ?>">
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Chatterbox Voice Style</label>
-                                            <select name="chatterboxVoice" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                                <option value="news_anchor" <?= isSelected('chatterboxVoice', 'news_anchor') ?>>News Anchor - Professional, authoritative delivery</option>
-                                                <option value="conversational" <?= isSelected('chatterboxVoice', 'conversational') ?>>Conversational - Natural, everyday tone</option>
-                                                <option value="dramatic" <?= isSelected('chatterboxVoice', 'dramatic') ?>>Dramatic - Expressive with emphasis</option>
-                                                <option value="calm" <?= isSelected('chatterboxVoice', 'calm') ?>>Calm - Soothing, relaxed delivery</option>
-                                            </select>
-                                            <p class="text-xs text-gray-500 mt-1">Each style adjusts emotion, pacing, and delivery for different moods</p>
-                                        </div>
-                                        
-                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                            <h4 class="text-sm font-medium text-blue-800 mb-2">Chatterbox TTS Features</h4>
-                                            <ul class="text-xs text-blue-700 space-y-1">
-                                                <li>• Open source TTS model by ResembleAI</li>
-                                                <li>• High-quality natural speech synthesis</li>
-                                                <li>• Emotion and intensity control</li>
-                                                <li>• Competitive with premium services</li>
-                                            </ul>
-                                            <p class="text-xs text-blue-600 mt-2">Requires Hugging Face API key (free tier available)</p>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -775,23 +749,7 @@ function isCategoryChecked($category) {
                                     <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://console.cloud.google.com/" target="_blank" class="text-blue-600 hover:underline">Google Cloud Console</a></p>
                                 </div>
                                 
-                                <div>
-                                    <label class="flex items-center mb-2 text-sm">
-                                        <input type="checkbox" name="chatterboxEnabled" <?= isChecked('chatterboxEnabled') ?> class="mr-3 h-4 w-4">
-                                        Chatterbox TTS (Open Source)
-                                    </label>
-                                    <input type="password" name="falApiKey" value="<?= getValue('falApiKey') ?>" placeholder="fal.ai API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://docs.fal.ai/authentication/key-based" target="_blank" class="text-blue-600 hover:underline">fal.ai</a> (Free tier: ~1000 requests/month)</p>
-                                </div>
-                                
-                                <div>
-                                    <label class="flex items-center mb-2 text-sm">
-                                        <input type="checkbox" name="elevenLabsEnabled" <?= isChecked('elevenLabsEnabled') ?> class="mr-3 h-4 w-4">
-                                        ElevenLabs TTS (High Quality)
-                                    </label>
-                                    <input type="password" name="elevenLabsApiKey" value="<?= getValue('elevenLabsApiKey') ?>" placeholder="ElevenLabs API Key" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                    <p class="text-xs text-gray-500 mt-1">Get your API key at <a href="https://elevenlabs.io/speech-synthesis" target="_blank" class="text-blue-600 hover:underline">ElevenLabs</a></p>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -2017,14 +1975,11 @@ function populateScheduleForm(schedule) {
 function toggleTtsOptions() {
     const ttsProvider = document.querySelector('select[name="ttsProvider"]').value;
     const googleOptions = document.getElementById('google-voice-options');
-    const chatterboxInfo = document.getElementById('chatterbox-info');
     
     if (ttsProvider === 'google') {
         googleOptions.style.display = 'block';
-        chatterboxInfo.style.display = 'none';
-    } else if (ttsProvider === 'chatterbox') {
+    } else {
         googleOptions.style.display = 'none';
-        chatterboxInfo.style.display = 'block';
     }
 }
 </script>
