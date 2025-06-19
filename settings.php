@@ -18,7 +18,7 @@ function processRssFeeds($rssFeeds) {
             ];
             
             // Handle custom category - now custom categories are stored directly as the category value
-            if (!in_array($feed['category'], ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'])) {
+            if (!in_array($feed['category'], ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'])) {
                 // This is a custom category, store the actual category name
                 $processedFeed['customCategory'] = $feed['category'];
             }
@@ -57,7 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ['value' => 'science', 'label' => 'Science'],
             ['value' => 'health', 'label' => 'Health'],
             ['value' => 'entertainment', 'label' => 'Entertainment'],
-            ['value' => 'sports', 'label' => 'Sports']
+            ['value' => 'sports', 'label' => 'Sports'],
+            ['value' => 'gaming', 'label' => 'Gaming']
         ];
         
         // Add custom categories from RSS feeds
@@ -849,7 +850,7 @@ function loadCustomCategories() {
     .then(data => {
         if (data.success) {
             data.categories.forEach(cat => {
-                if (!['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'].includes(cat.value)) {
+                if (!['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'].includes(cat.value)) {
                     customCategories.add(cat.label);
                 }
             });
@@ -865,7 +866,8 @@ function buildCategoryOptions(selectedCategory = '') {
         { value: 'health', label: 'Health' },
         { value: 'science', label: 'Science' },
         { value: 'sports', label: 'Sports' },
-        { value: 'technology', label: 'Technology' }
+        { value: 'technology', label: 'Technology' },
+        { value: 'gaming', label: 'Gaming' }
     ];
     
     let options = '';
@@ -898,6 +900,9 @@ function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
     const displayName = name || `RSS Feed ${rssFeedCounter}`;
     const isEditMode = isNewFeed;
     
+    // Ensure category defaults to 'general' if invalid
+    const validCategory = category && category !== 'add_new' ? category : 'general';
+    
     const feedHtml = `
         <div class="border border-gray-200 rounded-lg bg-white" id="${feedId}">
             <!-- Compact View -->
@@ -906,7 +911,7 @@ function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
                     <div class="flex-1">
                         <div class="flex items-center gap-3">
                             <h4 class="font-medium text-gray-800" id="display-name-${feedId}">${displayName}</h4>
-                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full" id="category-badge-${feedId}">${getCategoryDisplayName(category)}</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full" id="category-badge-${feedId}">${getCategoryDisplayName(validCategory)}</span>
                         </div>
                         <p class="text-sm text-gray-500 mt-1 truncate" id="url-display-${feedId}">${url}</p>
                     </div>
@@ -947,7 +952,7 @@ function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                             <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="handleCategoryChange(${rssFeedCounter}, this.value)" id="category-select-${feedId}">
-                                ${buildCategoryOptions(category)}
+                                ${buildCategoryOptions(validCategory)}
                             </select>
                         </div>
                     </div>
@@ -984,8 +989,14 @@ function getCategoryDisplayName(category) {
         'health': 'Health',
         'science': 'Science',
         'sports': 'Sports',
-        'technology': 'Technology'
+        'technology': 'Technology',
+        'gaming': 'Gaming'
     };
+    
+    // Don't display "add_new" as a category
+    if (category === 'add_new') {
+        return 'General';
+    }
     
     return standardCategories[category] || category;
 }
