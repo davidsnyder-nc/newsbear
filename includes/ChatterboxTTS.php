@@ -2,13 +2,13 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://resemble-chatterbox.hf.space/api/predict';
+    private $baseUrl = 'https://queue.fal.run/fal-ai/chatterbox';
     
     public function __construct($settings = null) {
         if ($settings) {
-            $this->apiKey = $settings['huggingfaceApiKey'] ?? getenv('HUGGINGFACE_API_KEY');
+            $this->apiKey = $settings['falApiKey'] ?? getenv('FAL_API_KEY');
         } else {
-            $this->apiKey = getenv('HUGGINGFACE_API_KEY');
+            $this->apiKey = getenv('FAL_API_KEY');
         }
     }
     
@@ -66,13 +66,13 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for Hugging Face Spaces
+        // Chatterbox TTS API format for fal.ai
         $data = [
-            'data' => [$text, 'news_anchor_male', 'normal'],
-            'fn_index' => 0
+            'text' => $text
         ];
         
         $headers = [
+            'Authorization: Key ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
@@ -104,14 +104,14 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Parse the Hugging Face Spaces response
-        $result = json_decode($response, true);
-        if (!$result || !isset($result['data'])) {
-            throw new Exception("Invalid response from Chatterbox TTS");
+        // Parse the fal.ai queue response
+        $queueResponse = json_decode($response, true);
+        if (!$queueResponse || !isset($queueResponse['request_id'])) {
+            throw new Exception("Invalid queue response from Chatterbox TTS");
         }
         
-        // Extract audio data from Hugging Face Spaces response
-        $audioData = $this->extractAudioFromHFResponse($result);
+        // Poll for completion and get audio data
+        $audioData = $this->pollForCompletion($queueResponse['status_url'], $queueResponse['response_url'], $text);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
