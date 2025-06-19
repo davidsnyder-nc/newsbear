@@ -49,7 +49,7 @@ if (file_exists($settingsFile)) {
             <!-- Logo and Title Section -->
             <div class="text-center mb-8">
                 <a href="settings.php" class="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
-                    <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-24 h-24 sm:w-32 sm:h-32 mb-4">
+                    <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-24 h-24 sm:w-32 sm:h-32 mb-2">
                     <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 leading-none">NewsBear</h1>
                 </a>
             </div>
