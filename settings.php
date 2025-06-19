@@ -20,7 +20,7 @@ function processRssFeeds($rssFeeds) {
             $processedFeed = [
                 'url' => filter_var($feed['url'], FILTER_SANITIZE_URL),
                 'name' => htmlspecialchars($feed['name'], ENT_QUOTES, 'UTF-8'),
-                'category' => $feed['category']
+                'category' => ucfirst(strtolower($feed['category']))
             ];
             
             // Handle custom category - now custom categories are stored directly as the category value
@@ -1171,12 +1171,15 @@ function handleCategoryChange(feedCounter, value) {
 
 function addCustomCategory(feedCounter) {
     const input = document.getElementById(`new-category-input-${feedCounter}`);
-    const categoryName = input.value.trim();
+    let categoryName = input.value.trim();
     
     if (!categoryName) {
         alert('Please enter a category name');
         return;
     }
+    
+    // Automatically capitalize first letter
+    categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
     
     // Add to our set of custom categories
     customCategories.add(categoryName);

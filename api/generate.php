@@ -274,6 +274,11 @@ class BriefingGenerator {
         error_log("fetchNews: Got " . count($newsItems) . " items from NewsAPI");
         $allNews = array_merge($allNews, $newsItems);
         
+        // Fetch from RSS feeds
+        $rssItems = $this->fetchRSSNews();
+        error_log("fetchNews: Got " . count($rssItems) . " items from RSS feeds");
+        $allNews = array_merge($allNews, $rssItems);
+        
         // Apply content filtering (blocked/preferred terms)
         $allNews = $this->applyContentFilters($allNews);
         
@@ -299,6 +304,29 @@ class BriefingGenerator {
         }
         
         return $allNews;
+    }
+    
+    private function fetchRSSNews() {
+        require_once __DIR__ . '/../includes/RSSFeedHandler.php';
+        $rssHandler = new RSSFeedHandler();
+        
+        $allRSSArticles = $rssHandler->getAllRssArticles(20); // Limit to 20 articles per feed
+        $filteredRSSArticles = [];
+        
+        foreach ($allRSSArticles as $article) {
+            // Filter by selected categories (case-insensitive comparison)
+            $articleCategory = strtolower($article['category']);
+            $selectedCategoriesLower = array_map('strtolower', $this->selectedCategories);
+            
+            if (in_array($articleCategory, $selectedCategoriesLower)) {
+                error_log("Including RSS article '" . $article['title'] . "' - category '" . $article['category'] . "' matches selected");
+                $filteredRSSArticles[] = $article;
+            } else {
+                error_log("EXCLUDING RSS article '" . $article['title'] . "' - category '" . $article['category'] . "' not in selected: " . implode(', ', $this->selectedCategories));
+            }
+        }
+        
+        return $filteredRSSArticles;
     }
     
     private function applyContentFilters($news) {
