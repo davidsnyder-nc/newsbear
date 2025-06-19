@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://resembleai-chatterbox.hf.space/api/predict';
+    private $baseUrl = 'https://api-inference.huggingface.co/models/facebook/mms-tts-eng';
     
     public function __construct($settings = null) {
         if ($settings) {
