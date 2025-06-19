@@ -90,12 +90,18 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
             <div class="text-center mb-8">
                 <?php if ($authStatus['enabled'] && !$authStatus['loggedIn']): ?>
                     <div class="inline-flex flex-col items-center cursor-pointer" onclick="showAuthRequired('settings')">
-                        <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8">
+                        <div class="logo-loading-container">
+                            <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8" id="newsbear-logo">
+                            <div class="logo-loading-ring" id="logo-loading-ring"></div>
+                        </div>
                         <h1 class="text-4xl sm:text-5xl font-bold leading-none" style="color: #3A2B1F;">NewsBear</h1>
                     </div>
                 <?php else: ?>
                     <a href="settings.php" class="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
-                        <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8">
+                        <div class="logo-loading-container">
+                            <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8" id="newsbear-logo">
+                            <div class="logo-loading-ring" id="logo-loading-ring"></div>
+                        </div>
                         <h1 class="text-4xl sm:text-5xl font-bold leading-none" style="color: #3A2B1F;">NewsBear</h1>
                     </a>
                 <?php endif; ?>

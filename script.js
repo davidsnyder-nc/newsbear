@@ -201,11 +201,13 @@ class NewsBriefApp {
         const successContainer = document.getElementById('success-container');
         const errorContainer = document.getElementById('error-container');
         const generateBtn = document.getElementById('generate-btn');
+        const logoLoadingRing = document.getElementById('logo-loading-ring');
         
         if (statusContainer) statusContainer.classList.remove('hidden');
         if (successContainer) successContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.add('hidden');
         if (generateBtn) generateBtn.style.display = 'none';
+        if (logoLoadingRing) logoLoadingRing.classList.add('active');
         
         this.startWittyMessages();
     }
@@ -258,12 +260,14 @@ class NewsBriefApp {
         const successContainer = document.getElementById('success-container');
         const generateBtn = document.getElementById('generate-btn');
         const demoBtn = document.getElementById('demo-btn');
+        const logoLoadingRing = document.getElementById('logo-loading-ring');
         
         if (statusContainer) statusContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.add('hidden');
         if (successContainer) successContainer.classList.remove('hidden');
         if (generateBtn) generateBtn.style.display = 'flex';
         if (demoBtn) demoBtn.style.display = 'block';
+        if (logoLoadingRing) logoLoadingRing.classList.remove('active');
 
         const downloadSection = document.getElementById('download-section');
         const briefingTextSection = document.getElementById('text-section');
@@ -310,12 +314,14 @@ class NewsBriefApp {
         const errorContainer = document.getElementById('error-container');
         const errorText = document.getElementById('error-text');
         const generateBtn = document.getElementById('generate-btn');
+        const logoLoadingRing = document.getElementById('logo-loading-ring');
         
         if (statusContainer) statusContainer.classList.add('hidden');
         if (successContainer) successContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.remove('hidden');
         if (errorText) errorText.textContent = message;
         if (generateBtn) generateBtn.style.display = 'flex';
+        if (logoLoadingRing) logoLoadingRing.classList.remove('active');
     }
 
     hideResults() {
