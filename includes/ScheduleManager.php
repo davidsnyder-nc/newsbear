@@ -193,8 +193,13 @@ class ScheduleManager {
             
             // Allow 1 minute window for execution
             if (abs($currentTimeSeconds - $scheduleTime) <= 60) {
-                // Check if not already run today
-                if (!$schedule['last_run'] || date('Y-m-d', $schedule['last_run']) !== date('Y-m-d')) {
+                // Check if not already run for this specific time today
+                $lastRunTime = $schedule['last_run'] ? date('H:i', $schedule['last_run']) : '';
+                $lastRunDate = $schedule['last_run'] ? date('Y-m-d', $schedule['last_run']) : '';
+                
+                if (!$schedule['last_run'] || 
+                    $lastRunDate !== date('Y-m-d') || 
+                    $lastRunTime !== $schedule['time']) {
                     $schedulesToRun[] = $schedule;
                 }
             }
