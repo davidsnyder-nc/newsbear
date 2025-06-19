@@ -17,9 +17,10 @@ function processRssFeeds($rssFeeds) {
                 'category' => $feed['category']
             ];
             
-            // Handle custom category
-            if ($feed['category'] === 'custom' && !empty($feed['customCategory'])) {
-                $processedFeed['customCategory'] = htmlspecialchars($feed['customCategory'], ENT_QUOTES, 'UTF-8');
+            // Handle custom category - now custom categories are stored directly as the category value
+            if (!in_array($feed['category'], ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'])) {
+                // This is a custom category, store the actual category name
+                $processedFeed['customCategory'] = $feed['category'];
             }
             
             $processedFeeds[] = $processedFeed;
@@ -833,6 +834,60 @@ function toggleDarkThemeFromSettings() {
 
 // RSS Feed Management
 let rssFeedCounter = 0;
+let customCategories = new Set();
+
+// Load existing custom categories from settings
+function loadCustomCategories() {
+    fetch('settings.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'action=get_categories'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            data.categories.forEach(cat => {
+                if (!['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology'].includes(cat.value)) {
+                    customCategories.add(cat.label);
+                }
+            });
+        }
+    });
+}
+
+function buildCategoryOptions(selectedCategory = '') {
+    const standardCategories = [
+        { value: 'general', label: 'General' },
+        { value: 'business', label: 'Business' },
+        { value: 'entertainment', label: 'Entertainment' },
+        { value: 'health', label: 'Health' },
+        { value: 'science', label: 'Science' },
+        { value: 'sports', label: 'Sports' },
+        { value: 'technology', label: 'Technology' }
+    ];
+    
+    let options = '';
+    
+    // Add standard categories
+    standardCategories.forEach(cat => {
+        const selected = selectedCategory === cat.value ? 'selected' : '';
+        options += `<option value="${cat.value}" ${selected}>${cat.label}</option>`;
+    });
+    
+    // Add custom categories
+    customCategories.forEach(customCat => {
+        const customValue = customCat.toLowerCase().replace(/\s+/g, '_');
+        const selected = selectedCategory === customValue ? 'selected' : '';
+        options += `<option value="${customValue}" ${selected}>${customCat}</option>`;
+    });
+    
+    // Add "Add New Category" option
+    options += `<option value="add_new">+ Add New Category</option>`;
+    
+    return options;
+}
 
 function addRssFeed(url = '', name = '', category = '') {
     const container = document.getElementById('rss-feeds-container');
@@ -860,36 +915,87 @@ function addRssFeed(url = '', name = '', category = '') {
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                    <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                        <option value="general" ${category === 'general' ? 'selected' : ''}>General</option>
-                        <option value="business" ${category === 'business' ? 'selected' : ''}>Business</option>
-                        <option value="entertainment" ${category === 'entertainment' ? 'selected' : ''}>Entertainment</option>
-                        <option value="health" ${category === 'health' ? 'selected' : ''}>Health</option>
-                        <option value="science" ${category === 'science' ? 'selected' : ''}>Science</option>
-                        <option value="sports" ${category === 'sports' ? 'selected' : ''}>Sports</option>
-                        <option value="technology" ${category === 'technology' ? 'selected' : ''}>Technology</option>
-                        <option value="custom" ${category === 'custom' ? 'selected' : ''}>Custom Category</option>
+                    <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="handleCategoryChange(${rssFeedCounter}, this.value)">
+                        ${buildCategoryOptions(category)}
                     </select>
                 </div>
             </div>
-            <div class="mt-4 hidden" id="custom-category-${rssFeedCounter}">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Custom Category Name</label>
-                <input type="text" name="rssFeeds[${rssFeedCounter}][customCategory]" placeholder="Enter custom category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+            <div class="mt-4 hidden" id="new-category-${rssFeedCounter}">
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">New Category Name</label>
+                        <input type="text" id="new-category-input-${rssFeedCounter}" placeholder="Enter category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="addCustomCategory(${rssFeedCounter})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm">
+                            Add
+                        </button>
+                        <button type="button" onclick="cancelCustomCategory(${rssFeedCounter})" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     `;
     
     container.insertAdjacentHTML('beforeend', feedHtml);
     noMessage.style.display = 'none';
+}
+
+function handleCategoryChange(feedCounter, value) {
+    const newCategoryDiv = document.getElementById(`new-category-${feedCounter}`);
     
-    // Add event listener for custom category toggle
-    const categorySelect = document.querySelector(`select[name="rssFeeds[${rssFeedCounter}][category]"]`);
-    categorySelect.addEventListener('change', function() {
-        const customDiv = document.getElementById(`custom-category-${rssFeedCounter}`);
-        if (this.value === 'custom') {
-            customDiv.classList.remove('hidden');
-        } else {
-            customDiv.classList.add('hidden');
+    if (value === 'add_new') {
+        newCategoryDiv.classList.remove('hidden');
+        document.getElementById(`new-category-input-${feedCounter}`).focus();
+    } else {
+        newCategoryDiv.classList.add('hidden');
+    }
+}
+
+function addCustomCategory(feedCounter) {
+    const input = document.getElementById(`new-category-input-${feedCounter}`);
+    const categoryName = input.value.trim();
+    
+    if (!categoryName) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    // Add to our set of custom categories
+    customCategories.add(categoryName);
+    
+    // Update all category selects
+    updateAllCategorySelects();
+    
+    // Set the new category as selected for this feed
+    const select = document.querySelector(`select[name="rssFeeds[${feedCounter}][category]"]`);
+    const categoryValue = categoryName.toLowerCase().replace(/\s+/g, '_');
+    select.value = categoryValue;
+    
+    // Hide the new category input
+    document.getElementById(`new-category-${feedCounter}`).classList.add('hidden');
+    
+    // Clear the input
+    input.value = '';
+}
+
+function cancelCustomCategory(feedCounter) {
+    const select = document.querySelector(`select[name="rssFeeds[${feedCounter}][category]"]`);
+    select.value = 'general'; // Reset to general
+    document.getElementById(`new-category-${feedCounter}`).classList.add('hidden');
+    document.getElementById(`new-category-input-${feedCounter}`).value = '';
+}
+
+function updateAllCategorySelects() {
+    // Update all existing category dropdowns
+    const allSelects = document.querySelectorAll('select[name*="[category]"]');
+    allSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = buildCategoryOptions();
+        if (currentValue !== 'add_new') {
+            select.value = currentValue;
         }
     });
 }
@@ -1316,7 +1422,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Load existing RSS feeds
+    // Load custom categories first, then existing RSS feeds
+    loadCustomCategories();
     loadExistingRssFeeds();
 });
 
@@ -1325,17 +1432,17 @@ function loadExistingRssFeeds() {
     const existingFeeds = <?php echo json_encode(getRssFeeds()); ?>;
     
     if (existingFeeds && existingFeeds.length > 0) {
+        // First, collect all custom categories from existing feeds
         existingFeeds.forEach(feed => {
-            addRssFeed(feed.url, feed.name, feed.category);
-            
-            // Set custom category if applicable
-            if (feed.category === 'custom' && feed.customCategory) {
-                const customInput = document.querySelector(`input[name="rssFeeds[${rssFeedCounter}][customCategory]"]`);
-                if (customInput) {
-                    customInput.value = feed.customCategory;
-                    document.getElementById(`custom-category-${rssFeedCounter}`).classList.remove('hidden');
-                }
+            if (feed.customCategory) {
+                customCategories.add(feed.customCategory);
             }
+        });
+        
+        // Then add the feeds
+        existingFeeds.forEach(feed => {
+            const category = feed.customCategory || feed.category;
+            addRssFeed(feed.url, feed.name, category);
         });
     }
 }
