@@ -427,12 +427,7 @@ class NewsBriefApp {
         this.showToast('Ready to generate a new briefing!', 'success');
     }
 
-    switchToRedLogo() {
-        const logoImg = document.querySelector('img[alt="NewsBear Logo"]');
-        if (logoImg) {
-            logoImg.src = 'attached_assets/newsbear_red_logo.png?t=' + Date.now();
-        }
-    }
+
 
     switchToBrownLogo() {
         const logoImg = document.querySelector('img[alt="NewsBear Logo"]');
