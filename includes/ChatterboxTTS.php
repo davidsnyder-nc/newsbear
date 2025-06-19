@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://queue.fal.run/fal-ai/chatterbox';
+    private $baseUrl = 'https://fal.run/fal-ai/chatterbox';
     
     public function __construct($settings = null) {
         if ($settings) {
@@ -104,14 +104,14 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Parse the queue response
-        $queueResponse = json_decode($response, true);
-        if (!$queueResponse || !isset($queueResponse['request_id'])) {
-            throw new Exception("Invalid queue response from Chatterbox TTS");
+        // Parse the direct response
+        $result = json_decode($response, true);
+        if (!$result || !isset($result['audio_url'])) {
+            throw new Exception("No audio URL in Chatterbox TTS response");
         }
         
-        // Poll for completion
-        $audioData = $this->pollForCompletion($queueResponse['status_url'], $queueResponse['response_url']);
+        // Download the audio file
+        $audioData = $this->downloadAudioFile($result['audio_url']);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
