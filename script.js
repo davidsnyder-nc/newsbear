@@ -714,8 +714,8 @@ class NewsBriefApp {
         const debugContainer = document.getElementById('debug-log-container');
         if (debugContainer) {
             debugContainer.classList.remove('hidden');
-            // Don't clear the log - let polling fetch all entries from the file
-            this.lastLogCount = 0; // Reset to fetch all logs from start
+            this.clearDebugLog();
+            this.addDebugLogEntry('Debug log initialized - waiting for generation to start...', 'info');
         }
     }
 
@@ -768,9 +768,11 @@ class NewsBriefApp {
                 const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Debug polling response:', data.logs ? data.logs.length : 'no logs', 'lastCount:', this.lastLogCount);
                     if (data.logs && data.logs.length > this.lastLogCount) {
                         // Only add new logs since last poll
                         const newLogs = data.logs.slice(this.lastLogCount);
+                        console.log('Adding', newLogs.length, 'new debug log entries');
                         newLogs.forEach(log => {
                             this.addDebugLogEntry(log.message, log.type.toLowerCase() || 'info');
                         });
