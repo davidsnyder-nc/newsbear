@@ -6,9 +6,9 @@ class ChatterboxTTS {
     
     public function __construct($settings = null) {
         if ($settings) {
-            $this->apiKey = $settings['falApiKey'] ?? getenv('FAL_API_KEY');
+            $this->apiKey = $settings['huggingfaceApiKey'] ?? $settings['falApiKey'] ?? getenv('HUGGINGFACE_API_KEY');
         } else {
-            $this->apiKey = getenv('FAL_API_KEY');
+            $this->apiKey = getenv('HUGGINGFACE_API_KEY');
         }
     }
     
