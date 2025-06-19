@@ -5,10 +5,10 @@ class RSSFeedHandler {
     
     public function __construct($configFile = null) {
         if ($configFile === null) {
-            // Determine correct path based on current directory
-            $configFile = file_exists('config/user_settings.json') 
-                ? 'config/user_settings.json' 
-                : '../config/user_settings.json';
+            // Use the dedicated RSS feeds file
+            $configFile = file_exists('data/rss_feeds.json') 
+                ? 'data/rss_feeds.json' 
+                : '../data/rss_feeds.json';
         }
         $this->configFile = $configFile;
     }
@@ -18,8 +18,8 @@ class RSSFeedHandler {
             return [];
         }
         
-        $settings = json_decode(file_get_contents($this->configFile), true);
-        return $settings['rssFeeds'] ?? [];
+        $feeds = json_decode(file_get_contents($this->configFile), true);
+        return is_array($feeds) ? $feeds : [];
     }
     
     public function fetchRssFeed($feedUrl) {
