@@ -2,13 +2,13 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://api.openai.com/v1/audio/speech';
+    private $baseUrl = 'https://fal.run/fal-ai/chatterbox';
     
     public function __construct($settings = null) {
         if ($settings) {
-            $this->apiKey = $settings['huggingfaceApiKey'] ?? $settings['falApiKey'] ?? getenv('HUGGINGFACE_API_KEY');
+            $this->apiKey = $settings['falApiKey'] ?? getenv('FAL_API_KEY');
         } else {
-            $this->apiKey = getenv('HUGGINGFACE_API_KEY');
+            $this->apiKey = getenv('FAL_API_KEY');
         }
     }
     
@@ -66,13 +66,13 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Standard Hugging Face Inference API format
+        // fal.ai API format based on documentation
         $data = [
-            'inputs' => $text
+            'input' => $text
         ];
         
         $headers = [
-            'Authorization: Bearer ' . $this->apiKey,
+            'Authorization: Key ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         

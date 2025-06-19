@@ -515,7 +515,7 @@ function isCategoryChecked($category) {
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Text-to-Speech Provider</label>
                                     <select name="ttsProvider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="toggleTtsOptions()">
                                         <option value="google" <?= isSelected('ttsProvider', 'google') ?>>Google TTS (Premium Quality)</option>
-                                        <option value="chatterbox" <?= isSelected('ttsProvider', 'chatterbox') ?>>Alternative TTS (Experimental)</option>
+                                        <option value="chatterbox" <?= isSelected('ttsProvider', 'chatterbox') ?>>Chatterbox TTS (Open Source)</option>
                                         <option value="elevenlabs" <?= isSelected('ttsProvider', 'elevenlabs') ?>>ElevenLabs TTS (High Quality)</option>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">Choose your preferred text-to-speech engine</p>
