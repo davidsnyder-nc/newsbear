@@ -1,2 +1,2 @@
-# This file ensures the downloads directory is created
-# Generated MP3 files will be stored here
+# This directory stores downloadable MP3 files
+# Files in this directory are automatically excluded from git via .gitignore
