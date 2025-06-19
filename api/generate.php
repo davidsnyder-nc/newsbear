@@ -525,15 +525,25 @@ class BriefingGenerator {
                 $distributionText[] = "{$count} {$cat}";
             }
             
+            // Calculate source distribution for diversity
+            $sourceCounts = [];
+            foreach ($filteredItems as $item) {
+                $source = $item['source'] ?? 'Unknown';
+                $sourceCounts[$source] = ($sourceCounts[$source] ?? 0) + 1;
+            }
+            
+            $maxPerSource = max(1, floor($storyCount / max(3, count($sourceCounts))));
+            
             $prompt = "Select {$storyCount} stories for a " . $this->getTimeFrame() . " news briefing covering: {$selectedCategoriesText}.\n\n" .
-                     "CRITICAL REQUIREMENT - BALANCED DISTRIBUTION:\n" .
-                     "You MUST select exactly: " . implode(", ", $distributionText) . " stories.\n" .
-                     "This ensures balanced coverage across all selected categories.\n\n" .
-                     "Prioritize:\n" .
-                     "1. CATEGORY BALANCE: Follow the exact distribution above\n" .
-                     "2. Most newsworthy stories within each category\n" .
-                     "3. SOURCE DIVERSITY: Different sources for variety\n" .
-                     "4. Stories appropriate for the time of day\n\n" .
+                     "CRITICAL REQUIREMENTS:\n" .
+                     "1. CATEGORY BALANCE: Select exactly " . implode(", ", $distributionText) . " stories\n" .
+                     "2. SOURCE DIVERSITY: Select NO MORE than {$maxPerSource} stories from any single source\n" .
+                     "3. MANDATORY: You must include stories from at least 3 different sources\n\n" .
+                     "Selection criteria (in order):\n" .
+                     "• Follow the exact category distribution above\n" .
+                     "• Ensure source diversity - avoid clustering from one source\n" .
+                     "• Choose the most newsworthy stories\n" .
+                     "• Include stories from different news organizations\n\n" .
                      $excludeTopicsText .
                      "Available stories:\n";
         }
@@ -587,7 +597,76 @@ class BriefingGenerator {
             }
         }
         
+        // Validate and enforce source diversity
+        $selectedStories = $this->enforceSourceDiversity($selectedStories, $filteredItems, $storyCount);
+        
         return $selectedStories;
+    }
+    
+    private function enforceSourceDiversity($selectedStories, $allStories, $targetCount) {
+        // Count stories per source
+        $sourceCounts = [];
+        foreach ($selectedStories as $story) {
+            $source = $story['source'] ?? 'Unknown';
+            $sourceCounts[$source] = ($sourceCounts[$source] ?? 0) + 1;
+        }
+        
+        $maxPerSource = max(1, floor($targetCount / max(3, count($sourceCounts))));
+        $needsRebalancing = false;
+        
+        // Check if any source exceeds the limit
+        foreach ($sourceCounts as $source => $count) {
+            if ($count > $maxPerSource) {
+                $needsRebalancing = true;
+                error_log("Source diversity violation: {$source} has {$count} stories (max: {$maxPerSource})");
+                break;
+            }
+        }
+        
+        if (!$needsRebalancing) {
+            error_log("Source diversity check passed - no rebalancing needed");
+            return $selectedStories;
+        }
+        
+        error_log("Enforcing source diversity - rebalancing story selection");
+        
+        // Rebalance by source
+        $rebalanced = [];
+        $sourceUsage = [];
+        
+        // First pass: include stories from underrepresented sources
+        foreach ($selectedStories as $story) {
+            $source = $story['source'] ?? 'Unknown';
+            $currentCount = $sourceUsage[$source] ?? 0;
+            
+            if ($currentCount < $maxPerSource) {
+                $rebalanced[] = $story;
+                $sourceUsage[$source] = $currentCount + 1;
+            }
+        }
+        
+        // Second pass: fill remaining slots with diverse sources from all available stories
+        if (count($rebalanced) < $targetCount) {
+            $remaining = $targetCount - count($rebalanced);
+            $excludedTitles = array_column($rebalanced, 'title');
+            
+            foreach ($allStories as $story) {
+                if ($remaining <= 0) break;
+                if (in_array($story['title'], $excludedTitles)) continue;
+                
+                $source = $story['source'] ?? 'Unknown';
+                $currentCount = $sourceUsage[$source] ?? 0;
+                
+                if ($currentCount < $maxPerSource) {
+                    $rebalanced[] = $story;
+                    $sourceUsage[$source] = $currentCount + 1;
+                    $remaining--;
+                    error_log("Added for diversity: [" . $source . "] " . $story['title']);
+                }
+            }
+        }
+        
+        return array_slice($rebalanced, 0, $targetCount);
     }
     
     private function shuffleBySource($articles) {
