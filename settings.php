@@ -17,17 +17,31 @@ function processRssFeeds($rssFeeds) {
     
     foreach ($rssFeeds as $feed) {
         if (!empty($feed['url']) && !empty($feed['name']) && !empty($feed['category'])) {
+            // Validate category first
+            $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'];
+            $categoryLower = strtolower($feed['category']);
+            
+            if (!in_array($categoryLower, $standardCategories)) {
+                $categoryLower = 'general'; // Default to general for any invalid category
+            }
+            
+            // Use proper capitalization for display
+            $categoryDisplayMap = [
+                'general' => 'General',
+                'business' => 'Business', 
+                'entertainment' => 'Entertainment',
+                'health' => 'Health',
+                'science' => 'Science',
+                'sports' => 'Sports',
+                'technology' => 'Technology',
+                'gaming' => 'Gaming'
+            ];
+            
             $processedFeed = [
                 'url' => filter_var($feed['url'], FILTER_SANITIZE_URL),
                 'name' => htmlspecialchars($feed['name'], ENT_QUOTES, 'UTF-8'),
-                'category' => ucfirst(strtolower($feed['category']))
+                'category' => $categoryDisplayMap[$categoryLower]
             ];
-            
-            // Only use predefined categories - validate and default to 'general' if invalid
-            $standardCategories = ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'gaming'];
-            if (!in_array(strtolower($feed['category']), $standardCategories)) {
-                $processedFeed['category'] = 'general'; // Default to general for any invalid category
-            }
             
             $processedFeeds[] = $processedFeed;
         }
@@ -971,9 +985,12 @@ function buildCategoryOptions(selectedCategory = '') {
     
     let options = '';
     
+    // Normalize selected category for comparison (convert to lowercase)
+    const selectedLower = selectedCategory.toLowerCase();
+    
     // Add standard categories only
     standardCategories.forEach(cat => {
-        const selected = selectedCategory === cat.value ? 'selected' : '';
+        const selected = selectedLower === cat.value ? 'selected' : '';
         options += `<option value="${cat.value}" ${selected}>${cat.label}</option>`;
     });
     
