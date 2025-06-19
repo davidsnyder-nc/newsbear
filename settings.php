@@ -209,7 +209,7 @@ $defaults = [
     'claudeApiKey' => '',
     'claudePrompt' => 'Generate a comprehensive news briefing script from the provided articles.',
     'googleTtsApiKey' => '',
-    'huggingfaceApiKey' => '',
+
     'ttsProvider' => 'google',
     'voiceSelection' => 'en-US-Neural2-D',
 

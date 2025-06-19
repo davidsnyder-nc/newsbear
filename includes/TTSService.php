@@ -19,7 +19,7 @@ class TTSService {
     public function synthesizeSpeech($ssmlText) {
         error_log("TTS: Using provider - " . $this->ttsProvider);
         error_log("TTS: Settings ttsProvider = " . ($this->settings['ttsProvider'] ?? 'not set'));
-        error_log("TTS: Hugging Face API Key present = " . (!empty($this->settings['huggingfaceApiKey']) ? 'yes' : 'no'));
+
         
         // Only Google TTS is supported
         return $this->synthesizeWithGoogle($ssmlText);
