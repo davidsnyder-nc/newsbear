@@ -979,6 +979,19 @@ function displayHistoryItems(briefings) {
                     </div>
                 </div>
             `;
+        } else {
+            // If no text content, create placeholder
+            textHtml = `
+                <div id="text-${briefing.id}" class="hidden mt-4 text-container">
+                    <div class="mb-3">
+                        <i class="fas fa-file-text text-green-600 mr-2"></i>
+                        <span class="text-sm font-medium text-gray-700">Briefing Text</span>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded p-4 text-sm leading-relaxed">
+                        <p class="text-gray-500">Text content not available for this briefing.</p>
+                    </div>
+                </div>
+            `;
         }
         
         item.innerHTML = `
@@ -1016,9 +1029,9 @@ function displayHistoryItems(briefings) {
             </div>
             
             ${audioHtml}
+            ${textHtml}
             ${topicsHtml}
             ${sourcesHtml}
-            ${textHtml}
         `;
         
         listDiv.appendChild(item);
