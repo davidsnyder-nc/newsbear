@@ -145,7 +145,7 @@ if ($_POST && !isset($_POST['action'])) {
     error_log("DEBUG: POST categories data: " . json_encode($_POST['categories'] ?? 'NOT SET'));
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
-    header('Location: index.php?saved=1');
+    header('Location: settings.php?saved=1');
     exit;
 }
 
@@ -285,6 +285,9 @@ function getRssCustomCategories() {
                     <i class="fas fa-cog mr-2"></i>Settings
                 </h1>
                 <div class="flex gap-3">
+                    <button type="submit" form="settings-form" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm sm:text-base">
+                        <i class="fas fa-save mr-2"></i>Save Settings
+                    </button>
                     <a href="/" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm sm:text-base inline-flex items-center">
                         <i class="fas fa-home mr-2"></i>Go Home
                     </a>
@@ -424,7 +427,7 @@ function getRssCustomCategories() {
                 </div>
             </div>
 
-            <form method="POST" class="space-y-8">
+            <form id="settings-form" method="POST" class="space-y-8">
                 <!-- Basic Settings Tab -->
                 <div id="basic-content" class="tab-content">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
@@ -858,13 +861,6 @@ function getRssCustomCategories() {
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Save Settings Button -->
-                <div class="flex justify-center pt-6 border-t border-gray-200">
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md text-sm sm:text-base font-medium">
-                        <i class="fas fa-save mr-2"></i>Save Settings
-                    </button>
                 </div>
             </form>
         </div>
