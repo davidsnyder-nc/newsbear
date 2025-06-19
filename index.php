@@ -1,9 +1,21 @@
 <?php
+session_start();
+require_once 'includes/AuthManager.php';
+
+$auth = new AuthManager();
+$authStatus = $auth->getAuthStatus();
+
 // Load settings
 $settingsFile = 'config/user_settings.json';
 $settings = [];
 if (file_exists($settingsFile)) {
     $settings = json_decode(file_get_contents($settingsFile), true) ?: [];
+}
+
+// Check for saved message
+$savedMessage = '';
+if (isset($_GET['saved']) && $_GET['saved'] == '1') {
+    $savedMessage = 'Settings saved successfully!';
 }
 
 // Default values
@@ -43,15 +55,50 @@ if (file_exists($settingsFile)) {
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Authentication Header -->
+    <?php if ($authStatus['enabled']): ?>
+    <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-3 max-w-4xl">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    <?php if ($authStatus['loggedIn']): ?>
+                        Welcome, <?php echo htmlspecialchars($authStatus['username']); ?>
+                    <?php else: ?>
+                        Authentication Required
+                    <?php endif; ?>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <?php if ($authStatus['loggedIn']): ?>
+                        <a href="logout.php" class="text-sm text-red-600 hover:text-red-800">
+                            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                        </a>
+                    <?php else: ?>
+                        <a href="login.php" class="text-sm text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </header>
+    <?php endif; ?>
+    
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <!-- Main Content -->
         <div class="relative flex flex-col items-center justify-center min-h-[60vh]">
             <!-- Logo and Title Section -->
             <div class="text-center mb-8">
-                <a href="settings.php" class="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
-                    <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8">
-                    <h1 class="text-4xl sm:text-5xl font-bold leading-none" style="color: #3A2B1F;">NewsBear</h1>
-                </a>
+                <?php if ($authStatus['enabled'] && !$authStatus['loggedIn']): ?>
+                    <div class="inline-flex flex-col items-center cursor-pointer" onclick="showAuthRequired('settings')">
+                        <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8">
+                        <h1 class="text-4xl sm:text-5xl font-bold leading-none" style="color: #3A2B1F;">NewsBear</h1>
+                    </div>
+                <?php else: ?>
+                    <a href="settings.php" class="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
+                        <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-48 h-48 sm:w-64 sm:h-64 -mb-8">
+                        <h1 class="text-4xl sm:text-5xl font-bold leading-none" style="color: #3A2B1F;">NewsBear</h1>
+                    </a>
+                <?php endif; ?>
             </div>
             
             <!-- Hidden New Button -->
@@ -153,13 +200,23 @@ if (file_exists($settingsFile)) {
             </div>
 
             <!-- Generate Button -->
-            <button 
-                id="generate-btn" 
-                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
-            >
-                <i class="fas fa-microphone text-2xl"></i>
-                <span>Create My News Brief</span>
-            </button>
+            <?php if ($authStatus['enabled'] && !$authStatus['loggedIn']): ?>
+                <button 
+                    onclick="showAuthRequired('briefing')"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
+                >
+                    <i class="fas fa-microphone text-2xl"></i>
+                    <span>Create My News Brief</span>
+                </button>
+            <?php else: ?>
+                <button 
+                    id="generate-btn" 
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
+                >
+                    <i class="fas fa-microphone text-2xl"></i>
+                    <span>Create My News Brief</span>
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
