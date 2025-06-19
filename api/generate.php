@@ -398,6 +398,9 @@ class BriefingGenerator {
         // Filter news items by selected categories
         $filteredItems = $this->filterByCategories($newsItems);
         
+        // Shuffle articles by source to ensure better diversity
+        $filteredItems = $this->shuffleBySource($filteredItems);
+        
         // Determine story count based on audio length
         $audioLength = $this->settings['audioLength'] ?? '5-10';
         $storyCount = $this->getStoryCountForLength($audioLength);
@@ -487,6 +490,34 @@ class BriefingGenerator {
         }
         
         return $selectedStories;
+    }
+    
+    private function shuffleBySource($articles) {
+        // Group articles by source
+        $bySource = [];
+        foreach ($articles as $article) {
+            $source = $article['source'] ?? 'Unknown';
+            if (!isset($bySource[$source])) {
+                $bySource[$source] = [];
+            }
+            $bySource[$source][] = $article;
+        }
+        
+        // Interleave articles from different sources
+        $shuffled = [];
+        $maxArticles = max(array_map('count', $bySource));
+        
+        for ($i = 0; $i < $maxArticles; $i++) {
+            foreach ($bySource as $source => $sourceArticles) {
+                if (isset($sourceArticles[$i])) {
+                    $shuffled[] = $sourceArticles[$i];
+                }
+            }
+        }
+        
+        error_log("Source diversity shuffle: Reordered " . count($articles) . " articles from " . count($bySource) . " sources");
+        
+        return $shuffled;
     }
     
     private function getStoryCountForLength($audioLength) {
