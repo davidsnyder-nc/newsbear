@@ -122,7 +122,8 @@ if ($_POST && !isset($_POST['action'])) {
         'claudeApiKey' => $_POST['claudeApiKey'] ?? '',
         'claudePrompt' => $_POST['claudePrompt'] ?? 'Generate news briefing script.',
         'googleTtsApiKey' => $_POST['googleTtsApiKey'] ?? '',
-        'huggingfaceApiKey' => $_POST['huggingfaceApiKey'] ?? '',
+        'falApiKey' => $_POST['falApiKey'] ?? '',
+        'elevenLabsApiKey' => $_POST['elevenLabsApiKey'] ?? '',
         'ttsProvider' => $_POST['ttsProvider'] ?? 'google',
         'voiceSelection' => $_POST['voiceSelection'] ?? 'en-US-Neural2-D',
         'chatterboxVoice' => $_POST['chatterboxVoice'] ?? 'news_anchor',
@@ -514,6 +515,7 @@ function isCategoryChecked($category) {
                                     <select name="ttsProvider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="toggleTtsOptions()">
                                         <option value="google" <?= isSelected('ttsProvider', 'google') ?>>Google TTS (Premium Quality)</option>
                                         <option value="chatterbox" <?= isSelected('ttsProvider', 'chatterbox') ?>>Chatterbox TTS (Open Source)</option>
+                                        <option value="elevenlabs" <?= isSelected('ttsProvider', 'elevenlabs') ?>>ElevenLabs TTS (High Quality)</option>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">Choose your preferred text-to-speech engine</p>
                                 </div>
