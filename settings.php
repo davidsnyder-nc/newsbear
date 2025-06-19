@@ -552,21 +552,52 @@ function getRssCustomCategories() {
                 <!-- RSS Feeds Tab -->
                 <div id="rss-content" class="tab-content hidden">
                     <div class="space-y-6">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-medium text-gray-800">RSS Feeds</h3>
-                            <button type="button" onclick="addRssFeed()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
-                                <i class="fas fa-plus mr-2"></i>Add RSS Feed
-                            </button>
+                        <!-- RSS Sub-tabs -->
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8">
+                                <button type="button" onclick="showRssSubTab('feeds')" class="rss-sub-tab active border-transparent text-blue-600 border-blue-500 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                    RSS Sources
+                                </button>
+                                <button type="button" onclick="showRssSubTab('server')" class="rss-sub-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                    Podcast Server
+                                </button>
+                            </nav>
                         </div>
-                        
 
-                        
-                        <div id="rss-feeds-container" class="space-y-4">
-                            <!-- RSS feeds will be dynamically added here -->
+                        <!-- RSS Sources Sub-tab -->
+                        <div id="rss-feeds-subtab" class="rss-subtab-content">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-lg font-medium text-gray-800">RSS Feed Sources</h3>
+                                <button type="button" onclick="addRssFeed()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
+                                    <i class="fas fa-plus mr-2"></i>Add RSS Feed
+                                </button>
+                            </div>
+                            
+                            <div id="rss-feeds-container" class="space-y-4">
+                                <!-- RSS feeds will be dynamically added here -->
+                            </div>
+                            
+                            <div class="text-center text-gray-500 text-sm" id="no-rss-message">
+                                No RSS feeds configured. Click "Add RSS Feed" to get started.
+                            </div>
                         </div>
-                        
-                        <div class="text-center text-gray-500 text-sm" id="no-rss-message">
-                            No RSS feeds configured. Click "Add RSS Feed" to get started.
+
+                        <!-- Podcast Server Sub-tab -->
+                        <div id="rss-server-subtab" class="rss-subtab-content hidden">
+                            <div class="text-center py-12">
+                                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                                    <i class="fas fa-podcast text-4xl text-gray-400 mb-4"></i>
+                                    <h3 class="text-lg font-medium text-gray-800 mb-2">Podcast Server</h3>
+                                    <p class="text-gray-600 mb-4">Transform your news briefings into a custom podcast feed.</p>
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                        <p class="text-sm text-blue-800">
+                                            <i class="fas fa-info-circle mr-2"></i>
+                                            This feature will allow you to host your generated briefings as a podcast RSS feed that can be subscribed to in podcast apps.
+                                        </p>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Coming in a future update</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -836,6 +867,39 @@ function toggleDarkThemeFromSettings() {
 // RSS Feed Management
 let rssFeedCounter = 0;
 let customCategories = new Set();
+
+// RSS Sub-tab Management
+function showRssSubTab(tabName) {
+    // Hide all subtab content
+    document.querySelectorAll('.rss-subtab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active class from all sub-tabs
+    document.querySelectorAll('.rss-sub-tab').forEach(tab => {
+        tab.classList.remove('active', 'text-blue-600', 'border-blue-500');
+        tab.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected subtab content
+    if (tabName === 'feeds') {
+        document.getElementById('rss-feeds-subtab').classList.remove('hidden');
+        // Activate the feeds tab
+        const feedsTab = document.querySelector('[onclick="showRssSubTab(\'feeds\')"]');
+        if (feedsTab) {
+            feedsTab.classList.add('active', 'text-blue-600', 'border-blue-500');
+            feedsTab.classList.remove('border-transparent', 'text-gray-500');
+        }
+    } else if (tabName === 'server') {
+        document.getElementById('rss-server-subtab').classList.remove('hidden');
+        // Activate the server tab
+        const serverTab = document.querySelector('[onclick="showRssSubTab(\'server\')"]');
+        if (serverTab) {
+            serverTab.classList.add('active', 'text-blue-600', 'border-blue-500');
+            serverTab.classList.remove('border-transparent', 'text-gray-500');
+        }
+    }
+}
 
 // Load existing custom categories from settings
 function loadCustomCategories() {
