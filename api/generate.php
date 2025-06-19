@@ -400,6 +400,13 @@ class BriefingGenerator {
             'gaming', 'game informer', 'gamesindustry.biz'
         ];
         
+        // Define technology sources that should be excluded when technology is not selected
+        $technologySources = [
+            'techcrunch', 'the verge', 'ars technica', 'wired', 'engadget', 'gizmodo',
+            'techradar', 'cnet', 'zdnet', 'gizchina.com', 'android authority', 
+            'androidcentral', '9to5mac', 'macrumors', 'theinformation'
+        ];
+        
         $filtered = [];
         $excluded = [];
         
@@ -412,6 +419,12 @@ class BriefingGenerator {
             if (!in_array('gaming', $selectedCategories) && in_array($articleSource, $gamingSources)) {
                 $articleCategory = 'gaming';
                 $this->debugLog("Source-based override: '" . $article['source'] . "' classified as gaming");
+            }
+            
+            // Override category for known technology sources if technology not selected
+            if (!in_array('technology', $selectedCategories) && in_array($articleSource, $technologySources)) {
+                $articleCategory = 'technology';
+                $this->debugLog("Source-based override: '" . $article['source'] . "' classified as technology");
             }
             
             // Always include special system categories based on settings
