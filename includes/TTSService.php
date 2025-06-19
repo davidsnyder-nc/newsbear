@@ -38,8 +38,8 @@ class TTSService {
                     }
                     return $this->chatterboxTTS->synthesizeSpeech($ssmlText);
                 } catch (Exception $e) {
-                    error_log("Chatterbox TTS failed: " . $e->getMessage() . " - Falling back to Google TTS");
-                    return $this->synthesizeWithGoogle($ssmlText);
+                    error_log("Chatterbox TTS failed: " . $e->getMessage());
+                    return $this->attemptFallback($ssmlText, 'chatterbox');
                 }
                 
             case 'elevenlabs':
@@ -48,13 +48,62 @@ class TTSService {
                     $elevenlabs = new ElevenLabsTTS($this->settings);
                     return $elevenlabs->synthesizeSpeech($ssmlText);
                 } catch (Exception $e) {
-                    error_log("ElevenLabs TTS failed: " . $e->getMessage() . " - Falling back to Google TTS");
-                    return $this->synthesizeWithGoogle($ssmlText);
+                    error_log("ElevenLabs TTS failed: " . $e->getMessage());
+                    return $this->attemptFallback($ssmlText, 'elevenlabs');
                 }
                 
             case 'google':
             default:
                 return $this->synthesizeWithGoogle($ssmlText);
+        }
+    }
+    
+    private function attemptFallback($ssmlText, $failedProvider) {
+        // Get list of enabled providers, excluding the one that failed
+        $enabledProviders = [];
+        
+        if (($this->settings['googleTtsEnabled'] ?? true) && !empty($this->settings['googleTtsApiKey'])) {
+            $enabledProviders[] = 'google';
+        }
+        
+        if (($this->settings['chatterboxEnabled'] ?? false) && !empty($this->settings['falApiKey'])) {
+            $enabledProviders[] = 'chatterbox';
+        }
+        
+        if (($this->settings['elevenLabsEnabled'] ?? false) && !empty($this->settings['elevenLabsApiKey'])) {
+            $enabledProviders[] = 'elevenlabs';
+        }
+        
+        // Remove the failed provider from options
+        $enabledProviders = array_filter($enabledProviders, function($provider) use ($failedProvider) {
+            return $provider !== $failedProvider;
+        });
+        
+        if (empty($enabledProviders)) {
+            throw new Exception("No fallback TTS providers are enabled and configured with API keys");
+        }
+        
+        // Try the first available fallback provider
+        $fallbackProvider = $enabledProviders[0];
+        error_log("Attempting fallback to {$fallbackProvider} TTS");
+        
+        switch ($fallbackProvider) {
+            case 'google':
+                return $this->synthesizeWithGoogle($ssmlText);
+                
+            case 'chatterbox':
+                if (!$this->chatterboxTTS) {
+                    $this->chatterboxTTS = new ChatterboxTTS($this->settings);
+                }
+                return $this->chatterboxTTS->synthesizeSpeech($ssmlText);
+                
+            case 'elevenlabs':
+                require_once __DIR__ . '/ElevenLabsTTS.php';
+                $elevenlabs = new ElevenLabsTTS($this->settings);
+                return $elevenlabs->synthesizeSpeech($ssmlText);
+                
+            default:
+                throw new Exception("Unknown fallback provider: {$fallbackProvider}");
         }
     }
     
