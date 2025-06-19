@@ -138,6 +138,7 @@ if ($_POST && !isset($_POST['action'])) {
         'claudeEnabled' => isset($_POST['claudeEnabled']) ? true : false,
         'googleTtsEnabled' => isset($_POST['googleTtsEnabled']) ? true : false,
         'chatterboxEnabled' => isset($_POST['chatterboxEnabled']) ? true : false,
+        'elevenLabsEnabled' => isset($_POST['elevenLabsEnabled']) ? true : false,
         // RSS feeds are handled separately in data/rss_feeds.json, not in main settings
         'lastUpdated' => date('c')
     ];

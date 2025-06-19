@@ -116,7 +116,7 @@ class TTSService {
     }
     
     private function synthesizeSingleChunk($ssmlText, $saveFile = true) {
-        $url = "https://texttospeech.googleapis.com/v1/text:synthesize?key={$this->apiKey}";
+        $url = "https://texttospeech.googleapis.com/v1/text:synthesize?key={$this->googleApiKey}";
         
         // Get voice configuration based on selection
         $voiceConfig = $this->getVoiceConfiguration($this->voiceSelection);
