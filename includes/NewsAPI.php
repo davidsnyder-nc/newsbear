@@ -31,6 +31,7 @@ class NewsAPI {
     
     public function fetchFromAllSources($categories, $zipCode = null, $includeLocal = false) {
         $allNews = [];
+        $apiStatus = [];
         
         // Fetch local news FIRST if requested and zip code provided
         if ($includeLocal && $zipCode) {
@@ -38,8 +39,10 @@ class NewsAPI {
                 $localNews = $this->fetchLocalNewsFromRSS($zipCode);
                 $allNews = array_merge($allNews, $localNews);
                 error_log("Local news fetch: Found " . count($localNews) . " local articles (added first)");
+                $apiStatus['local'] = 'success';
             } catch (Exception $e) {
                 error_log("Local news fetch error: " . $e->getMessage());
+                $apiStatus['local'] = 'failed: ' . $e->getMessage();
             }
         }
         
@@ -64,34 +67,28 @@ class NewsAPI {
             try {
                 $gnewsArticles = $this->fetchFromGNews($categories);
                 error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
-                if (!empty($gnewsArticles)) {
-                    foreach ($gnewsArticles as $article) {
-                        error_log("GNews article: " . $article['title'] . " from " . $article['source']);
-                    }
-                }
                 $allNews = array_merge($allNews, $gnewsArticles);
+                $apiStatus['gnews'] = count($gnewsArticles) > 0 ? 'success' : 'no results';
             } catch (Exception $e) {
                 error_log("GNews fetch error: " . $e->getMessage());
+                $apiStatus['gnews'] = 'failed: ' . $e->getMessage();
             }
         } else {
-            error_log("GNews: " . (!$this->gnewsKey ? "API key not available" : "Skipped - no supported categories selected"));
+            $apiStatus['gnews'] = !$this->gnewsKey ? 'no API key' : 'categories not supported';
         }
         
         if ($this->newsApiKey && $shouldFetchFromMainAPIs) {
             try {
                 $newsApiArticles = $this->fetchFromNewsAPI($categories);
                 error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
-                if (!empty($newsApiArticles)) {
-                    foreach ($newsApiArticles as $article) {
-                        error_log("NewsAPI article: " . $article['title'] . " from " . $article['source']);
-                    }
-                }
                 $allNews = array_merge($allNews, $newsApiArticles);
+                $apiStatus['newsapi'] = count($newsApiArticles) > 0 ? 'success' : 'no results';
             } catch (Exception $e) {
                 error_log("NewsAPI fetch error: " . $e->getMessage());
+                $apiStatus['newsapi'] = 'failed: ' . $e->getMessage();
             }
         } else {
-            error_log("NewsAPI: " . (!$this->newsApiKey ? "API key not available" : "Skipped - no supported categories selected"));
+            $apiStatus['newsapi'] = !$this->newsApiKey ? 'no API key' : 'categories not supported';
         }
         
         if ($this->guardianKey && $shouldFetchFromMainAPIs) {
@@ -688,7 +685,7 @@ class NewsAPI {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15); // Reduced to 15 seconds
         curl_setopt($ch, CURLOPT_USERAGENT, 'NewsBot/1.0');
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -703,7 +700,20 @@ class NewsAPI {
         }
         
         if ($httpCode !== 200) {
-            throw new Exception("HTTP Error $httpCode for URL: $url. Response: $response");
+            // Log specific error details for debugging
+            error_log("API Error - HTTP $httpCode for $url");
+            error_log("Response: " . substr($response, 0, 500));
+            
+            // Check for rate limit errors
+            if ($httpCode === 429) {
+                throw new Exception("Rate limit exceeded for API");
+            } elseif ($httpCode === 401) {
+                throw new Exception("API key invalid or unauthorized");
+            } elseif ($httpCode === 403) {
+                throw new Exception("API access forbidden - check subscription");
+            } else {
+                throw new Exception("HTTP Error $httpCode for API");
+            }
         }
         
         $decoded = json_decode($response, true);

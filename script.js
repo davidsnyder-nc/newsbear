@@ -153,7 +153,7 @@ class NewsBriefApp {
     }
 
     async pollStatus(sessionId) {
-        const maxAttempts = 150; // Increased to 5 minutes total
+        const maxAttempts = 60; // 2 minutes total - much faster
         let attempts = 0;
 
         while (attempts < maxAttempts && this.isGenerating) {
