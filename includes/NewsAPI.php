@@ -20,6 +20,13 @@ class NewsAPI {
             $this->guardianKey = getenv('GUARDIAN_API_KEY');
             $this->nytKey = getenv('NYT_API_KEY');
         }
+        
+        // Log which API keys are available for debugging
+        error_log("NewsAPI Constructor - Available keys:");
+        error_log("GNews: " . ($this->gnewsKey ? "YES" : "NO"));
+        error_log("NewsAPI: " . ($this->newsApiKey ? "YES" : "NO"));
+        error_log("Guardian: " . ($this->guardianKey ? "YES" : "NO"));
+        error_log("NYT: " . ($this->nytKey ? "YES" : "NO"));
     }
     
     public function fetchFromAllSources($categories, $zipCode = null, $includeLocal = false) {
@@ -49,26 +56,38 @@ class NewsAPI {
         // Fetch from each enabled source
         if ($this->gnewsKey) {
             try {
-                $allNews = array_merge($allNews, $this->fetchFromGNews($categories));
+                $gnewsArticles = $this->fetchFromGNews($categories);
+                error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
+                $allNews = array_merge($allNews, $gnewsArticles);
             } catch (Exception $e) {
                 error_log("GNews fetch error: " . $e->getMessage());
             }
+        } else {
+            error_log("GNews: API key not available");
         }
         
         if ($this->newsApiKey) {
             try {
-                $allNews = array_merge($allNews, $this->fetchFromNewsAPI($categories));
+                $newsApiArticles = $this->fetchFromNewsAPI($categories);
+                error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
+                $allNews = array_merge($allNews, $newsApiArticles);
             } catch (Exception $e) {
                 error_log("NewsAPI fetch error: " . $e->getMessage());
             }
+        } else {
+            error_log("NewsAPI: API key not available");
         }
         
         if ($this->guardianKey) {
             try {
-                $allNews = array_merge($allNews, $this->fetchFromGuardian($categories));
+                $guardianArticles = $this->fetchFromGuardian($categories);
+                error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
+                $allNews = array_merge($allNews, $guardianArticles);
             } catch (Exception $e) {
                 error_log("Guardian fetch error: " . $e->getMessage());
             }
+        } else {
+            error_log("Guardian: API key not available");
         }
         
         if ($this->nytKey) {
@@ -127,10 +146,21 @@ class NewsAPI {
             'apikey' => $this->gnewsKey
         ]);
         
-
+        error_log("GNews API URL: " . $url);
         $response = $this->makeRequest($url);
         
+        if ($response === null) {
+            error_log("GNews API: No response received");
+            return $news;
+        }
+        
+        if (isset($response['error'])) {
+            error_log("GNews API Error: " . json_encode($response['error']));
+            return $news;
+        }
+        
         if ($response && isset($response['articles'])) {
+            error_log("GNews API: Found " . count($response['articles']) . " articles");
             foreach ($response['articles'] as $article) {
                 $news[] = [
                     'title' => $article['title'],
@@ -141,6 +171,8 @@ class NewsAPI {
                     'url' => $article['url'] ?? ''
                 ];
             }
+        } else {
+            error_log("GNews API: No articles array in response");
         }
         
         return $news;
@@ -215,9 +247,21 @@ class NewsAPI {
                 'apiKey' => $this->newsApiKey
             ]);
             
+            error_log("NewsAPI URL for category $category: " . $url);
             $response = $this->makeRequest($url);
             
+            if ($response === null) {
+                error_log("NewsAPI: No response received for category $category");
+                continue;
+            }
+            
+            if (isset($response['error'])) {
+                error_log("NewsAPI Error for category $category: " . json_encode($response['error']));
+                continue;
+            }
+            
             if ($response && isset($response['articles'])) {
+                error_log("NewsAPI: Found " . count($response['articles']) . " articles for category $category");
                 foreach ($response['articles'] as $article) {
                     $news[] = [
                         'title' => $article['title'],
@@ -228,6 +272,8 @@ class NewsAPI {
                         'url' => $article['url'] ?? ''
                     ];
                 }
+            } else {
+                error_log("NewsAPI: No articles array in response for category $category");
             }
         }
         
