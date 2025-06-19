@@ -901,7 +901,7 @@ function toggleDarkThemeFromSettings() {
 
 // RSS Feed Management
 let rssFeedCounter = 0;
-let customCategories = new Set();
+// Custom categories removed - using predefined categories only
 
 // RSS Sub-tab Management
 function showRssSubTab(tabName) {
@@ -971,21 +971,11 @@ function buildCategoryOptions(selectedCategory = '') {
     
     let options = '';
     
-    // Add standard categories
+    // Add standard categories only
     standardCategories.forEach(cat => {
         const selected = selectedCategory === cat.value ? 'selected' : '';
         options += `<option value="${cat.value}" ${selected}>${cat.label}</option>`;
     });
-    
-    // Add custom categories
-    customCategories.forEach(customCat => {
-        const customValue = customCat.toLowerCase().replace(/\s+/g, '_');
-        const selected = selectedCategory === customValue ? 'selected' : '';
-        options += `<option value="${customValue}" ${selected}>${customCat}</option>`;
-    });
-    
-    // Add "Add New Category" option
-    options += `<option value="add_new">+ Add New Category</option>`;
     
     return options;
 }
@@ -1050,25 +1040,9 @@ function addRssFeed(url = '', name = '', category = '', isNewFeed = true) {
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                            <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="handleCategoryChange(${rssFeedCounter}, this.value)" id="category-select-${feedId}">
+                            <select name="rssFeeds[${rssFeedCounter}][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" id="category-select-${feedId}">
                                 ${buildCategoryOptions(validCategory)}
                             </select>
-                        </div>
-                    </div>
-                    <div class="mt-4 hidden" id="new-category-${rssFeedCounter}">
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">New Category Name</label>
-                                <input type="text" id="new-category-input-${rssFeedCounter}" placeholder="Enter category name" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                            </div>
-                            <div class="flex items-end">
-                                <button type="button" onclick="addCustomCategory(${rssFeedCounter})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm">
-                                    Add
-                                </button>
-                                <button type="button" onclick="cancelCustomCategory(${rssFeedCounter})" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-md text-sm">
-                                    Cancel
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1141,64 +1115,9 @@ function cancelEditRssFeed(feedId) {
     document.getElementById(`compact-${feedId}`).classList.remove('hidden');
 }
 
-function handleCategoryChange(feedCounter, value) {
-    const newCategoryDiv = document.getElementById(`new-category-${feedCounter}`);
-    
-    if (value === 'add_new') {
-        newCategoryDiv.classList.remove('hidden');
-        document.getElementById(`new-category-input-${feedCounter}`).focus();
-    } else {
-        newCategoryDiv.classList.add('hidden');
-    }
-}
+// Custom category functions removed - using predefined categories only
 
-function addCustomCategory(feedCounter) {
-    const input = document.getElementById(`new-category-input-${feedCounter}`);
-    let categoryName = input.value.trim();
-    
-    if (!categoryName) {
-        alert('Please enter a category name');
-        return;
-    }
-    
-    // Automatically capitalize first letter
-    categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
-    
-    // Add to our set of custom categories
-    customCategories.add(categoryName);
-    
-    // Update all category selects
-    updateAllCategorySelects();
-    
-    // Set the new category as selected for this feed
-    const select = document.querySelector(`select[name="rssFeeds[${feedCounter}][category]"]`);
-    select.value = categoryName;
-    
-    // Hide the new category input
-    document.getElementById(`new-category-${feedCounter}`).classList.add('hidden');
-    
-    // Clear the input
-    input.value = '';
-}
-
-function cancelCustomCategory(feedCounter) {
-    const select = document.querySelector(`select[name="rssFeeds[${feedCounter}][category]"]`);
-    select.value = 'general'; // Reset to general
-    document.getElementById(`new-category-${feedCounter}`).classList.add('hidden');
-    document.getElementById(`new-category-input-${feedCounter}`).value = '';
-}
-
-function updateAllCategorySelects() {
-    // Update all existing category dropdowns
-    const allSelects = document.querySelectorAll('select[name*="[category]"]');
-    allSelects.forEach(select => {
-        const currentValue = select.value;
-        select.innerHTML = buildCategoryOptions();
-        if (currentValue !== 'add_new') {
-            select.value = currentValue;
-        }
-    });
-}
+// updateAllCategorySelects function removed - no longer needed without custom categories
 
 function removeRssFeed(feedId) {
     const feedElement = document.getElementById(feedId);
@@ -1632,17 +1551,9 @@ function loadExistingRssFeeds() {
     const existingFeeds = <?php echo json_encode(getRssFeeds()); ?>;
     
     if (existingFeeds && existingFeeds.length > 0) {
-        // First, collect all custom categories from existing feeds
+        // Add the feeds (existing feeds start in compact view)
         existingFeeds.forEach(feed => {
-            if (feed.customCategory) {
-                customCategories.add(feed.customCategory);
-            }
-        });
-        
-        // Then add the feeds (existing feeds start in compact view)
-        existingFeeds.forEach(feed => {
-            const category = feed.customCategory || feed.category;
-            addRssFeed(feed.url, feed.name, category, false); // false = not new feed, show in compact view
+            addRssFeed(feed.url, feed.name, feed.category, false); // false = not new feed, show in compact view
         });
     }
 }
