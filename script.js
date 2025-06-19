@@ -11,6 +11,8 @@ class NewsBriefApp {
             'Finalizing briefing...'
         ];
         this.currentStep = 0;
+        this.debugLogEnabled = false;
+        this.logPollingInterval = null;
         this.wittyMessages = [
             "Teaching bears to read the news...",
             "Asking the internet what happened today...",
@@ -46,6 +48,7 @@ class NewsBriefApp {
         this.bindEvents();
         this.setupErrorHandling();
         this.initDarkTheme();
+        this.checkDebugLogSettings();
     }
 
     setupErrorHandling() {
@@ -92,6 +95,12 @@ class NewsBriefApp {
         const newBtn = document.getElementById('new-btn');
         if (newBtn) {
             newBtn.addEventListener('click', () => this.startNewBriefing());
+        }
+
+        // Clear log button
+        const clearLogBtn = document.getElementById('clear-log-btn');
+        if (clearLogBtn) {
+            clearLogBtn.addEventListener('click', () => this.clearDebugLog());
         }
     }
 
@@ -673,6 +682,94 @@ class NewsBriefApp {
             this.disableDarkTheme();
         } else {
             this.enableDarkTheme();
+        }
+    }
+
+    async checkDebugLogSettings() {
+        try {
+            const response = await fetch('config/user_settings.json');
+            if (response.ok) {
+                const settings = await response.json();
+                this.debugLogEnabled = settings.showLogWindow || false;
+            }
+        } catch (error) {
+            console.warn('Could not load debug settings:', error);
+            this.debugLogEnabled = false;
+        }
+    }
+
+    showDebugLog() {
+        if (!this.debugLogEnabled) return;
+        
+        const debugContainer = document.getElementById('debug-log-container');
+        if (debugContainer) {
+            debugContainer.classList.remove('hidden');
+            this.clearDebugLog();
+            this.addDebugLogEntry('=== Starting briefing generation ===', 'info');
+        }
+    }
+
+    hideDebugLog() {
+        const debugContainer = document.getElementById('debug-log-container');
+        if (debugContainer) {
+            debugContainer.classList.add('hidden');
+        }
+        this.stopLogPolling();
+    }
+
+    addDebugLogEntry(message, type = 'info') {
+        if (!this.debugLogEnabled) return;
+        
+        const logContent = document.getElementById('debug-log-content');
+        if (logContent) {
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = {
+                'info': 'text-green-400',
+                'warning': 'text-yellow-400', 
+                'error': 'text-red-400',
+                'success': 'text-blue-400'
+            }[type] || 'text-green-400';
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `${colorClass} mb-1`;
+            logEntry.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${message}`;
+            
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+    }
+
+    clearDebugLog() {
+        const logContent = document.getElementById('debug-log-content');
+        if (logContent) {
+            logContent.innerHTML = '<div class="text-gray-500">Debug log cleared...</div>';
+        }
+    }
+
+    startLogPolling(sessionId) {
+        if (!this.debugLogEnabled || this.logPollingInterval) return;
+        
+        this.logPollingInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`api/debug_log.php?session=${sessionId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.logs && data.logs.length > 0) {
+                        data.logs.forEach(log => {
+                            this.addDebugLogEntry(log.message, log.type || 'info');
+                        });
+                    }
+                }
+            } catch (error) {
+                console.warn('Error polling debug logs:', error);
+            }
+        }, 1000);
+    }
+
+    stopLogPolling() {
+        if (this.logPollingInterval) {
+            clearInterval(this.logPollingInterval);
+            this.logPollingInterval = null;
         }
     }
 }
