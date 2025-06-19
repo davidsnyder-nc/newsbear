@@ -230,6 +230,7 @@ function getRssCustomCategories() {
                         <option value="rss">📡 RSS Feeds</option>
                         <option value="api">🔑 API Keys</option>
                         <option value="ai">🤖 AI Services</option>
+                        <option value="scheduling">⏰ Scheduling</option>
                         <option value="history">📜 History</option>
                         <option value="advanced">⚙️ Advanced</option>
                     </select>
@@ -252,6 +253,9 @@ function getRssCustomCategories() {
                         </button>
                         <button type="button" onclick="showTab('ai')" id="ai-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="AI Services">
                             <i class="fas fa-robot text-lg"></i>
+                        </button>
+                        <button type="button" onclick="showTab('scheduling')" id="scheduling-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="Scheduling">
+                            <i class="fas fa-clock text-lg"></i>
                         </button>
                         <button type="button" onclick="showTab('history')" id="history-tab" class="py-3 px-3 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300" role="tab" title="History">
                             <i class="fas fa-history text-lg"></i>
@@ -301,6 +305,33 @@ function getRssCustomCategories() {
                         <button type="button" onclick="loadHistoryPage(currentHistoryPage + 1)" id="next-page" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50" disabled>
                             Next<i class="fas fa-chevron-right ml-2"></i>
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduling Tab (Outside Form) -->
+            <div id="scheduling-content" class="tab-content hidden">
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-800">Automated Briefing Schedules</h3>
+                        <button type="button" onclick="showNewScheduleModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm">
+                            <i class="fas fa-plus mr-2"></i>Create Schedule
+                        </button>
+                    </div>
+                    
+                    <div id="schedules-loading" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-blue-600 text-2xl mb-4"></i>
+                        <p class="text-gray-600">Loading schedules...</p>
+                    </div>
+                    
+                    <div id="schedules-list" class="hidden space-y-4">
+                        <!-- Schedule items will be loaded here -->
+                    </div>
+                    
+                    <div id="schedules-empty" class="hidden text-center py-8">
+                        <i class="fas fa-clock text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-600">No scheduled briefings configured.</p>
+                        <p class="text-gray-500 text-sm mt-2">Create a schedule to automatically generate briefings at specific times.</p>
                     </div>
                 </div>
             </div>
@@ -1262,6 +1293,335 @@ function loadExistingRssFeeds() {
         });
     }
 }
+
+// Scheduling functions
+function showNewScheduleModal() {
+    const modal = document.getElementById('schedule-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function hideScheduleModal() {
+    const modal = document.getElementById('schedule-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.getElementById('schedule-form').reset();
+    }
+}
+
+function saveSchedule() {
+    const form = document.getElementById('schedule-form');
+    const formData = new FormData(form);
+    
+    const scheduleData = {
+        action: 'create_schedule',
+        name: formData.get('scheduleName'),
+        time: formData.get('scheduleTime'),
+        days: formData.getAll('scheduleDays'),
+        active: formData.get('scheduleActive') === 'on',
+        settings: {
+            generateMp3: formData.get('scheduleGenerateMp3') === 'on',
+            includeWeather: formData.get('scheduleIncludeWeather') === 'on',
+            includeLocal: formData.get('scheduleIncludeLocal') === 'on',
+            includeTV: formData.get('scheduleIncludeTV') === 'on',
+            zipCode: formData.get('scheduleZipCode'),
+            timeFrame: formData.get('scheduleTimeFrame'),
+            audioLength: formData.get('scheduleAudioLength'),
+            aiSelection: formData.get('scheduleAiSelection'),
+            customHeader: formData.get('scheduleCustomHeader')
+        }
+    };
+    
+    fetch('api/scheduling.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scheduleData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            hideScheduleModal();
+            loadSchedules();
+        } else {
+            alert('Failed to create schedule: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error creating schedule:', error);
+        alert('Error creating schedule');
+    });
+}
+
+function loadSchedules() {
+    document.getElementById('schedules-loading').classList.remove('hidden');
+    document.getElementById('schedules-list').classList.add('hidden');
+    document.getElementById('schedules-empty').classList.add('hidden');
+    
+    fetch('api/scheduling.php')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('schedules-loading').classList.add('hidden');
+        
+        if (data.success && data.schedules && data.schedules.length > 0) {
+            displaySchedules(data.schedules);
+        } else {
+            document.getElementById('schedules-empty').classList.remove('hidden');
+        }
+    })
+    .catch(error => {
+        console.error('Error loading schedules:', error);
+        document.getElementById('schedules-loading').classList.add('hidden');
+        document.getElementById('schedules-empty').classList.remove('hidden');
+    });
+}
+
+function displaySchedules(schedules) {
+    const container = document.getElementById('schedules-list');
+    container.innerHTML = '';
+    
+    schedules.forEach(schedule => {
+        const scheduleCard = document.createElement('div');
+        scheduleCard.className = 'bg-white border border-gray-200 rounded-lg p-4 shadow-sm';
+        
+        const daysText = schedule.days.length === 7 ? 'Daily' : schedule.days.join(', ');
+        const statusColor = schedule.active ? 'text-green-600' : 'text-gray-500';
+        const statusText = schedule.active ? 'Active' : 'Inactive';
+        
+        scheduleCard.innerHTML = `
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h4 class="font-medium text-gray-900">${schedule.name}</h4>
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-clock mr-1"></i>${schedule.time} - ${daysText}
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 ${statusColor}">${statusText}</span>
+                    <button onclick="toggleSchedule('${schedule.id}')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-power-off"></i>
+                    </button>
+                    <button onclick="deleteSchedule('${schedule.id}')" class="text-red-400 hover:text-red-600">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-xs text-gray-500">
+                <span class="mr-3">
+                    <i class="fas fa-file-${schedule.settings.generateMp3 ? 'audio' : 'text'} mr-1"></i>
+                    ${schedule.settings.generateMp3 ? 'Audio' : 'Text'}
+                </span>
+                ${schedule.settings.includeWeather ? '<span class="mr-3"><i class="fas fa-cloud mr-1"></i>Weather</span>' : ''}
+                ${schedule.settings.includeLocal ? '<span class="mr-3"><i class="fas fa-map-marker-alt mr-1"></i>Local</span>' : ''}
+                ${schedule.settings.includeTV ? '<span class="mr-3"><i class="fas fa-tv mr-1"></i>TV/Movies</span>' : ''}
+            </div>
+        `;
+        
+        container.appendChild(scheduleCard);
+    });
+    
+    container.classList.remove('hidden');
+}
+
+function toggleSchedule(scheduleId) {
+    fetch('api/scheduling.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'toggle_schedule',
+            id: scheduleId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadSchedules();
+        } else {
+            alert('Failed to toggle schedule');
+        }
+    })
+    .catch(error => {
+        console.error('Error toggling schedule:', error);
+        alert('Error toggling schedule');
+    });
+}
+
+function deleteSchedule(scheduleId) {
+    if (confirm('Are you sure you want to delete this schedule?')) {
+        fetch('api/scheduling.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'delete_schedule',
+                id: scheduleId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadSchedules();
+            } else {
+                alert('Failed to delete schedule');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting schedule:', error);
+            alert('Error deleting schedule');
+        });
+    }
+}
 </script>
+
+<!-- Schedule Creation Modal -->
+<div id="schedule-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Create New Schedule</h3>
+                <button onclick="hideScheduleModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="schedule-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Schedule Name</label>
+                        <input type="text" name="scheduleName" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Morning News Brief">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                        <input type="time" name="scheduleTime" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Days of Week</label>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Monday" class="mr-2">
+                            <span class="text-sm">Monday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Tuesday" class="mr-2">
+                            <span class="text-sm">Tuesday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Wednesday" class="mr-2">
+                            <span class="text-sm">Wednesday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Thursday" class="mr-2">
+                            <span class="text-sm">Thursday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Friday" class="mr-2">
+                            <span class="text-sm">Friday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Saturday" class="mr-2">
+                            <span class="text-sm">Saturday</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleDays" value="Sunday" class="mr-2">
+                            <span class="text-sm">Sunday</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-4">
+                    <h4 class="text-md font-medium text-gray-800 mb-3">Briefing Settings</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleGenerateMp3" class="mr-2">
+                                <span class="text-sm">Generate Audio (MP3)</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleIncludeWeather" class="mr-2">
+                                <span class="text-sm">Include Weather</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleIncludeLocal" class="mr-2">
+                                <span class="text-sm">Include Local News</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleIncludeTV" class="mr-2">
+                                <span class="text-sm">Include TV/Movie News</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
+                            <input type="text" name="scheduleZipCode" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="12345">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Time Frame</label>
+                            <select name="scheduleTimeFrame" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <option value="auto">Auto-detect</option>
+                                <option value="morning">Morning (5 AM - 11 AM)</option>
+                                <option value="afternoon">Afternoon (12 PM - 5 PM)</option>
+                                <option value="evening">Evening (6 PM - 11 PM)</option>
+                                <option value="night">Night (12 AM - 4 AM)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Audio Length</label>
+                            <select name="scheduleAudioLength" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <option value="2-3">2-3 minutes</option>
+                                <option value="5-10">5-10 minutes</option>
+                                <option value="10-15">10-15 minutes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">AI Service</label>
+                            <select name="scheduleAiSelection" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                <option value="openai">OpenAI (GPT)</option>
+                                <option value="gemini">Google Gemini</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom Header (Optional)</label>
+                        <input type="text" name="scheduleCustomHeader" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Good morning! Here's your personalized news briefing...">
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="scheduleActive" checked class="mr-2">
+                            <span class="text-sm">Active (start running this schedule immediately)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="hideScheduleModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="saveSchedule()" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md">
+                        <i class="fas fa-save mr-2"></i>Create Schedule
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
