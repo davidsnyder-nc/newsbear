@@ -714,8 +714,8 @@ class NewsBriefApp {
         const debugContainer = document.getElementById('debug-log-container');
         if (debugContainer) {
             debugContainer.classList.remove('hidden');
-            this.clearDebugLog();
-            this.addDebugLogEntry('=== Starting briefing generation ===', 'info');
+            // Don't clear the log - let polling fetch all entries from the file
+            this.lastLogCount = 0; // Reset to fetch all logs from start
         }
     }
 
@@ -752,8 +752,9 @@ class NewsBriefApp {
     clearDebugLog() {
         const logContent = document.getElementById('debug-log-content');
         if (logContent) {
-            logContent.innerHTML = '<div class="text-gray-500">Debug log cleared...</div>';
+            logContent.innerHTML = '';
         }
+        this.lastLogCount = 0;
     }
 
     startLogPolling(sessionId) {
@@ -779,7 +780,7 @@ class NewsBriefApp {
             } catch (error) {
                 console.warn('Error polling debug logs:', error);
             }
-        }, 500); // Poll every 500ms for responsive updates
+        }, 250); // Poll every 250ms for more responsive updates during generation
     }
 
     stopLogPolling() {

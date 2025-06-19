@@ -1487,8 +1487,11 @@ class BriefingGenerator {
     private function debugLog($message, $type = 'INFO') {
         $logFile = "/tmp/newsbear_debug_{$this->sessionId}.log";
         $timestamp = date('H:i:s');
-        $logEntry = "[$timestamp] $type: $message\n";
+        $logEntry = "[$timestamp] $message\n";
         file_put_contents($logFile, $logEntry, FILE_APPEND);
+        
+        // Also log to error_log for workflow console visibility
+        error_log("NewsBear Debug [$timestamp]: $message");
     }
     
     public function getSessionId() {
