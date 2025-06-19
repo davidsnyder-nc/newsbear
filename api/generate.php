@@ -379,13 +379,19 @@ class BriefingGenerator {
         
         foreach ($allRSSArticles as $article) {
             // Filter by selected categories (case-insensitive comparison)
-            $articleCategory = strtolower($article['category']);
+            $articleCategory = strtolower($article['category'] ?? '');
             $selectedCategoriesLower = array_map('strtolower', $this->selectedCategories);
             
+            // Debug logging to see what's happening
+            $this->debugLog("RSS article '" . $article['title'] . "' has category '" . $article['category'] . "' (normalized: '" . $articleCategory . "')");
+            $this->debugLog("Selected categories: [" . implode(', ', $this->selectedCategories) . "] (normalized: [" . implode(', ', $selectedCategoriesLower) . "])");
+            
             if (in_array($articleCategory, $selectedCategoriesLower)) {
+                $this->debugLog("INCLUDING RSS article - category match found");
                 error_log("Including RSS article '" . $article['title'] . "' - category '" . $article['category'] . "' matches selected");
                 $filteredRSSArticles[] = $article;
             } else {
+                $this->debugLog("EXCLUDING RSS article - no category match");
                 error_log("EXCLUDING RSS article '" . $article['title'] . "' - category '" . $article['category'] . "' not in selected: " . implode(', ', $this->selectedCategories));
             }
         }
