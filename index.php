@@ -44,29 +44,24 @@ if (file_exists($settingsFile)) {
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <div class="bg-white rounded-lg shadow-lg p-8">
         <!-- Header -->
         <header class="mb-8 relative">
             <!-- Logo and Title Section -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center justify-center">
                 <!-- Logo and Title -->
-                <div class="flex items-center justify-center sm:justify-start mb-4 sm:mb-0">
+                <a href="settings.php" class="flex items-center hover:opacity-80 transition-opacity">
                     <img src="attached_assets/newsbear_brown_logo.png" alt="NewsBear Logo" class="w-20 h-20 sm:w-24 sm:h-24 mr-3 sm:mr-4">
                     <div class="text-left">
                         <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 leading-none mb-0">NewsBear</h1>
-                        <p class="text-gray-600 text-base sm:text-lg leading-none -mt-1">Personalized News Brief</p>
                     </div>
-                </div>
+                </a>
                 
                 <!-- Navigation Buttons -->
-                <div class="flex justify-center sm:justify-end space-x-3">
+                <div class="ml-auto">
                     <button id="new-btn" class="text-green-600 hover:text-green-800 transition duration-200 px-3 py-2 rounded-lg border border-green-300 hover:bg-green-50 text-sm hidden">
                         <i class="fas fa-plus mr-2"></i>
                         New
                     </button>
-                    <a href="settings.php" class="text-gray-600 hover:text-gray-800 transition duration-200 p-3 rounded-lg border border-gray-300 hover:bg-gray-50" title="Settings">
-                        <i class="fas fa-cog text-lg"></i>
-                    </a>
                 </div>
             </div>
         </header>
@@ -166,11 +161,6 @@ if (file_exists($settingsFile)) {
                 </div>
             </div>
 
-            <!-- Simple Description -->
-            <div class="text-center mb-12">
-                <p class="text-gray-500 max-w-md mx-auto">News tailored to your preferences, delivered in seconds.</p>
-            </div>
-
             <!-- Generate Button -->
             <div class="flex justify-center">
                 <button 
@@ -181,7 +171,6 @@ if (file_exists($settingsFile)) {
                     <span>Create My News Brief</span>
                 </button>
             </div>
-        </div>
         </div>
     </div>
 
