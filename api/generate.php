@@ -769,10 +769,13 @@ class BriefingGenerator {
         $count = $this->getNumericStoryCount($storyCount);
         $selected = [];
         
-        // If category distribution is empty or we have very few items, just take the best stories available
-        if (empty($categoryDistribution) || count($items) <= $count * 1.5) {
-            $this->debugLog("Using simple fallback: taking " . min($count, count($items)) . " stories from " . count($items) . " available", 'INFO');
-            $selected = array_slice($items, 0, min($count, count($items)));
+        // Always try to get the full target count
+        $availableCount = min($count, count($items));
+        $this->debugLog("Fallback selection: targeting " . $count . " stories, taking " . $availableCount . " from " . count($items) . " available", 'INFO');
+        
+        if (empty($categoryDistribution)) {
+            // No category requirements, just take best stories available
+            $selected = array_slice($items, 0, $availableCount);
             foreach ($selected as $story) {
                 error_log("Simple fallback selected: [" . ($story['category'] ?? 'general') . "] " . $story['title']);
             }
@@ -915,8 +918,8 @@ class BriefingGenerator {
         }
         
         $prompt .= "5. Present each news story in a conversational, natural speaking style suitable for audio reading\n";
-        $prompt .= "6. CRITICAL: This must be a {$audioLength} minute briefing with approximately {$wordCount} words. Each story must be covered in substantial detail with 3-4 paragraphs minimum.\n";
-        $prompt .= "7. EXPAND extensively on each story - provide context, background, implications, expert opinions, and detailed analysis. This is not a headline summary but an in-depth news briefing.\n";
+        $prompt .= "6. CRITICAL WORD COUNT REQUIREMENT: This MUST be exactly {$wordCount} words for a {$audioLength} minute briefing. Each of the " . count($stories) . " stories requires approximately " . round((intval(explode('-', $wordCount)[0]) + intval(explode('-', $wordCount)[1])) / 2 / count($stories)) . " words of detailed coverage.\n";
+        $prompt .= "7. MANDATORY CONTENT DEPTH: Each story must include 4-5 full paragraphs with extensive detail, background context, implications, expert analysis, and future outlook. This is an in-depth news analysis, not a summary.\n";
         $prompt .= "8. For each story, include: What happened, who is involved, when and where it occurred, why it's significant, and what the potential consequences or next steps might be.\n";
         $prompt .= "9. Use natural transitions between stories like 'Now for technology news', 'Next up in business', 'Moving to health news', 'And in science' - NO numbered lists or formal section headers\n";
         $prompt .= "10. Write ONLY clean text without any markup tags, asterisks, underscores, hashtags, or formatting symbols - just natural, flowing sentences\n";
