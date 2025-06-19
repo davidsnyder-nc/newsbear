@@ -135,7 +135,13 @@ class BriefingGenerator {
                 $audioLength = $this->settings['audioLength'] ?? '5-10';
                 $storyCountRange = $this->getStoryCountForLength($audioLength);
                 $targetCount = intval(explode('-', $storyCountRange)[1]);
-                $selectedStories = $this->smartFallbackSelection($newsItems, $targetCount, []);
+                
+                // Use filtered items if available, otherwise use all news items
+                $filteredItems = $this->filterByCategories($newsItems);
+                $itemsToUse = !empty($filteredItems) ? $filteredItems : array_slice($newsItems, 0, min(count($newsItems), $targetCount * 2));
+                
+                $this->debugLog("Using " . count($itemsToUse) . " items for fallback selection (from " . count($newsItems) . " total)", 'INFO');
+                $selectedStories = $this->smartFallbackSelection($itemsToUse, $targetCount, []);
                 $this->debugLog("Fallback selection completed: " . count($selectedStories) . " stories chosen");
             }
             
@@ -756,43 +762,52 @@ class BriefingGenerator {
         $count = $this->getNumericStoryCount($storyCount);
         $selected = [];
         
-        // Group items by category
-        $byCategory = [];
-        foreach ($items as $item) {
-            $category = $item['category'] ?? 'general';
-            if (!isset($byCategory[$category])) {
-                $byCategory[$category] = [];
+        // If category distribution is empty or we have very few items, just take the best stories available
+        if (empty($categoryDistribution) || count($items) <= $count * 1.5) {
+            $this->debugLog("Using simple fallback: taking " . min($count, count($items)) . " stories from " . count($items) . " available", 'INFO');
+            $selected = array_slice($items, 0, min($count, count($items)));
+            foreach ($selected as $story) {
+                error_log("Simple fallback selected: [" . ($story['category'] ?? 'general') . "] " . $story['title']);
             }
-            $byCategory[$category][] = $item;
-        }
-        
-        // Distribute based on category requirements
-        foreach ($categoryDistribution as $category => $needed) {
-            if (isset($byCategory[$category]) && $needed > 0) {
-                $available = $byCategory[$category];
-                $toTake = min($needed, count($available));
-                
-                // Take first stories from this category
-                for ($i = 0; $i < $toTake; $i++) {
-                    if (isset($available[$i])) {
-                        $selected[] = $available[$i];
-                        error_log("Fallback selected: [" . $category . "] " . $available[$i]['title']);
+        } else {
+            // Group items by category
+            $byCategory = [];
+            foreach ($items as $item) {
+                $category = $item['category'] ?? 'general';
+                if (!isset($byCategory[$category])) {
+                    $byCategory[$category] = [];
+                }
+                $byCategory[$category][] = $item;
+            }
+            
+            // Distribute based on category requirements
+            foreach ($categoryDistribution as $category => $needed) {
+                if (isset($byCategory[$category]) && $needed > 0) {
+                    $available = $byCategory[$category];
+                    $toTake = min($needed, count($available));
+                    
+                    // Take first stories from this category
+                    for ($i = 0; $i < $toTake; $i++) {
+                        if (isset($available[$i])) {
+                            $selected[] = $available[$i];
+                            error_log("Fallback selected: [" . $category . "] " . $available[$i]['title']);
+                        }
                     }
                 }
             }
-        }
-        
-        // Fill remaining slots with any available stories
-        if (count($selected) < $count) {
-            $remaining = $count - count($selected);
-            $excludedTitles = array_column($selected, 'title');
             
-            foreach ($items as $item) {
-                if ($remaining <= 0) break;
-                if (!in_array($item['title'], $excludedTitles)) {
-                    $selected[] = $item;
-                    $remaining--;
-                    error_log("Fallback filled: " . $item['title']);
+            // Fill remaining slots with any available stories
+            if (count($selected) < $count) {
+                $remaining = $count - count($selected);
+                $excludedTitles = array_column($selected, 'title');
+                
+                foreach ($items as $item) {
+                    if ($remaining <= 0) break;
+                    if (!in_array($item['title'], $excludedTitles)) {
+                        $selected[] = $item;
+                        $remaining--;
+                        error_log("Fallback filled: " . $item['title']);
+                    }
                 }
             }
         }
