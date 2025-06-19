@@ -95,7 +95,9 @@ class ChatterboxTTS {
         curl_close($ch);
         
         if ($httpCode === 503) {
-            throw new Exception("Chatterbox model is loading. Please try again in a few moments.");
+            // Model is loading - fall back to Google TTS with status message
+            error_log("Chatterbox TTS: Model loading, falling back to Google TTS");
+            return $this->generateAudioFromText($text);
         }
         
         if ($httpCode !== 200) {
@@ -298,6 +300,25 @@ class ChatterboxTTS {
         }
         
         return null; // No audio extracted
+    }
+    
+    private function retryWithBackoff($text, $saveFile = true, $attempt = 1, $maxAttempts = 3) {
+        if ($attempt > $maxAttempts) {
+            throw new Exception("Chatterbox model failed to load after {$maxAttempts} attempts. Please try again later.");
+        }
+        
+        $waitTime = pow(2, $attempt - 1) * 5; // 5, 10, 20 seconds
+        error_log("Chatterbox TTS: Model loading, waiting {$waitTime} seconds (attempt {$attempt}/{$maxAttempts})");
+        sleep($waitTime);
+        
+        try {
+            return $this->synthesizeSingleChunk($text, $saveFile);
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'model is loading') !== false) {
+                return $this->retryWithBackoff($text, $saveFile, $attempt + 1, $maxAttempts);
+            }
+            throw $e;
+        }
     }
     
     private function extractAudioFromHFResponse($result) {
