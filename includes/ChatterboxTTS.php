@@ -148,7 +148,7 @@ class ChatterboxTTS {
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
             
-            if ($httpCode !== 200) {
+            if ($httpCode !== 200 && $httpCode !== 202) {
                 throw new Exception("Failed to check Chatterbox TTS status: HTTP {$httpCode}");
             }
             
