@@ -1,4 +1,10 @@
 <?php
+session_start();
+require_once 'includes/AuthManager.php';
+
+$auth = new AuthManager();
+$auth->requireAuth();
+
 $settingsFile = 'config/user_settings.json';
 
 // RSS Feed Processing Functions
@@ -101,6 +107,7 @@ if ($_POST && !isset($_POST['action'])) {
         'categories' => $_POST['categories'] ?? ['general'],
         'debugMode' => isset($_POST['debugMode']) ? true : false,
         'verboseLogging' => isset($_POST['verboseLogging']) ? true : false,
+        'authEnabled' => isset($_POST['authEnabled']) ? true : false,
         'gnewsApiKey' => $_POST['gnewsApiKey'] ?? '',
         'newsApiKey' => $_POST['newsApiKey'] ?? '',
         'guardianApiKey' => $_POST['guardianApiKey'] ?? '',
@@ -181,7 +188,8 @@ $defaults = [
     'claudeEnabled' => true,
     'googleTtsEnabled' => true,
     'debugMode' => false,
-    'verboseLogging' => false
+    'verboseLogging' => false,
+    'authEnabled' => false
 ];
 
 $settings = array_merge($defaults, $settings);
@@ -790,6 +798,13 @@ function getRssCustomCategories() {
                                             <input type="checkbox" name="verboseLogging" <?= isChecked('verboseLogging') ?> class="mr-3 h-4 w-4">
                                             Verbose Logging
                                         </label>
+                                        <p class="text-xs text-gray-500 ml-7">Logs detailed information about system operations</p>
+                                        
+                                        <label class="flex items-center text-sm">
+                                            <input type="checkbox" name="authEnabled" <?= isChecked('authEnabled') ?> class="mr-3 h-4 w-4">
+                                            Enable Authentication
+                                        </label>
+                                        <p class="text-xs text-gray-500 ml-7">Require login for access to settings and briefing generation (username: admin, password: mindless)</p>
                                         <p class="text-xs text-gray-500 ml-7">Logs detailed API calls and processing steps</p>
                                     </div>
                                 </div>

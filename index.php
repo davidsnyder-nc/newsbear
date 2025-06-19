@@ -222,6 +222,48 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
 
     <script src="script.js?v=<?php echo time(); ?>"></script>
     <script>
+    // Authentication status for JavaScript
+    const authStatus = <?php echo json_encode($authStatus); ?>;
+    
+    // Show authentication required message
+    function showAuthRequired(type) {
+        let message = '';
+        if (type === 'briefing') {
+            message = 'You must log in to create news briefings.';
+        } else if (type === 'settings') {
+            message = 'You must log in to access settings.';
+        }
+        
+        const modal = `
+            <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+                    <div class="text-center">
+                        <i class="fas fa-lock text-4xl text-red-500 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Authentication Required</h3>
+                        <p class="text-gray-600 mb-6">${message}</p>
+                        <div class="flex space-x-3 justify-center">
+                            <button onclick="window.location.href='login.php'" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login
+                            </button>
+                            <button onclick="closeAuthModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modal);
+    }
+    
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+    
     // Transition from loading theme to proper dark theme
     document.addEventListener('DOMContentLoaded', function() {
         const savedTheme = localStorage.getItem('darkTheme');
