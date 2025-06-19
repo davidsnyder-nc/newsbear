@@ -1398,30 +1398,21 @@ class BriefingGenerator {
     }
     
     private function validateAuthenticStories($stories) {
+        // All configured feeds and APIs are trusted sources
+        // Only basic data structure validation needed
         $validStories = [];
         
         foreach ($stories as $story) {
-            // Basic validation - story must have a title
-            if (empty($story['title'])) {
-                $this->debugLog("Skipping story without title", 'WARNING');
-                continue;
+            // Minimal validation - just ensure we have a title
+            if (!empty($story['title'])) {
+                $validStories[] = $story;
+                
+                $source = isset($story['source']) ? $story['source'] : 'Feed';
+                $this->debugLog("Accepted story from " . $source . ": " . substr($story['title'], 0, 60) . "...");
             }
-            
-            // Story must have some content or description
-            if (empty($story['content']) && empty($story['description'])) {
-                $this->debugLog("Skipping story without content: " . substr($story['title'], 0, 50) . "...", 'WARNING');
-                continue;
-            }
-            
-            // Accept all stories that pass basic validation - no source whitelist needed
-            // Sources come from legitimate APIs (GNews, NewsAPI, Guardian, NYT, weather services, etc.)
-            $validStories[] = $story;
-            
-            $source = isset($story['source']) ? $story['source'] : 'Unknown';
-            $this->debugLog("Validated story from " . $source . ": " . substr($story['title'], 0, 60) . "...");
         }
         
-        $this->debugLog("Story validation completed: " . count($validStories) . " of " . count($stories) . " stories passed validation");
+        $this->debugLog("Accepted " . count($validStories) . " of " . count($stories) . " stories from configured sources");
         return $validStories;
     }
     
