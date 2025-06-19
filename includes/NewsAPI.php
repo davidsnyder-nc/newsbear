@@ -30,6 +30,9 @@ class NewsAPI {
     }
     
     public function fetchFromAllSources($categories, $zipCode = null, $includeLocal = false) {
+        require_once __DIR__ . '/APIRateLimit.php';
+        $rateLimit = new APIRateLimit();
+        
         $allNews = [];
         $apiStatus = [];
         
@@ -64,56 +67,92 @@ class NewsAPI {
         
         // Fetch from each enabled source for supported categories
         if ($this->gnewsKey && $shouldFetchFromMainAPIs) {
-            try {
-                $gnewsArticles = $this->fetchFromGNews($categories);
-                error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
-                $allNews = array_merge($allNews, $gnewsArticles);
-                $apiStatus['gnews'] = count($gnewsArticles) > 0 ? 'success' : 'no results';
-            } catch (Exception $e) {
-                error_log("GNews fetch error: " . $e->getMessage());
-                $apiStatus['gnews'] = 'failed: ' . $e->getMessage();
+            if ($rateLimit->isAPIPaused('gnews')) {
+                $apiStatus['gnews'] = 'paused due to rate limit';
+                error_log("GNews: Skipped - API is paused");
+            } else {
+                try {
+                    $gnewsArticles = $this->fetchFromGNews($categories);
+                    error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
+                    $allNews = array_merge($allNews, $gnewsArticles);
+                    $apiStatus['gnews'] = count($gnewsArticles) > 0 ? 'success' : 'no results';
+                    if (count($gnewsArticles) > 0) {
+                        $rateLimit->recordSuccess('gnews');
+                    }
+                } catch (Exception $e) {
+                    error_log("GNews fetch error: " . $e->getMessage());
+                    $apiStatus['gnews'] = 'failed: ' . $e->getMessage();
+                    $rateLimit->recordFailure('gnews', $e->getMessage());
+                }
             }
         } else {
             $apiStatus['gnews'] = !$this->gnewsKey ? 'no API key' : 'categories not supported';
         }
         
         if ($this->newsApiKey && $shouldFetchFromMainAPIs) {
-            try {
-                $newsApiArticles = $this->fetchFromNewsAPI($categories);
-                error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
-                $allNews = array_merge($allNews, $newsApiArticles);
-                $apiStatus['newsapi'] = count($newsApiArticles) > 0 ? 'success' : 'no results';
-            } catch (Exception $e) {
-                error_log("NewsAPI fetch error: " . $e->getMessage());
-                $apiStatus['newsapi'] = 'failed: ' . $e->getMessage();
+            if ($rateLimit->isAPIPaused('newsapi')) {
+                $apiStatus['newsapi'] = 'paused due to rate limit';
+                error_log("NewsAPI: Skipped - API is paused");
+            } else {
+                try {
+                    $newsApiArticles = $this->fetchFromNewsAPI($categories);
+                    error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
+                    $allNews = array_merge($allNews, $newsApiArticles);
+                    $apiStatus['newsapi'] = count($newsApiArticles) > 0 ? 'success' : 'no results';
+                    if (count($newsApiArticles) > 0) {
+                        $rateLimit->recordSuccess('newsapi');
+                    }
+                } catch (Exception $e) {
+                    error_log("NewsAPI fetch error: " . $e->getMessage());
+                    $apiStatus['newsapi'] = 'failed: ' . $e->getMessage();
+                    $rateLimit->recordFailure('newsapi', $e->getMessage());
+                }
             }
         } else {
             $apiStatus['newsapi'] = !$this->newsApiKey ? 'no API key' : 'categories not supported';
         }
         
         if ($this->guardianKey && $shouldFetchFromMainAPIs) {
-            try {
-                $guardianArticles = $this->fetchFromGuardian($categories);
-                error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
-                $allNews = array_merge($allNews, $guardianArticles);
-                $apiStatus['guardian'] = count($guardianArticles) > 0 ? 'success' : 'no results';
-            } catch (Exception $e) {
-                error_log("Guardian fetch error: " . $e->getMessage());
-                $apiStatus['guardian'] = 'failed: ' . $e->getMessage();
+            if ($rateLimit->isAPIPaused('guardian')) {
+                $apiStatus['guardian'] = 'paused due to rate limit';
+                error_log("Guardian: Skipped - API is paused");
+            } else {
+                try {
+                    $guardianArticles = $this->fetchFromGuardian($categories);
+                    error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
+                    $allNews = array_merge($allNews, $guardianArticles);
+                    $apiStatus['guardian'] = count($guardianArticles) > 0 ? 'success' : 'no results';
+                    if (count($guardianArticles) > 0) {
+                        $rateLimit->recordSuccess('guardian');
+                    }
+                } catch (Exception $e) {
+                    error_log("Guardian fetch error: " . $e->getMessage());
+                    $apiStatus['guardian'] = 'failed: ' . $e->getMessage();
+                    $rateLimit->recordFailure('guardian', $e->getMessage());
+                }
             }
         } else {
             $apiStatus['guardian'] = !$this->guardianKey ? 'no API key' : 'categories not supported';
         }
         
         if ($this->nytKey && $shouldFetchFromMainAPIs) {
-            try {
-                $nytNews = $this->fetchFromNYT($categories);
-                error_log("NYT fetch returned " . count($nytNews) . " articles");
-                $allNews = array_merge($allNews, $nytNews);
-                $apiStatus['nyt'] = count($nytNews) > 0 ? 'success' : 'no results';
-            } catch (Exception $e) {
-                error_log("NYT fetch error: " . $e->getMessage());
-                $apiStatus['nyt'] = 'failed: ' . $e->getMessage();
+            if ($rateLimit->isAPIPaused('nyt')) {
+                $apiStatus['nyt'] = 'paused due to rate limit';
+                error_log("NYT: Skipped - API is paused");
+            } else {
+                try {
+                    $nytNews = $this->fetchFromNYT($categories);
+                    error_log("NYT fetch returned " . count($nytNews) . " articles");
+                    $allNews = array_merge($allNews, $nytNews);
+                    $apiStatus['nyt'] = count($nytNews) > 0 ? 'success' : 'no results';
+                    if (count($nytNews) > 0) {
+                        $rateLimit->recordSuccess('nyt');
+                    }
+                } catch (Exception $e) {
+                    error_log("NYT fetch error: " . $e->getMessage());
+                    $apiStatus['nyt'] = 'failed: ' . $e->getMessage();
+                    $rateLimit->recordFailure('nyt', $e->getMessage());
+                }
             }
         } else {
             $apiStatus['nyt'] = !$this->nytKey ? 'no API key' : 'categories not supported';
