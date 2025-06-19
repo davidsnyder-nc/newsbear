@@ -44,6 +44,25 @@ try {
                 ]);
                 break;
                 
+            case 'update_schedule':
+                if (!isset($input['id'])) {
+                    throw new Exception('Schedule ID required');
+                }
+                
+                $result = $scheduleManager->updateSchedule($input['id'], [
+                    'name' => $input['name'] ?? '',
+                    'time' => $input['time'] ?? '',
+                    'days' => $input['days'] ?? [],
+                    'active' => $input['active'] ?? true,
+                    'settings' => $input['settings'] ?? []
+                ]);
+                
+                echo json_encode([
+                    'success' => $result,
+                    'message' => $result ? 'Schedule updated successfully' : 'Failed to update schedule'
+                ]);
+                break;
+                
             case 'toggle_schedule':
                 if (!isset($input['id'])) {
                     throw new Exception('Schedule ID required');

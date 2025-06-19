@@ -82,6 +82,48 @@ class ScheduleManager {
     }
     
     /**
+     * Update an existing schedule
+     */
+    public function updateSchedule($scheduleId, $scheduleData) {
+        $schedules = $this->getAllSchedules();
+        
+        foreach ($schedules as &$schedule) {
+            if ($schedule['id'] === $scheduleId) {
+                // Validate required fields
+                if (empty($scheduleData['name']) || empty($scheduleData['time']) || empty($scheduleData['days'])) {
+                    throw new Exception('Schedule name, time, and days are required');
+                }
+                
+                // Validate time format
+                if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $scheduleData['time'])) {
+                    throw new Exception('Invalid time format. Use HH:MM format');
+                }
+                
+                // Validate days
+                $validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                foreach ($scheduleData['days'] as $day) {
+                    if (!in_array($day, $validDays)) {
+                        throw new Exception('Invalid day: ' . $day);
+                    }
+                }
+                
+                // Update schedule fields
+                $schedule['name'] = htmlspecialchars($scheduleData['name'], ENT_QUOTES, 'UTF-8');
+                $schedule['time'] = $scheduleData['time'];
+                $schedule['days'] = $scheduleData['days'];
+                $schedule['active'] = $scheduleData['active'] ?? true;
+                $schedule['settings'] = $scheduleData['settings'] ?? [];
+                $schedule['next_run'] = $this->calculateNextRun($scheduleData['time'], $scheduleData['days']);
+                
+                file_put_contents($this->schedulesFile, json_encode($schedules, JSON_PRETTY_PRINT));
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Toggle schedule active/inactive
      */
     public function toggleSchedule($scheduleId) {
@@ -223,7 +265,8 @@ class ScheduleManager {
             'timeFrame' => $settings['timeFrame'] ?? 'auto',
             'audioLength' => $settings['audioLength'] ?? '5-10',
             'aiSelection' => $settings['aiSelection'] ?? 'gemini',
-            'customHeader' => $settings['customHeader'] ?? ''
+            'customHeader' => $settings['customHeader'] ?? '',
+            'categories' => $settings['categories'] ?? ['general']
         ];
         
         $ch = curl_init();

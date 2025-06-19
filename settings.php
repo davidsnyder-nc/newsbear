@@ -1312,15 +1312,19 @@ function hideScheduleModal() {
     if (modal) {
         modal.classList.add('hidden');
         document.getElementById('schedule-form').reset();
+        document.getElementById('schedule-id').value = '';
+        document.querySelector('#schedule-modal h3').textContent = 'Create New Schedule';
     }
 }
 
 function saveSchedule() {
     const form = document.getElementById('schedule-form');
     const formData = new FormData(form);
+    const isEdit = document.getElementById('schedule-id').value;
     
     const scheduleData = {
-        action: 'create_schedule',
+        action: isEdit ? 'update_schedule' : 'create_schedule',
+        id: isEdit || undefined,
         name: formData.get('scheduleName'),
         time: formData.get('scheduleTime'),
         days: formData.getAll('scheduleDays'),
@@ -1334,7 +1338,8 @@ function saveSchedule() {
             timeFrame: formData.get('scheduleTimeFrame'),
             audioLength: formData.get('scheduleAudioLength'),
             aiSelection: formData.get('scheduleAiSelection'),
-            customHeader: formData.get('scheduleCustomHeader')
+            customHeader: formData.get('scheduleCustomHeader'),
+            categories: formData.getAll('scheduleCategories')
         }
     };
     
@@ -1405,6 +1410,9 @@ function displaySchedules(schedules) {
                 </div>
                 <div class="flex items-center space-x-2">
                     <span class="text-xs px-2 py-1 rounded-full bg-gray-100 ${statusColor}">${statusText}</span>
+                    <button onclick="editSchedule('${schedule.id}')" class="text-blue-400 hover:text-blue-600">
+                        <i class="fas fa-edit"></i>
+                    </button>
                     <button onclick="toggleSchedule('${schedule.id}')" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-power-off"></i>
                     </button>
@@ -1481,6 +1489,63 @@ function deleteSchedule(scheduleId) {
         });
     }
 }
+
+function editSchedule(scheduleId) {
+    fetch('api/scheduling.php')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.schedules) {
+            const schedule = data.schedules.find(s => s.id === scheduleId);
+            if (schedule) {
+                populateScheduleForm(schedule);
+                showNewScheduleModal();
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error loading schedule:', error);
+        alert('Error loading schedule for editing');
+    });
+}
+
+function populateScheduleForm(schedule) {
+    // Set schedule ID for edit mode
+    document.getElementById('schedule-id').value = schedule.id;
+    
+    // Update modal title
+    document.querySelector('#schedule-modal h3').textContent = 'Edit Schedule';
+    
+    // Populate basic fields
+    document.querySelector('input[name="scheduleName"]').value = schedule.name;
+    document.querySelector('input[name="scheduleTime"]').value = schedule.time;
+    
+    // Clear and set days
+    document.querySelectorAll('input[name="scheduleDays"]').forEach(checkbox => {
+        checkbox.checked = schedule.days.includes(checkbox.value);
+    });
+    
+    // Set settings
+    const settings = schedule.settings || {};
+    document.querySelector('input[name="scheduleGenerateMp3"]').checked = settings.generateMp3 || false;
+    document.querySelector('input[name="scheduleIncludeWeather"]').checked = settings.includeWeather || false;
+    document.querySelector('input[name="scheduleIncludeLocal"]').checked = settings.includeLocal || false;
+    document.querySelector('input[name="scheduleIncludeTV"]').checked = settings.includeTV || false;
+    
+    // Set other fields
+    document.querySelector('input[name="scheduleZipCode"]').value = settings.zipCode || '';
+    document.querySelector('select[name="scheduleTimeFrame"]').value = settings.timeFrame || 'auto';
+    document.querySelector('select[name="scheduleAudioLength"]').value = settings.audioLength || '5-10';
+    document.querySelector('select[name="scheduleAiSelection"]').value = settings.aiSelection || 'gemini';
+    document.querySelector('input[name="scheduleCustomHeader"]').value = settings.customHeader || '';
+    
+    // Set categories
+    document.querySelectorAll('input[name="scheduleCategories"]').forEach(checkbox => {
+        checkbox.checked = (settings.categories || []).includes(checkbox.value);
+    });
+    
+    // Set active status
+    document.querySelector('input[name="scheduleActive"]').checked = schedule.active !== false;
+}
 </script>
 
 <!-- Schedule Creation Modal -->
@@ -1495,6 +1560,7 @@ function deleteSchedule(scheduleId) {
             </div>
             
             <form id="schedule-form" class="space-y-4">
+                <input type="hidden" id="schedule-id" name="scheduleId" value="">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Schedule Name</label>
@@ -1566,6 +1632,40 @@ function deleteSchedule(scheduleId) {
                             <label class="flex items-center">
                                 <input type="checkbox" name="scheduleIncludeTV" class="mr-2">
                                 <span class="text-sm">Include TV/Movie News</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">News Categories</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="general" class="mr-2">
+                                <span class="text-sm">General</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="business" class="mr-2">
+                                <span class="text-sm">Business</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="technology" class="mr-2">
+                                <span class="text-sm">Technology</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="science" class="mr-2">
+                                <span class="text-sm">Science</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="health" class="mr-2">
+                                <span class="text-sm">Health</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="entertainment" class="mr-2">
+                                <span class="text-sm">Entertainment</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="scheduleCategories" value="sports" class="mr-2">
+                                <span class="text-sm">Sports</span>
                             </label>
                         </div>
                     </div>
