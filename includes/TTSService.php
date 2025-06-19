@@ -42,6 +42,16 @@ class TTSService {
                     return $this->synthesizeWithGoogle($ssmlText);
                 }
                 
+            case 'elevenlabs':
+                try {
+                    require_once __DIR__ . '/ElevenLabsTTS.php';
+                    $elevenlabs = new ElevenLabsTTS($this->settings);
+                    return $elevenlabs->synthesizeSpeech($ssmlText);
+                } catch (Exception $e) {
+                    error_log("ElevenLabs TTS failed: " . $e->getMessage() . " - Falling back to Google TTS");
+                    return $this->synthesizeWithGoogle($ssmlText);
+                }
+                
             case 'google':
             default:
                 return $this->synthesizeWithGoogle($ssmlText);
