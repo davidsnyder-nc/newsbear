@@ -2,7 +2,7 @@
 
 class ChatterboxTTS {
     private $apiKey;
-    private $baseUrl = 'https://api-inference.huggingface.co/models/ResembleAI/chatterbox';
+    private $baseUrl = 'https://resemble-chatterbox.hf.space/api/predict';
     
     public function __construct($settings = null) {
         if ($settings) {
@@ -66,13 +66,13 @@ class ChatterboxTTS {
         // Get voice settings from user preferences
         $voiceSettings = $this->getChatterboxVoiceSettings();
         
-        // Chatterbox TTS API format for Hugging Face Inference
+        // Chatterbox TTS API format for Hugging Face Spaces
         $data = [
-            'inputs' => $text
+            'data' => [$text, 'news_anchor_male', 'normal'],
+            'fn_index' => 0
         ];
         
         $headers = [
-            'Authorization: Bearer ' . $this->apiKey,
             'Content-Type: application/json'
         ];
         
@@ -104,19 +104,14 @@ class ChatterboxTTS {
             throw new Exception("Chatterbox TTS API error: HTTP {$httpCode} - {$errorMsg}");
         }
         
-        // Parse the Hugging Face Inference response
+        // Parse the Hugging Face Spaces response
         $result = json_decode($response, true);
-        if (!$result) {
+        if (!$result || !isset($result['data'])) {
             throw new Exception("Invalid response from Chatterbox TTS");
         }
         
-        // Handle audio response from Hugging Face Inference API
-        if (is_string($response) && strpos($response, 'RIFF') === 0) {
-            // Direct audio data
-            $audioData = $response;
-        } else {
-            throw new Exception("No audio data found in Chatterbox TTS response");
-        }
+        // Extract audio data from Hugging Face Spaces response
+        $audioData = $this->extractAudioFromHFResponse($result);
         
         if ($saveFile) {
             $filename = $this->generateFilename();
