@@ -64,13 +64,8 @@ if (file_exists($settingsFile)) {
                         <i class="fas fa-plus mr-2"></i>
                         New
                     </button>
-                    <a href="settings.php" class="text-gray-600 hover:text-gray-800 transition duration-200 px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm">
-                        <i class="fas fa-cog mr-2"></i>
-                        Settings
-                    </a>
-                    <a href="history.php" class="text-purple-600 hover:text-purple-800 transition duration-200 px-3 py-2 rounded-lg border border-purple-300 hover:bg-purple-50 text-sm">
-                        <i class="fas fa-history mr-2"></i>
-                        History
+                    <a href="settings.php" class="text-gray-600 hover:text-gray-800 transition duration-200 p-3 rounded-lg border border-gray-300 hover:bg-gray-50" title="Settings">
+                        <i class="fas fa-cog text-lg"></i>
                     </a>
                 </div>
             </div>
