@@ -161,41 +161,66 @@ class NewsAPI {
             throw new Exception("GNews API key is not configured");
         }
         
-        // Use only one request to get general news to reduce API calls
-        $url = "https://gnews.io/api/v4/top-headlines?" . http_build_query([
+        // Fetch articles for each requested category
+        foreach ($categories as $category) {
+            $categoryNews = $this->fetchGNewsByCategory($category);
+            $news = array_merge($news, $categoryNews);
+        }
+        
+        return $news;
+    }
+    
+    private function fetchGNewsByCategory($category) {
+        $news = [];
+        
+        // Map categories to GNews search terms
+        $searchTerms = [
+            'general' => 'breaking news',
+            'business' => 'business finance economy',
+            'entertainment' => 'entertainment celebrity movies',
+            'health' => 'health medical healthcare',
+            'science' => 'science research technology',
+            'sports' => 'sports games tournament championship',
+            'technology' => 'technology tech innovation'
+        ];
+        
+        $searchTerm = $searchTerms[$category] ?? 'news';
+        
+        $url = "https://gnews.io/api/v4/search?" . http_build_query([
+            'q' => $searchTerm,
             'lang' => 'en',
             'country' => 'us',
-            'max' => 30, // Get more articles in one request
+            'max' => 10,
             'apikey' => $this->gnewsKey
         ]);
         
-        error_log("GNews API URL: " . $url);
+        error_log("GNews API URL for {$category}: " . $url);
         $response = $this->makeRequest($url);
         
         if ($response === null) {
-            error_log("GNews API: No response received");
+            error_log("GNews API: No response received for {$category}");
             return $news;
         }
         
         if (isset($response['error'])) {
-            error_log("GNews API Error: " . json_encode($response['error']));
+            error_log("GNews API Error for {$category}: " . json_encode($response['error']));
             return $news;
         }
         
         if ($response && isset($response['articles'])) {
-            error_log("GNews API: Found " . count($response['articles']) . " articles");
+            error_log("GNews API: Found " . count($response['articles']) . " {$category} articles");
             foreach ($response['articles'] as $article) {
                 $news[] = [
                     'title' => $article['title'],
                     'content' => $article['description'] ?? '',
-                    'category' => 'general', // Assign general category
+                    'category' => ucfirst($category),
                     'source' => $article['source']['name'] ?? 'GNews',
                     'publishedAt' => $article['publishedAt'] ?? date('c'),
                     'url' => $article['url'] ?? ''
                 ];
             }
         } else {
-            error_log("GNews API: No articles array in response");
+            error_log("GNews API: No articles array in response for {$category}");
         }
         
         return $news;
