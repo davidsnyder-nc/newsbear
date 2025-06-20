@@ -168,76 +168,27 @@ class ChatterboxTTS {
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        // Standard Gradio endpoints for HF Spaces
-        $possibleEndpoints = [
-            '/run/predict', // Standard Gradio predict
-            '/call/predict', // Gradio call format  
-            '/api/predict' // API predict format
-        ];
+        // Gradio API endpoint from the documentation
+        $apiEndpoint = '/gradio_api/call/generate_tts_audio';
         
         // Check for sample audio file configuration
         $sampleAudio = $this->getSampleAudioConfig();
         
-        // Standard Gradio predict format for any function
+        // Exact format from Gradio API documentation
         $gradioData = [
             'data' => [
-                $text, // text_input (Text to synthesize)
-                $sampleAudio['audio_data'] ?? null, // audio_prompt_path_input (Reference Audio File)
-                0.5, // exaggeration_input (Exaggeration)
-                0.05, // temperature_input (Temperature - lower for more stable)
-                3, // seed_num_input (Random seed)
-                0.2, // cfgw_input (CFG/Pace)
-                100 // chunk_size (Chunk Size for long text)
-            ],
-            'fn_index' => 0 // Use function index 0 (first/main function)
+                $text, // [0] string - Text to synthesize
+                $sampleAudio['audio_data'] ?? null, // [1] Reference Audio File (optional)
+                0.25, // [2] number - Exaggeration (0.5 = neutral)
+                0.05, // [3] number - Temperature 
+                3, // [4] number - Random seed (0 for random)
+                0.2, // [5] number - CFG/Pace
+                100 // [6] number - Chunk Size for long text
+            ]
         ];
         
         foreach ($possibleEndpoints as $apiEndpoint) {
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $apiEndpoint);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Accept: application/json'
-            ]);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-            curl_close($ch);
-            
-            error_log("Chatterbox: Trying {$this->serverUrl}{$apiEndpoint} - HTTP {$httpCode}");
-            
-            if ($httpCode === 200 && $response) {
-                $responseData = json_decode($response, true);
-                
-                // Gradio returns the audio file path/URL in the response
-                if (isset($responseData['data']) && isset($responseData['data'][0])) {
-                    $audioInfo = $responseData['data'][0];
-                    
-                    // If it's a file path, download the audio
-                    if (isset($audioInfo['name']) || isset($audioInfo['path'])) {
-                        $audioUrl = $audioInfo['name'] ?? $audioInfo['path'];
-                        
-                        // Make sure it's a full URL
-                        if (!str_starts_with($audioUrl, 'http')) {
-                            $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioUrl, '/');
-                        }
-                        
-                        error_log("Chatterbox: Success with endpoint {$apiEndpoint}");
-                        return $this->downloadAudioFile($audioUrl);
-                    }
-                }
-                
-                error_log("Chatterbox: Response from {$apiEndpoint}: " . substr($response, 0, 200));
-            }
-        }
-        
-        error_log("Chatterbox API error: No working endpoint found");
         return false;
     }
     

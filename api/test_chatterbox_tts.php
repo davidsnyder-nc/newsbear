@@ -27,8 +27,8 @@ try {
     
     $chatterbox = new ChatterboxTTS($testSettings);
     
-    // Short test text matching the interface example
-    $testText = "Hello! This is a test of the Chatterbox-TTS voice cloning system running locally on Apple Silicon.";
+    // Short test text matching the API documentation example
+    $testText = "Hello!!";
     
     // Generate test audio directly (bypass queue for short text)
     $startTime = microtime(true);
