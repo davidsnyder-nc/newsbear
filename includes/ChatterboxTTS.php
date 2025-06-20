@@ -146,24 +146,25 @@ class ChatterboxTTS {
     }
     
     private function isServerAvailable() {
-        // Skip server check if running in Replit environment (detected by hostname patterns)
-        $hostname = gethostname();
-        if (strpos($hostname, 'replit') !== false || getenv('REPL_ID')) {
-            error_log("Chatterbox: Skipping server check in Replit environment");
-            return false; // Gracefully fail for cloud environments
-        }
-        
         // Test Gradio root endpoint
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->serverUrl . '/');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
         curl_close($ch);
+        
+        if ($curlError) {
+            error_log("Chatterbox: CURL error connecting to {$this->serverUrl}: $curlError");
+            return false;
+        }
         
         if ($httpCode === 200) {
             error_log("Chatterbox: Gradio server available at {$this->serverUrl}");
