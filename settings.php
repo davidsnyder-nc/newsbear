@@ -581,10 +581,14 @@ function isCategoryChecked($category) {
                                                 <li>• Processing takes longer than cloud TTS</li>
                                                 <li>• Audio requests are queued automatically</li>
                                                 <li>• Status updates provided during generation</li>
+                                                <li>• Use "Test TTS Audio" for quick verification</li>
                                             </ul>
-                                            <div class="flex gap-2 mt-3">
+                                            <div class="flex gap-2 mt-3 flex-wrap">
                                                 <button type="button" onclick="testChatterboxConnection()" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
                                                     Test Connection
+                                                </button>
+                                                <button type="button" onclick="testChatterboxTTS()" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors">
+                                                    Test TTS Audio
                                                 </button>
                                                 <button type="button" onclick="debugChatterboxEndpoints()" class="px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition-colors">
                                                     Debug Endpoints
@@ -2123,6 +2127,71 @@ async function debugChatterboxEndpoints() {
     } finally {
         button.disabled = false;
         button.textContent = 'Debug Endpoints';
+    }
+}
+
+async function testChatterboxTTS() {
+    const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;
+    const sampleFile = document.querySelector('input[name="chatterboxSampleFile"]').value;
+    const resultDiv = document.getElementById('chatterbox-test-result');
+    const button = event.target;
+    
+    button.disabled = true;
+    button.textContent = 'Testing TTS...';
+    resultDiv.innerHTML = '<div class="text-blue-600">Starting TTS test generation...</div>';
+    
+    try {
+        const response = await fetch('api/test_chatterbox_tts.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                server_url: serverUrl,
+                sample_file: sampleFile
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            resultDiv.innerHTML = `
+                <div class="text-green-600 font-medium">${result.message}</div>
+                <div class="text-sm mt-2 space-y-1">
+                    <div><strong>Processing time:</strong> ${result.details.processing_time}</div>
+                    <div><strong>Audio size:</strong> ${result.details.audio_size}</div>
+                    <div><strong>Test text:</strong> "${result.test_text}"</div>
+                    <div class="mt-2">
+                        <a href="${result.details.download_url}" target="_blank" 
+                           class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded hover:bg-green-200 transition-colors">
+                            Download Test Audio
+                        </a>
+                    </div>
+                </div>
+            `;
+        } else {
+            let html = `
+                <div class="text-red-600 font-medium">${result.message}</div>
+                <div class="text-red-700 mt-1">${result.details || result.error}</div>
+            `;
+            
+            if (result.suggestions) {
+                html += '<div class="mt-2 text-xs"><strong>Suggestions:</strong><ul class="list-disc list-inside">';
+                result.suggestions.forEach(suggestion => {
+                    html += `<li>${suggestion}</li>`;
+                });
+                html += '</ul></div>';
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+        
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="text-red-600 font-medium">TTS test failed</div>
+            <div class="text-red-700 mt-1">Error: ${error.message}</div>
+        `;
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Test TTS Audio';
     }
 }
 </script>
