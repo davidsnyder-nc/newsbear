@@ -892,8 +892,21 @@ class NewsBriefApp {
             clearInterval(this.logPollingInterval);
             this.logPollingInterval = null;
         }
+        
+        // Force clear any potential orphaned intervals
+        for (let i = 1; i < 99999; i++) {
+            try {
+                clearInterval(i);
+            } catch (e) {
+                // Ignore errors
+            }
+        }
+        
         // Reset generation state
         this.isGenerating = false;
+        this.currentSessionId = null;
+        
+        console.log('All polling stopped and state reset');
     }
 }
 
