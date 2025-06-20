@@ -39,7 +39,57 @@ try {
 }
 
 // Process pending TTS jobs
-include_once __DIR__ . '/includes/process_pending_briefings.php';
+try {
+    include_once __DIR__ . '/includes/process_pending_briefings.php';
+} catch (Exception $e) {
+    error_log("TTS processing error: " . $e->getMessage());
+}
+
+// Process Chatterbox TTS queue
+try {
+    require_once __DIR__ . '/includes/ChatterboxTTS.php';
+    
+    $queueFile = __DIR__ . '/data/tts_queue.json';
+    if (file_exists($queueFile)) {
+        $queue = json_decode(file_get_contents($queueFile), true) ?: [];
+        $updated = false;
+        
+        foreach ($queue as $index => $job) {
+            if ($job['status'] === 'queued') {
+                error_log("Processing queued Chatterbox job: " . $job['id']);
+                
+                // Load settings for Chatterbox
+                $settingsFile = __DIR__ . '/config/user_settings.json';
+                $settings = [];
+                if (file_exists($settingsFile)) {
+                    $settings = json_decode(file_get_contents($settingsFile), true) ?: [];
+                }
+                
+                $chatterbox = new ChatterboxTTS($settings);
+                $result = $chatterbox->processJob($job['id']);
+                
+                if ($result) {
+                    error_log("Chatterbox job completed: " . $job['id']);
+                    unset($queue[$index]);
+                    $updated = true;
+                } else {
+                    error_log("Chatterbox job failed: " . $job['id']);
+                    $queue[$index]['status'] = 'failed';
+                    $updated = true;
+                }
+                
+                // Process one job per scheduler run to avoid timeouts
+                break;
+            }
+        }
+        
+        if ($updated) {
+            file_put_contents($queueFile, json_encode(array_values($queue), JSON_PRETTY_PRINT));
+        }
+    }
+} catch (Exception $e) {
+    error_log("Chatterbox queue processing error: " . $e->getMessage());
+}
 
 echo "Scheduler completed.\n";
 ?>
