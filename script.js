@@ -176,7 +176,7 @@ class NewsBriefApp {
     }
 
     async pollStatus(sessionId) {
-        const maxAttempts = 180; // 6 minutes of polling for TTS completion
+        const maxAttempts = 30; // 1 minute of polling before switching to background mode
         let attempts = 0;
         let consecutiveErrors = 0;
 
@@ -230,7 +230,7 @@ class NewsBriefApp {
         }
 
         if (attempts >= maxAttempts) {
-            this.showError('Audio generation is taking longer than expected. The briefing text has been generated and audio processing continues in the background. Check your history in a few minutes for the completed briefing.');
+            this.showSuccess(null, null, 'Audio generation started - this may take 30-60 minutes. The briefing will appear in your history when complete. You can continue using the app normally.');
         }
     }
 
@@ -287,7 +287,7 @@ class NewsBriefApp {
         }
     }
 
-    showSuccess(downloadUrl, briefingText = null) {
+    showSuccess(downloadUrl, briefingText = null, customMessage = null) {
         this.stopWittyMessages();
         this.switchToBrownLogo();
         
@@ -330,6 +330,13 @@ class NewsBriefApp {
             // Show text section when no MP3 is generated
             const briefingTextElement = document.getElementById('briefing-text');
             if (briefingTextElement) briefingTextElement.textContent = briefingText;
+            
+            if (downloadSection) downloadSection.classList.add('hidden');
+            briefingTextSection.classList.remove('hidden');
+        } else if (customMessage && briefingTextSection) {
+            // Show custom message for background processing
+            const briefingTextElement = document.getElementById('briefing-text');
+            if (briefingTextElement) briefingTextElement.textContent = customMessage;
             
             if (downloadSection) downloadSection.classList.add('hidden');
             briefingTextSection.classList.remove('hidden');
