@@ -1491,30 +1491,111 @@ function deleteHistoryItem(briefingId) {
 }
 
 function deleteAllHistory() {
-    if (confirm('⚠️ WARNING: This will permanently delete ALL briefings and their audio files.\n\nThis action cannot be undone. Are you absolutely sure?')) {
-        if (confirm('Last chance - Delete ALL briefings permanently?')) {
-            cleanupHistory(0);
-        }
-    }
+    showDeleteAllModal();
 }
 
 function showCleanupModal() {
-    const days = prompt('Delete briefings older than how many days? (Enter number, or 0 for all)', '30');
+    showCleanupDaysModal();
+}
+
+function showDeleteAllModal() {
+    const modalHtml = `
+        <div id="deleteAllModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 m-4 max-w-md">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl mr-3"></i>
+                    <h3 class="text-lg font-semibold text-gray-800">Delete All Briefings</h3>
+                </div>
+                <p class="text-gray-600 mb-4">This will permanently delete ALL briefings and their audio files. This action cannot be undone.</p>
+                <div class="flex space-x-3">
+                    <button onclick="confirmDeleteAll()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                        Delete All
+                    </button>
+                    <button onclick="closeDeleteAllModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
     
-    if (days !== null) {
-        const numDays = parseInt(days);
-        if (isNaN(numDays) || numDays < 0) {
-            alert('Please enter a valid number of days');
-            return;
-        }
-        
-        const message = numDays === 0 
-            ? 'Delete ALL briefings? This cannot be undone.' 
-            : `Delete briefings older than ${numDays} days?`;
-            
-        if (confirm(message)) {
-            cleanupHistory(numDays);
-        }
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function confirmDeleteAll() {
+    const modal = document.getElementById('deleteAllModal');
+    modal.innerHTML = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 m-4 max-w-md">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-2xl mr-3"></i>
+                    <h3 class="text-lg font-semibold text-gray-800">Final Confirmation</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Are you absolutely sure? This will delete ALL briefings permanently.</p>
+                <div class="flex space-x-3">
+                    <button onclick="executeDeleteAll()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                        Yes, Delete Everything
+                    </button>
+                    <button onclick="closeDeleteAllModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function executeDeleteAll() {
+    closeDeleteAllModal();
+    cleanupHistory(0);
+}
+
+function closeDeleteAllModal() {
+    const modal = document.getElementById('deleteAllModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function showCleanupDaysModal() {
+    const modalHtml = `
+        <div id="cleanupModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 m-4 max-w-md">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-broom text-orange-500 text-2xl mr-3"></i>
+                    <h3 class="text-lg font-semibold text-gray-800">Cleanup Old Briefings</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Delete briefings older than:</p>
+                <input type="number" id="cleanupDays" value="30" min="1" class="w-full border border-gray-300 rounded px-3 py-2 mb-4" placeholder="Number of days">
+                <div class="flex space-x-3">
+                    <button onclick="executeCleanup()" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded">
+                        Delete Old
+                    </button>
+                    <button onclick="closeCleanupModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function executeCleanup() {
+    const days = parseInt(document.getElementById('cleanupDays').value);
+    if (isNaN(days) || days < 1) {
+        showToast('Please enter a valid number of days', 'error');
+        return;
+    }
+    closeCleanupModal();
+    cleanupHistory(days);
+}
+
+function closeCleanupModal() {
+    const modal = document.getElementById('cleanupModal');
+    if (modal) {
+        modal.remove();
     }
 }
 
