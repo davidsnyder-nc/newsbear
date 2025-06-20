@@ -41,13 +41,14 @@ foreach ($pending as $jobId => $briefingData) {
             $history = new BriefingHistory();
             
             // Add to history
-            $historyId = $history->addBriefing(
-                $briefingData['content'],
-                $jobStatus['audio_file'],
-                $briefingData['settings']['audioLength'] ?? 5,
-                'wav',
-                $briefingData['stories']
-            );
+            $historyId = $history->saveBriefing([
+                'text' => $briefingData['content'],
+                'audio_file' => $jobStatus['audio_file'],
+                'duration' => $briefingData['settings']['audioLength'] ?? 5,
+                'format' => 'wav',
+                'sources' => $briefingData['stories'] ?? [],
+                'topics' => []
+            ]);
             
             // Update session status file
             $sessionId = $briefingData['session_id'];
