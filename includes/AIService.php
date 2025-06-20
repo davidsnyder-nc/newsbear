@@ -31,6 +31,9 @@ class AIService {
                 return $this->callGemini($prompt);
             case 'claude':
                 return $this->callClaude($prompt);
+            case 'local':
+            case 'simple':
+                return $this->generateSimpleText($prompt);
             default:
                 throw new Exception("Unsupported AI model: {$model}");
         }
