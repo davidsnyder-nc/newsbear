@@ -118,7 +118,7 @@ class NewsBriefApp {
             const endpoint = 'api/generate.php';
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for initial generation
+            // No timeout during testing - let it run as long as needed
             
             // Start generation and immediately begin polling for logs
             const responsePromise = fetch(endpoint, {
@@ -132,7 +132,7 @@ class NewsBriefApp {
 
             const response = await responsePromise;
             
-            clearTimeout(timeoutId);
+            // No timeout to clear during testing
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -176,7 +176,7 @@ class NewsBriefApp {
     }
 
     async pollStatus(sessionId) {
-        const maxAttempts = 30; // 1 minute of polling before switching to background mode
+        const maxAttempts = 999999; // No limit during testing - poll indefinitely
         let attempts = 0;
         let consecutiveErrors = 0;
 
@@ -229,8 +229,9 @@ class NewsBriefApp {
             }
         }
 
+        // No timeout handling during testing - let it run indefinitely
         if (attempts >= maxAttempts) {
-            this.showSuccess(null, null, 'Audio generation started - this may take 30-60 minutes. The briefing will appear in your history when complete. You can continue using the app normally.');
+            this.showError('Maximum polling attempts reached (this should never happen during testing)');
         }
     }
 
