@@ -1,0 +1,41 @@
+{
+    "name": "newsbear/newsbear",
+    "description": "AI-powered news briefing system with TTS integration",
+    "type": "project",
+    "keywords": ["news", "ai", "tts", "briefing", "automation"],
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "ext-pdo": "*",
+        "ext-pgsql": "*"
+    },
+    "suggest": {
+        "ext-pdo": "For database storage (PostgreSQL)",
+        "ext-pgsql": "For PostgreSQL database connectivity",
+        "ext-gd": "For image processing if needed",
+        "ext-zip": "For backup and export features"
+    },
+    "autoload": {
+        "psr-4": {
+            "NewsBear\\": "includes/"
+        }
+    },
+    "scripts": {
+        "install": "php install.php",
+        "start": "php start.php",
+        "post-install-cmd": [
+            "php install.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

@@ -4,8 +4,42 @@
  * Simple script to start the server on any available port
  */
 
-$port = $argv[1] ?? 5000;
-$host = $argv[2] ?? '0.0.0.0';
+// Parse arguments
+$port = 5000;
+$host = '0.0.0.0';
+
+foreach ($argv as $i => $arg) {
+    if ($i === 0) continue; // Skip script name
+    
+    if ($arg === '--help' || $arg === '-h') {
+        echo "NewsBear Server Launcher\n";
+        echo "Usage: php start.php [port] [host]\n";
+        echo "       php start.php --port 8080 --host localhost\n\n";
+        echo "Examples:\n";
+        echo "  php start.php                    # Default: port 5000, all interfaces\n";
+        echo "  php start.php 8080               # Port 8080, all interfaces\n";
+        echo "  php start.php 3000 localhost     # Port 3000, localhost only\n";
+        echo "  php start.php --port 9000        # Port 9000 with named argument\n";
+        exit(0);
+    }
+    
+    if ($arg === '--port' && isset($argv[$i + 1])) {
+        $port = (int)$argv[$i + 1];
+        continue;
+    }
+    
+    if ($arg === '--host' && isset($argv[$i + 1])) {
+        $host = $argv[$i + 1];
+        continue;
+    }
+    
+    // Simple positional arguments
+    if (is_numeric($arg)) {
+        $port = (int)$arg;
+    } elseif (strpos($arg, '.') !== false || $arg === 'localhost') {
+        $host = $arg;
+    }
+}
 
 // Ensure required directories exist
 $dirs = ['data', 'data/history', 'data/cache', 'downloads', 'config'];

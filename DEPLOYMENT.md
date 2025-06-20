@@ -9,37 +9,50 @@ This guide covers deploying NewsBear locally for testing and development.
 - Web server (Apache, Nginx, or PHP built-in server)
 - Internet connection for news APIs
 
-## Quick Local Setup
+## Installation Methods
 
-### 1. Clone and Configure
+### Method 1: Auto-Installer (Recommended)
 
 ```bash
 git clone https://github.com/yourusername/newsbear.git
 cd newsbear
-
-# Start the server (creates directories and config automatically)
+php install.php
 php start.php
 ```
 
-### 2. Configure API Keys
+### Method 2: Composer
 
-**Via Web Interface (Recommended):**
-1. Start the server (step 4)
-2. Open the web interface
-3. Go to Settings
-4. Enter your API keys in the respective fields
-5. Save settings
+```bash
+composer create-project newsbear/newsbear
+cd newsbear
+composer start
+```
 
-**Manual Configuration (Optional):**
-Edit `config/user_settings.json` directly if needed.
+### Method 3: npm
 
-### 3. First Run Setup
+```bash
+git clone https://github.com/yourusername/newsbear.git
+cd newsbear
+npm install
+npm start
+```
 
-1. Start the server: `php start.php`
-2. Open browser to displayed URL
-3. Go to Settings
-4. Enter your API keys
-5. Start generating briefings
+All methods will:
+- Check system requirements automatically
+- Create all required directories
+- Set proper permissions
+- Generate default configuration
+- Test internet connectivity
+- Display next steps
+
+### Configuration
+
+1. Open the displayed URL in your browser
+2. Go to Settings
+3. Enter API keys for the news services you want
+4. Save and start generating briefings
+
+**Zero manual configuration required** - everything is done through the web interface.
 
 ### 4. Database Setup (Optional)
 

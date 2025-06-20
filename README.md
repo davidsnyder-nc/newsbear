@@ -38,18 +38,36 @@
 - Optional: Local Chatterbox TTS server
 
 ### Quick Start
-1. Clone the repository
-2. Start the server: `php start.php [port] [host]`
-   - Default: `php start.php` (port 5000, all interfaces)
-   - Custom port: `php start.php 8080`
-   - Localhost only: `php start.php 3000 localhost`
-3. Open browser to the displayed URL
-4. Go to Settings and configure API keys
-5. Generate your first briefing
 
-**Alternative start methods:**
-- `php -S 0.0.0.0:5000` (manual server start)
-- Configure with Apache/Nginx for production
+**One-Command Installation:**
+```bash
+# Clone and install
+git clone https://github.com/yourusername/newsbear.git
+cd newsbear
+php install.php
+
+# Start the server
+php start.php
+```
+
+**Alternative Methods:**
+```bash
+# Using Composer
+composer create-project newsbear/newsbear
+cd newsbear
+composer start
+
+# Using npm (if you prefer)
+npm install
+npm start
+```
+
+**That's it!** Open your browser to the displayed URL, configure API keys in Settings, and start generating briefings.
+
+**Custom server options:**
+- `php start.php 8080` (custom port)
+- `php start.php 3000 localhost` (localhost only)
+- `php start.php --help` (see all options)
 
 ### Local Chatterbox TTS Setup
 1. Install Chatterbox-TTS on your local machine
