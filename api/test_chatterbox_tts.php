@@ -27,8 +27,8 @@ try {
     
     $chatterbox = new ChatterboxTTS($testSettings);
     
-    // Short test text
-    $testText = "Hello, this is a quick test of Chatterbox TTS integration with NewsBear.";
+    // Short test text matching the interface example
+    $testText = "Hello! This is a test of the Chatterbox-TTS voice cloning system running locally on Apple Silicon.";
     
     // Generate test audio directly (bypass queue for short text)
     $startTime = microtime(true);

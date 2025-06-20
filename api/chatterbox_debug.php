@@ -94,7 +94,7 @@ if (!empty($workingEndpoints)) {
         'voice' => 'default'
     ];
     
-    foreach (['/api/generate_tts_audio', '/api/predict', '/call/generate_tts_audio', '/run/generate_tts_audio'] as $endpoint) {
+    foreach (['/call/generate_tts_audio', '/api/predict', '/run/predict', '/api/generate_tts_audio'] as $endpoint) {
         if (in_array($endpoint, $workingEndpoints)) {
             $testUrl = rtrim($serverUrl, '/') . $endpoint;
             
