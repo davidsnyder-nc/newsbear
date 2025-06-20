@@ -118,7 +118,7 @@ class NewsBriefApp {
             const endpoint = 'api/generate.php';
             
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout for complex briefings
+            const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for initial generation
             
             // Start generation and immediately begin polling for logs
             const responsePromise = fetch(endpoint, {
@@ -176,7 +176,7 @@ class NewsBriefApp {
     }
 
     async pollStatus(sessionId) {
-        const maxAttempts = 5; // Maximum 10 seconds of polling
+        const maxAttempts = 180; // 6 minutes of polling for TTS completion
         let attempts = 0;
         let consecutiveErrors = 0;
 
@@ -198,10 +198,13 @@ class NewsBriefApp {
                 } else if (result.status === 'error') {
                     throw new Error(result.message || 'Generation failed');
                 } else if (result.status === 'processing') {
-                    this.updateStatus(result.message || this.statusSteps[this.currentStep], result.progress || (this.currentStep / this.statusSteps.length) * 100);
-                    this.addDebugLogEntry(`Status: ${result.message} (${result.progress || 0}%)`, 'info');
+                    // Show detailed status messages for TTS processing
+                    const statusMsg = result.message || this.statusSteps[this.currentStep];
+                    this.updateStatus(statusMsg, result.progress || (this.currentStep / this.statusSteps.length) * 100);
+                    this.addDebugLogEntry(`Status: ${statusMsg} (${result.progress || 0}%)`, 'info');
                     
-                    if (this.currentStep < this.statusSteps.length - 1) {
+                    // Don't advance steps if we're in TTS processing phase
+                    if (!statusMsg.includes('Audio') && this.currentStep < this.statusSteps.length - 1) {
                         this.currentStep++;
                     }
                 }
@@ -227,7 +230,7 @@ class NewsBriefApp {
         }
 
         if (attempts >= maxAttempts) {
-            this.showError('Generation took longer than expected. The briefing may have completed - check your history or try refreshing the page.');
+            this.showError('Audio generation is taking longer than expected. The briefing text has been generated and audio processing continues in the background. Check your history in a few minutes for the completed briefing.');
         }
     }
 
