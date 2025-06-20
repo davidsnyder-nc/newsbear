@@ -2154,17 +2154,18 @@ async function testChatterboxTTS() {
         
         if (result.success) {
             resultDiv.innerHTML = `
-                <div class="text-green-600 font-medium">${result.message}</div>
+                <div class="text-green-600 font-medium">${result.message || 'TTS test completed'}</div>
                 <div class="text-sm mt-2 space-y-1">
-                    <div><strong>Processing time:</strong> ${result.details.processing_time}</div>
-                    <div><strong>Audio size:</strong> ${result.details.audio_size}</div>
-                    <div><strong>Test text:</strong> "${result.test_text}"</div>
+                    <div><strong>Processing time:</strong> ${result.details?.processing_time || 'Unknown'}</div>
+                    <div><strong>Audio size:</strong> ${result.details?.audio_size || 'Unknown'}</div>
+                    <div><strong>Test text:</strong> "${result.test_text || 'Test message'}"</div>
+                    ${result.details?.download_url ? `
                     <div class="mt-2">
                         <a href="${result.details.download_url}" target="_blank" 
                            class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded hover:bg-green-200 transition-colors">
                             Download Test Audio
                         </a>
-                    </div>
+                    </div>` : ''}
                 </div>
             `;
         } else {
@@ -2185,9 +2186,11 @@ async function testChatterboxTTS() {
         }
         
     } catch (error) {
+        console.error('TTS Test Error:', error);
         resultDiv.innerHTML = `
             <div class="text-red-600 font-medium">TTS test failed</div>
-            <div class="text-red-700 mt-1">Error: ${error.message}</div>
+            <div class="text-red-700 mt-1">Network Error: ${error.message}</div>
+            <div class="text-xs mt-1">Check browser console for details</div>
         `;
     } finally {
         button.disabled = false;

@@ -30,21 +30,15 @@ try {
     // Short test text
     $testText = "Hello, this is a quick test of Chatterbox TTS integration with NewsBear.";
     
-    echo json_encode([
-        'status' => 'processing',
-        'message' => 'Starting TTS test...',
-        'test_text' => $testText
-    ]);
-    
-    // Flush output to show immediate response
-    if (ob_get_level()) {
-        ob_end_flush();
-    }
-    flush();
-    
-    // Generate test audio
+    // Generate test audio directly (bypass queue for short text)
     $startTime = microtime(true);
-    $audioData = $chatterbox->generateAudio($testText, 'news_anchor');
+    
+    // Use reflection to call sendToChatterbox directly for immediate results
+    $reflection = new ReflectionClass($chatterbox);
+    $sendMethod = $reflection->getMethod('sendToChatterbox');
+    $sendMethod->setAccessible(true);
+    
+    $audioData = $sendMethod->invoke($chatterbox, $testText, 'news_anchor');
     $processingTime = round((microtime(true) - $startTime), 2);
     
     if ($audioData) {
@@ -71,19 +65,29 @@ try {
             echo json_encode([
                 'success' => false,
                 'message' => 'Audio generated but failed to save file',
-                'details' => 'Check file permissions in downloads folder'
+                'details' => 'Check file permissions in downloads folder',
+                'debug_info' => [
+                    'audio_size' => strlen($audioData),
+                    'file_path' => $testFilePath,
+                    'downloads_writable' => is_writable(__DIR__ . '/../downloads/')
+                ]
             ]);
         }
     } else {
         echo json_encode([
             'success' => false,
             'message' => 'TTS generation failed',
-            'details' => 'Check server logs for detailed error information',
+            'details' => 'No audio data received from Chatterbox server',
+            'debug_info' => [
+                'server_url' => $serverUrl,
+                'test_text_length' => strlen($testText),
+                'processing_time' => $processingTime . 's'
+            ],
             'suggestions' => [
-                'Verify Chatterbox server is running',
-                'Check server URL: ' . $serverUrl,
-                'Ensure API endpoint is accessible',
-                'Review Chatterbox server logs'
+                'Verify Chatterbox server is running at: ' . $serverUrl,
+                'Check if server accepts the API format',
+                'Review Chatterbox server logs for errors',
+                'Try the Debug Endpoints button for more details'
             ]
         ]);
     }
