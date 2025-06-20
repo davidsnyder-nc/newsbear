@@ -1,0 +1,37 @@
+david@web:/var/www/html/newsbear$ php start.php
+Starting NewsBear server...
+Host: 0.0.0.0
+Port: 5000
+URL: http://localhost:5000
+
+Press Ctrl+C to stop the server
+Go to Settings to configure your API keys
+
+[Fri Jun 20 15:17:14 2025] PHP 8.2.28 Development Server (http://0.0.0.0:5000) started
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58944 Accepted
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58944 [200]: GET /settings.php
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58944 Closing
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58945 Accepted
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58945 [200]: GET /style.css?v=1750447040
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58945 Closing
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58946 Accepted
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58946 [200]: POST /settings.php
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58946 Closing
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58947 Accepted
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58947 [404]: GET /favicon.ico - No such file or directory
+[Fri Jun 20 15:17:20 2025] 192.168.1.150:58947 Closing
+[Fri Jun 20 15:17:22 2025] 192.168.1.150:58948 Accepted
+[Fri Jun 20 15:17:22 2025] 192.168.1.150:58948 [200]: POST /api/test_chatterbox.php
+[Fri Jun 20 15:17:22 2025] 192.168.1.150:58948 Closing
+[Fri Jun 20 15:17:23 2025] 192.168.1.150:58949 Accepted
+[Fri Jun 20 15:17:23 2025] Chatterbox: POST http://192.168.1.20:7861/gradio_api/call/generate_tts_audio - HTTP 200
+[Fri Jun 20 15:17:23 2025] Chatterbox: POST Response: {"event_id":"672b983044994ea6893ddca39be95a5a"}
+[Fri Jun 20 15:17:23 2025] Chatterbox: Got EVENT_ID: {"event_id":"672b983044994ea6893ddca39be95a5a"}
+[Fri Jun 20 15:17:23 2025] Chatterbox: GET http://192.168.1.20:7861/gradio_api/call/generate_tts_audio/{"event_id":"672b983044994ea6893ddca39be95a5a"} - HTTP 200
+[Fri Jun 20 15:17:23 2025] Chatterbox: GET Response: 
+[Fri Jun 20 15:17:23 2025] Chatterbox: Failed to get audio result
+[Fri Jun 20 15:17:23 2025] 192.168.1.150:58949 [200]: POST /api/test_chatterbox_tts.php
+[Fri Jun 20 15:17:23 2025] 192.168.1.150:58949 Closing
+[Fri Jun 20 15:17:26 2025] 192.168.1.150:58950 Accepted
+[Fri Jun 20 15:17:26 2025] 192.168.1.150:58950 [200]: POST /api/chatterbox_debug.php
+[Fri Jun 20 15:17:26 2025] 192.168.1.150:58950 Closing

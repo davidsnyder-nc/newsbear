@@ -211,9 +211,15 @@ class ChatterboxTTS {
         }
         
         // Extract EVENT_ID from response
-        $eventId = trim($response, '"');
+        $responseData = json_decode($response, true);
+        if (!isset($responseData['event_id'])) {
+            error_log("Chatterbox: No event_id in response: " . $response);
+            return false;
+        }
+        
+        $eventId = $responseData['event_id'];
         if (empty($eventId)) {
-            error_log("Chatterbox: No EVENT_ID received");
+            error_log("Chatterbox: Empty EVENT_ID received");
             return false;
         }
         
@@ -236,6 +242,8 @@ class ChatterboxTTS {
         error_log("Chatterbox: GET Response: " . substr($resultResponse, 0, 200));
         
         if ($resultHttpCode === 200 && $resultResponse) {
+            error_log("Chatterbox: Full streaming response: " . $resultResponse);
+            
             // Parse the streaming response to get the final result
             $lines = explode("\n", $resultResponse);
             $finalData = null;
@@ -245,6 +253,8 @@ class ChatterboxTTS {
                 if (str_starts_with($line, 'data: ')) {
                     $jsonData = substr($line, 6);
                     $data = json_decode($jsonData, true);
+                    
+                    error_log("Chatterbox: Streaming data: " . json_encode($data));
                     
                     if (isset($data['msg']) && $data['msg'] === 'process_completed') {
                         $finalData = $data;
