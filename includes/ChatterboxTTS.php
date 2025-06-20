@@ -176,75 +176,89 @@ class ChatterboxTTS {
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        // Gradio API endpoint from the documentation  
-        $apiEndpoint = 'gradio_api/call/generate_tts_audio';
+        // Try standard Gradio API format first
+        $apiEndpoint = 'api/predict';
         
-        // Check for sample audio file configuration
-        $sampleAudio = $this->getSampleAudioConfig();
-        
-        // Exact format from Gradio API documentation
+        // Standard Gradio API payload
         $gradioData = [
             'data' => [
-                $text, // [0] string - Text to synthesize
-                $sampleAudio['audio_data'] ?? null, // [1] Reference Audio File (optional)
-                0.25, // [2] number - Exaggeration (0.5 = neutral)
-                0.05, // [3] number - Temperature 
-                3, // [4] number - Random seed (0 for random)
-                0.2, // [5] number - CFG/Pace
-                100 // [6] number - Chunk Size for long text
-            ]
+                $text, // Text to synthesize
+                null,  // Reference audio (optional)
+                0.7,   // Voice similarity
+                0.7,   // Text temperature
+                42,    // Random seed
+                1.0,   // Speed
+                true   // Use enhanced processing
+            ],
+            'fn_index' => 0 // Usually the first function
         ];
         
-        // Step 1: POST request to initiate generation
+        // POST request to Gradio API
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, rtrim($this->serverUrl, '/') . '/' . $apiEndpoint);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json'
+            'Content-Type: application/json',
+            'Accept: application/json'
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
         curl_close($ch);
         
-        error_log("Chatterbox: POST {$this->serverUrl}{$apiEndpoint} - HTTP {$httpCode}");
-        error_log("Chatterbox: POST Response: " . substr($response, 0, 200));
+        error_log("Chatterbox: Request to {$this->serverUrl}/{$apiEndpoint} - HTTP {$httpCode}");
+        
+        if ($curlError) {
+            error_log("Chatterbox: CURL Error - " . $curlError);
+            return false;
+        }
         
         if ($httpCode !== 200 || !$response) {
-            error_log("Chatterbox: POST request failed - HTTP {$httpCode}");
+            error_log("Chatterbox: Request failed - HTTP {$httpCode}");
+            error_log("Chatterbox: Response: " . substr($response, 0, 500));
             return false;
         }
         
-        // Extract EVENT_ID from response
+        // Parse Gradio response
         $responseData = json_decode($response, true);
-        if (!isset($responseData['event_id'])) {
-            error_log("Chatterbox: No event_id in response: " . $response);
+        if (!$responseData) {
+            error_log("Chatterbox: Invalid JSON response: " . $response);
             return false;
         }
         
-        $eventId = $responseData['event_id'];
-        if (empty($eventId)) {
-            error_log("Chatterbox: Empty EVENT_ID received");
-            return false;
+        error_log("Chatterbox: API Response received, checking for audio data");
+        
+        // Extract audio data from Gradio response
+        if (isset($responseData['data']) && is_array($responseData['data']) && !empty($responseData['data'])) {
+            $audioInfo = $responseData['data'][0] ?? null;
+            
+            if (is_array($audioInfo)) {
+                // Check for file URL or path
+                if (isset($audioInfo['url'])) {
+                    $audioUrl = $audioInfo['url'];
+                    error_log("Chatterbox: Found audio URL: {$audioUrl}");
+                    return $this->downloadAudioFile($audioUrl);
+                } elseif (isset($audioInfo['path'])) {
+                    $audioPath = $audioInfo['path'];
+                    $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioPath, '/');
+                    error_log("Chatterbox: Constructed audio URL: {$audioUrl}");
+                    return $this->downloadAudioFile($audioUrl);
+                }
+            } elseif (is_string($audioInfo)) {
+                error_log("Chatterbox: Audio data received as string");
+                return $audioInfo;
+            }
         }
         
-        error_log("Chatterbox: Got EVENT_ID: {$eventId}");
-        
-        // Step 2: GET request to fetch results
-        $resultUrl = rtrim($this->serverUrl, '/') . '/' . $apiEndpoint . '/' . $eventId;
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $resultUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // Long timeout for generation
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        
-        $resultResponse = curl_exec($ch);
-        $resultHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        error_log("Chatterbox: No audio data found in response");
+        error_log("Chatterbox: Full response: " . json_encode($responseData));
+        return false;
         
         error_log("Chatterbox: GET {$resultUrl} - HTTP {$resultHttpCode}");
         error_log("Chatterbox: GET Response: " . substr($resultResponse, 0, 200));
