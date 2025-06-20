@@ -142,6 +142,7 @@ class NewsBriefApp {
 
             // Start log polling with the actual session ID
             if (result.sessionId) {
+                this.currentSessionId = result.sessionId;
                 this.startLogPolling(result.sessionId);
             }
 
@@ -793,11 +794,22 @@ class NewsBriefApp {
         
         // Reset log tracking
         this.lastLogCount = 0;
+        let pollCount = 0;
+        const maxPolls = 7200; // Stop after 1 hour (7200 * 500ms)
         
         // Fetch logs immediately first
         this.fetchDebugLogs(sessionId);
         
         this.logPollingInterval = setInterval(() => {
+            pollCount++;
+            
+            // Stop polling after max attempts to prevent endless loops
+            if (pollCount >= maxPolls) {
+                console.log('Log polling timeout reached, stopping');
+                this.stopLogPolling();
+                return;
+            }
+            
             this.fetchDebugLogs(sessionId);
         }, 500); // Poll every 500ms to reduce server load
     }
@@ -880,6 +892,8 @@ class NewsBriefApp {
             clearInterval(this.logPollingInterval);
             this.logPollingInterval = null;
         }
+        // Reset generation state
+        this.isGenerating = false;
     }
 }
 
