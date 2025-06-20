@@ -350,13 +350,27 @@ class BriefingHistory {
         
         // Delete all audio files
         foreach ($briefings as $briefing) {
-            if ($briefing['audio_file'] && file_exists($briefing['audio_file'])) {
+            if (isset($briefing['audio_file']) && $briefing['audio_file'] && file_exists($briefing['audio_file'])) {
                 unlink($briefing['audio_file']);
+            }
+            if (isset($briefing['mp3_file']) && $briefing['mp3_file'] && file_exists($briefing['mp3_file'])) {
+                unlink($briefing['mp3_file']);
             }
         }
         
         // Clear briefings file
         file_put_contents($this->briefingsFile, json_encode([], JSON_PRETTY_PRINT));
+        
+        // Delete all files in history directory
+        $historyDir = dirname($this->briefingsFile);
+        if (is_dir($historyDir)) {
+            $files = glob($historyDir . '/*');
+            foreach ($files as $file) {
+                if (is_file($file) && basename($file) !== 'briefings.json') {
+                    unlink($file);
+                }
+            }
+        }
         
         // Clean up orphaned files in downloads directory
         $this->cleanupOrphanedFiles();

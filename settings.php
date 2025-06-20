@@ -1602,6 +1602,9 @@ function closeCleanupModal() {
 function cleanupHistory(days) {
     const action = days > 0 ? 'clear_old' : 'clear_all';
     
+    // Show loading message
+    showToast(days > 0 ? 'Deleting old briefings...' : 'Deleting all briefings...', 'info');
+    
     fetch('api/history.php', {
         method: 'POST',
         headers: {
@@ -1615,16 +1618,33 @@ function cleanupHistory(days) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message || 'Cleanup completed');
+            showToast(data.message || 'Cleanup completed', 'success');
             loadHistoryPage(1);
         } else {
-            alert('Cleanup failed');
+            showToast('Cleanup failed: ' + (data.error || 'Unknown error'), 'error');
         }
     })
     .catch(error => {
         console.error('Error during cleanup:', error);
-        alert('Error during cleanup');
+        showToast('Error during cleanup', 'error');
     });
+}
+
+// Toast notification system
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-4 py-2 rounded-md text-white z-50 ${
+        type === 'success' ? 'bg-green-600' : 
+        type === 'error' ? 'bg-red-600' : 
+        type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+    }`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
 }
 
 // History-specific functions
