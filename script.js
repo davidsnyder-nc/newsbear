@@ -817,10 +817,25 @@ class NewsBriefApp {
     async fetchDebugLogs(sessionId) {
         try {
             const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
+            
+            if (response.status === 410) {
+                // Session expired, stop polling
+                console.log('Session expired, stopping debug log polling');
+                this.stopLogPolling();
+                return;
+            }
+            
             if (response.ok) {
                 const text = await response.text();
                 if (text.trim()) {
                     const data = JSON.parse(text);
+                    
+                    if (data.stop_polling) {
+                        console.log('Received stop polling signal');
+                        this.stopLogPolling();
+                        return;
+                    }
+                    
                     if (data.logs && data.logs.length > this.lastLogCount) {
                         // Only add new logs since last poll
                         const newLogs = data.logs.slice(this.lastLogCount);

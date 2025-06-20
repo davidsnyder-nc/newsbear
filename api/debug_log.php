@@ -40,6 +40,18 @@ try {
                 ];
             }
         }
+    } else {
+        // Check if session is old or orphaned (created more than 2 hours ago)
+        $sessionTime = hexdec(substr($sessionId, -8)); // Extract timestamp from session ID
+        if (time() - $sessionTime > 7200) { // 2 hours
+            http_response_code(410); // Gone
+            echo json_encode([
+                'success' => false,
+                'error' => 'Session expired',
+                'stop_polling' => true
+            ]);
+            return;
+        }
     }
     
     echo json_encode([
