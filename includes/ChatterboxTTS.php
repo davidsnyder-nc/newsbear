@@ -162,7 +162,7 @@ class ChatterboxTTS {
         curl_close($ch);
         
         if ($curlError) {
-            error_log("Chatterbox: CURL error connecting to {$this->serverUrl}: $curlError");
+            error_log("Chatterbox: Server not available at {$this->serverUrl}");
             return false;
         }
         
@@ -171,7 +171,7 @@ class ChatterboxTTS {
             return true;
         }
         
-        error_log("Chatterbox: Gradio server not responding - HTTP $httpCode");
+        error_log("Chatterbox: Server not responding - HTTP $httpCode");
         return false;
     }
     

@@ -45,66 +45,9 @@ try {
     error_log("TTS processing error: " . $e->getMessage());
 }
 
-// Process TTS queue (with fallback for cloud environments)
+// Process Chatterbox TTS queue
 try {
     require_once __DIR__ . '/includes/ChatterboxTTS.php';
-    require_once __DIR__ . '/config/user_settings.json';
-    
-    $settings = json_decode(file_get_contents(__DIR__ . '/config/user_settings.json'), true) ?: [];
-    
-    // Check if running in cloud environment
-    $hostname = gethostname();
-    $isReplit = (strpos($hostname, 'replit') !== false || getenv('REPL_ID'));
-    
-    if ($isReplit && isset($settings['ttsProvider']) && $settings['ttsProvider'] === 'chatterbox') {
-        error_log("Scheduler: Cloud environment detected, processing TTS queue with Google fallback");
-        
-        // Process failed Chatterbox jobs with Google TTS
-        $queueFile = __DIR__ . '/data/tts_queue.json';
-        if (file_exists($queueFile)) {
-            $queue = json_decode(file_get_contents($queueFile), true) ?: [];
-            
-            foreach ($queue as $index => $job) {
-                if ($job['status'] === 'failed' || $job['status'] === 'pending') {
-                    error_log("Scheduler: Processing failed TTS job {$job['id']} with Google TTS");
-                    
-                    // Switch to Google TTS for this job
-                    require_once __DIR__ . '/includes/GoogleTTS.php';
-                    $googleTTS = new GoogleTTS($settings);
-                    
-                    $result = $googleTTS->generateAudio($job['text'], $job['voice_style']);
-                    
-                    if ($result && isset($result['audio_file'])) {
-                        // Update job status
-                        $queue[$index]['status'] = 'completed';
-                        $queue[$index]['audio_file'] = $result['audio_file'];
-                        $queue[$index]['progress'] = 100;
-                        
-                        // Save updated queue
-                        file_put_contents($queueFile, json_encode($queue, JSON_PRETTY_PRINT));
-                        
-                        // Finalize briefing
-                        if (isset($job['briefing_id'])) {
-                            require_once __DIR__ . '/includes/BriefingHistory.php';
-                            $history = new BriefingHistory();
-                            
-                            $history->saveBriefing([
-                                'text' => $job['text'],
-                                'audio_file' => $result['audio_file'],
-                                'duration' => $job['estimated_duration'] ?? 300,
-                                'format' => 'mp3',
-                                'sources' => [],
-                                'topics' => []
-                            ]);
-                            
-                            error_log("Scheduler: Briefing {$job['briefing_id']} completed with Google TTS");
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        // Normal Chatterbox processing
     
     $queueFile = __DIR__ . '/data/tts_queue.json';
     if (file_exists($queueFile)) {
@@ -112,8 +55,8 @@ try {
         $updated = false;
         
         foreach ($queue as $index => $job) {
-            if ($job['status'] === 'queued') {
-                error_log("Processing queued Chatterbox job: " . $job['id']);
+            if ($job['status'] === 'queued' || $job['status'] === 'failed') {
+                error_log("Processing Chatterbox job: " . $job['id'] . " (status: " . $job['status'] . ")");
                 
                 // Load settings for Chatterbox
                 $settingsFile = __DIR__ . '/config/user_settings.json';
