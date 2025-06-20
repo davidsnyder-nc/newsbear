@@ -910,7 +910,20 @@ class NewsBriefApp {
     }
 }
 
+// Force stop any existing polling before initializing
+window.addEventListener('beforeunload', () => {
+    // Clear all possible intervals on page unload
+    for (let i = 1; i < 99999; i++) {
+        try { clearInterval(i); } catch (e) {}
+    }
+});
+
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new NewsBriefApp();
+    // Kill any existing polling first
+    for (let i = 1; i < 99999; i++) {
+        try { clearInterval(i); } catch (e) {}
+    }
+    
+    window.newsBriefApp = new NewsBriefApp();
 });
