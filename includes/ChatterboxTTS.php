@@ -181,8 +181,8 @@ class ChatterboxTTS {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->serverUrl . '/');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -192,12 +192,15 @@ class ChatterboxTTS {
         $curlError = curl_error($ch);
         curl_close($ch);
         
+        error_log("Chatterbox: Connection test to {$this->serverUrl} - HTTP: {$httpCode}, Error: " . ($curlError ?: 'none'));
+        
         if ($curlError) {
-            error_log("Chatterbox: Server not available at {$this->serverUrl}");
+            error_log("Chatterbox: Server connection failed - {$curlError}");
             return false;
         }
         
-        if ($httpCode === 200) {
+        // Accept 200, 404, or 302 as valid (Gradio interfaces vary)
+        if (in_array($httpCode, [200, 302, 404])) {
             error_log("Chatterbox: Gradio server available at {$this->serverUrl}");
             return true;
         }
@@ -235,7 +238,7 @@ class ChatterboxTTS {
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 0); // No timeout for long audio generation
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
