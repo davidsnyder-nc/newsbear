@@ -1,5 +1,7 @@
-# Configuration files with API keys
+# Configuration files with sensitive data
 config/user_settings.json
+*.env
+.env.*
 
 # Audio files and TTS cache
 *.wav
