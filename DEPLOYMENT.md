@@ -17,30 +17,31 @@ This guide covers deploying NewsBear locally for testing and development.
 git clone https://github.com/yourusername/newsbear.git
 cd newsbear
 
-# Copy example configuration
-cp config/user_settings.example.json config/user_settings.json
-
-# Create required directories
-mkdir -p data/history
-mkdir -p data/cache
-mkdir -p downloads
+# Start the server (creates directories and config automatically)
+php start.php
 ```
 
 ### 2. Configure API Keys
 
-Edit `config/user_settings.json` with your API keys:
+**Via Web Interface (Recommended):**
+1. Start the server (step 4)
+2. Open the web interface
+3. Go to Settings
+4. Enter your API keys in the respective fields
+5. Save settings
 
-```json
-{
-    "gnewsApiKey": "your_actual_gnews_key",
-    "newsApiKey": "your_actual_newsapi_key",
-    "geminiApiKey": "your_actual_gemini_key",
-    "googleTtsApiKey": "your_actual_google_tts_key",
-    "weatherApiKey": "your_actual_openweather_key"
-}
-```
+**Manual Configuration (Optional):**
+Edit `config/user_settings.json` directly if needed.
 
-### 3. Database Setup (Optional)
+### 3. First Run Setup
+
+1. Start the server: `php start.php`
+2. Open browser to displayed URL
+3. Go to Settings
+4. Enter your API keys
+5. Start generating briefings
+
+### 4. Database Setup (Optional)
 
 **PostgreSQL (Recommended):**
 ```bash
@@ -59,21 +60,35 @@ export PGPORT="5432"
 **File Storage (Fallback):**
 No database setup required - uses JSON files in `data/` directory.
 
-### 4. Start the Server
+### 5. Advanced Server Options
 
-**Option 1: PHP Built-in Server**
+**Option 1: PHP Built-in Server (Any Port)**
 ```bash
+# Default port 5000
 php -S 0.0.0.0:5000 -t .
+
+# Custom port (e.g., 8080)
+php -S 0.0.0.0:8080 -t .
+
+# Localhost only
+php -S localhost:3000 -t .
 ```
 
 **Option 2: Apache/Nginx**
-Point document root to the project directory.
+Point document root to the project directory and configure virtual host.
 
-### 5. Access the Application
+### 6. Access and Configure
 
 Open your browser and navigate to:
-- `http://localhost:5000` (PHP built-in server)
+- `http://localhost:5000` (default port)
+- `http://localhost:8080` (if using port 8080)
 - `http://localhost` (Apache/Nginx)
+
+**First-time Setup:**
+1. Go to Settings
+2. Configure your API keys
+3. Test news generation
+4. Set up TTS provider if desired
 
 ## Chatterbox TTS Integration
 

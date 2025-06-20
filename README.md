@@ -39,10 +39,17 @@
 
 ### Quick Start
 1. Clone the repository
-2. Configure API keys in Settings
-3. Set up database (automatic in Replit)
-4. Start the server: `php -S 0.0.0.0:5000`
-5. Access via browser and generate your first briefing
+2. Start the server: `php start.php [port] [host]`
+   - Default: `php start.php` (port 5000, all interfaces)
+   - Custom port: `php start.php 8080`
+   - Localhost only: `php start.php 3000 localhost`
+3. Open browser to the displayed URL
+4. Go to Settings and configure API keys
+5. Generate your first briefing
+
+**Alternative start methods:**
+- `php -S 0.0.0.0:5000` (manual server start)
+- Configure with Apache/Nginx for production
 
 ### Local Chatterbox TTS Setup
 1. Install Chatterbox-TTS on your local machine
