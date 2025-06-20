@@ -6,30 +6,31 @@ All notable changes to NewsBear will be documented in this file.
 
 ### Added
 - **Chatterbox TTS Integration**: Local TTS server support with queue-based processing
-- **Async Audio Processing**: Background job system for longer TTS generation times
-- **Sample Audio File Support**: Voice cloning capabilities with Chatterbox TTS
-- **Connection Testing**: Built-in test tool for Chatterbox server validation
-- **Multiple API Endpoint Detection**: Auto-discovery of Chatterbox API formats
-- **Enhanced Settings Interface**: Chatterbox configuration with voice styles
-- **Queue Management**: Real-time status tracking and progress updates
-- **Background Processing**: Automatic job completion handling
+- **Session Management**: Automatic cleanup and polling timeout prevention
+- **Monitoring System**: Comprehensive guides (MONITORING_GUIDE.md, TROUBLESHOOTING.md)
+- **Background Processing**: TTS queue system for 30-60 minute audio generation
+- **Session Validation**: Automatic detection and cleanup of orphaned sessions
+- **Connection Testing**: Built-in Chatterbox server validation tools
 
 ### Enhanced
-- **TTS Provider System**: Dual support for Google TTS and Chatterbox TTS
-- **Queue Status Polling**: 10-second intervals with 10-minute timeout
-- **Error Handling**: Comprehensive error reporting and recovery
-- **Documentation**: Complete deployment and setup guides
+- **Timeout System**: Removed artificial limits during testing for indefinite runtime
+- **Polling Logic**: Smart debug log polling with automatic session expiration
+- **Connection Handling**: Improved Chatterbox detection (HTTP 200, 302, 404)
+- **Frontend State**: Better session tracking and cleanup on page load/unload
+- **Error Handling**: Comprehensive connection and processing error recovery
 
 ### Fixed
+- **Endless Polling**: Resolved infinite debug log polling from stuck sessions
+- **TTS Queue Issues**: Fixed malformed JSON blocking processing
+- **Session Cleanup**: Proper cleanup of expired and orphaned sessions  
+- **Memory Management**: Unlimited execution time and 1GB memory for audio processing
 - **LSP Errors**: Resolved method name conflicts in briefing history
-- **File Processing**: Corrected pending briefing completion workflow
-- **Configuration Management**: Proper handling of Chatterbox settings
 
 ### Technical
-- **Architecture**: Improved separation between TTS providers
-- **Performance**: Async processing prevents timeout issues
-- **Reliability**: Enhanced error detection and logging
-- **Scalability**: Queue system handles multiple concurrent requests
+- **ChatterboxTTS.php**: Enhanced error handling and connection management
+- **Frontend Polling**: Timeout detection with automatic session termination
+- **Debug System**: Session expiration validation in debug_log.php
+- **Queue Processing**: Improved background job handling and status updates
 
 ## [1.5.0] - Previous Version
 

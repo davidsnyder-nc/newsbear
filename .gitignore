@@ -22,9 +22,18 @@ downloads/
 # Generated audio files
 *.mp3
 
-# Temporary files
+# Temporary files and logs
 *.tmp
 *.log
+data/scheduler.log
+data/debug/
+
+# Attached assets from testing
+attached_assets/Pasted-*
+attached_assets/Screenshot*
+attached_assets/screencapture-*
+attached_assets/download_*
+attached_assets/user_settings_*
 
 # IDE files
 .vscode/
