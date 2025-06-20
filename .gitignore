@@ -1,6 +1,11 @@
 # Configuration files with API keys
 config/user_settings.json
 
+# Audio files and TTS cache
+*.wav
+*.mp3
+data/audio/
+
 # Data and history files
 data/
 downloads/
