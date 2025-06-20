@@ -237,8 +237,36 @@ class BriefingGenerator {
                 $this->debugLog("=== STEP 6: GENERATING AUDIO ===");
                 $this->updateStatus('Generating audio...', 80);
                 $this->debugLog("Starting text-to-speech conversion for " . $wordCount . " word briefing");
-                $audioFile = $this->generateAudio($briefingContent);
-                $this->debugLog("Audio generation " . ($audioFile ? "completed successfully: " . basename($audioFile) : "failed"));
+                $audioResult = $this->generateAudio($briefingContent);
+                
+                // Check if this is an async TTS provider (returns job ID)
+                $ttsService = new TTSService($this->settings);
+                if ($ttsService->isAsyncProvider()) {
+                    $this->debugLog("Async TTS provider detected, job ID: " . $audioResult);
+                    
+                    // Store the job details and return immediately
+                    $this->updateStatus('Audio generation queued...', 90);
+                    
+                    // Store briefing data for when audio completes
+                    $this->savePendingBriefing($briefingContent, $coveredTopics, $selectedStories, $audioResult);
+                    
+                    $this->debugLog("=== BRIEFING GENERATION QUEUED ===");
+                    $this->debugLog("Audio processing will continue in background");
+                    $this->updateStatus('Audio queued for processing', 100);
+                    
+                    return [
+                        'success' => true,
+                        'message' => 'Audio generation queued',
+                        'progress' => 100,
+                        'complete' => false,
+                        'tts_job_id' => $audioResult,
+                        'estimated_duration' => $this->getEstimatedDuration($briefingContent),
+                        'briefing_text' => $briefingContent
+                    ];
+                } else {
+                    $audioFile = $audioResult;
+                    $this->debugLog("Audio generation " . ($audioFile ? "completed successfully: " . basename($audioFile) : "failed"));
+                }
                 
                 // Extract source links from news stories for history
                 $sourcesData = [];
@@ -1546,8 +1574,40 @@ class BriefingGenerator {
     private function generateAudio($ssmlContent) {
         $ttsService = new TTSService($this->settings);
         
-        // TTS service now handles file creation and returns the path
+        // TTS service now handles file creation and returns the path or job ID
         return $ttsService->synthesizeSpeech($ssmlContent);
+    }
+    
+    private function savePendingBriefing($content, $topics, $stories, $jobId) {
+        $pendingFile = __DIR__ . '/../data/pending_briefings.json';
+        
+        $pending = [];
+        if (file_exists($pendingFile)) {
+            $pending = json_decode(file_get_contents($pendingFile), true) ?: [];
+        }
+        
+        $pending[$jobId] = [
+            'content' => $content,
+            'topics' => $topics,
+            'stories' => $stories,
+            'session_id' => $this->sessionId,
+            'created_at' => time(),
+            'settings' => [
+                'timeFrame' => $this->settings['timeFrame'],
+                'audioLength' => $this->settings['audioLength'],
+                'format' => 'audio'
+            ]
+        ];
+        
+        file_put_contents($pendingFile, json_encode($pending, JSON_PRETTY_PRINT));
+    }
+    
+    private function getEstimatedDuration($content) {
+        $wordCount = str_word_count($content);
+        // Estimate based on average speaking rate and processing time
+        $speakingTime = ceil($wordCount / 150); // 150 words per minute
+        $processingTime = 60; // Base processing time for Chatterbox
+        return $speakingTime + $processingTime;
     }
     
     private function getTimeFrame() {

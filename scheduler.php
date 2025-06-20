@@ -38,5 +38,8 @@ try {
     file_put_contents(__DIR__ . '/data/scheduler.log', $errorEntry, FILE_APPEND | LOCK_EX);
 }
 
+// Process pending TTS jobs
+include_once __DIR__ . '/includes/process_pending_briefings.php';
+
 echo "Scheduler completed.\n";
 ?>
