@@ -392,8 +392,11 @@ function isCategoryChecked($category) {
                             <button type="button" onclick="refreshHistory()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
                                 <i class="fas fa-refresh mr-2"></i>Refresh
                             </button>
-                            <button type="button" onclick="showCleanupModal()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md">
-                                <i class="fas fa-trash mr-2"></i>Cleanup
+                            <button type="button" onclick="deleteAllHistory()" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md">
+                                <i class="fas fa-trash-alt mr-2"></i>Delete All
+                            </button>
+                            <button type="button" onclick="showCleanupModal()" class="bg-orange-600 hover:bg-orange-700 text-white text-sm px-4 py-2 rounded-md">
+                                <i class="fas fa-broom mr-2"></i>Cleanup Old
                             </button>
                         </div>
                     </div>
@@ -1487,14 +1490,30 @@ function deleteHistoryItem(briefingId) {
     }
 }
 
-function showCleanupModal() {
-    const modal = confirm('Choose cleanup option:\nOK = Delete briefings older than 30 days\nCancel = Delete all briefings');
-    
-    if (modal === true) {
-        cleanupHistory(30);
-    } else if (modal === false) {
-        if (confirm('Are you sure you want to delete ALL briefings? This cannot be undone.')) {
+function deleteAllHistory() {
+    if (confirm('⚠️ WARNING: This will permanently delete ALL briefings and their audio files.\n\nThis action cannot be undone. Are you absolutely sure?')) {
+        if (confirm('Last chance - Delete ALL briefings permanently?')) {
             cleanupHistory(0);
+        }
+    }
+}
+
+function showCleanupModal() {
+    const days = prompt('Delete briefings older than how many days? (Enter number, or 0 for all)', '30');
+    
+    if (days !== null) {
+        const numDays = parseInt(days);
+        if (isNaN(numDays) || numDays < 0) {
+            alert('Please enter a valid number of days');
+            return;
+        }
+        
+        const message = numDays === 0 
+            ? 'Delete ALL briefings? This cannot be undone.' 
+            : `Delete briefings older than ${numDays} days?`;
+            
+        if (confirm(message)) {
+            cleanupHistory(numDays);
         }
     }
 }
