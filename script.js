@@ -149,6 +149,11 @@ class NewsBriefApp {
                 await this.pollStatus(result.sessionId);
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
+            } else if (result.tts_job_id) {
+                // Handle async TTS (Chatterbox)
+                this.updateStatus('Audio generation queued...', 90);
+                this.addDebugLogEntry(`TTS job queued: ${result.tts_job_id}`, 'info');
+                await this.pollTtsStatus(result.tts_job_id, result.sessionId);
             } else {
                 throw new Error(result.message || 'Generation failed');
             }
@@ -809,6 +814,55 @@ class NewsBriefApp {
     }
 
 
+
+    async pollTtsStatus(jobId, sessionId) {
+        const maxAttempts = 60; // Poll for up to 10 minutes (60 attempts * 10 seconds)
+        let attempts = 0;
+        
+        while (attempts < maxAttempts && this.isGenerating) {
+            try {
+                const response = await fetch(`api/tts_status.php?job_id=${encodeURIComponent(jobId)}`);
+                const result = await response.json();
+                
+                if (result.status === 'completed' && result.audio_file) {
+                    this.updateStatus('Audio generation completed!', 100);
+                    this.addDebugLogEntry(`TTS job completed: ${result.audio_file}`, 'success');
+                    
+                    // Wait a moment for the background processor to finalize the briefing
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // Check the session status for final result
+                    await this.pollStatus(sessionId);
+                    return;
+                    
+                } else if (result.status === 'failed') {
+                    throw new Error('Audio generation failed');
+                    
+                } else if (result.status === 'processing') {
+                    const progress = Math.min(95, 85 + (result.progress || 0) * 0.1);
+                    this.updateStatus(`Generating audio... ${result.progress || 0}%`, progress);
+                    this.addDebugLogEntry(`TTS processing: ${result.progress || 0}%`, 'info');
+                    
+                } else if (result.status === 'queued') {
+                    this.updateStatus('Audio generation queued...', 85);
+                    this.addDebugLogEntry('TTS job waiting in queue', 'info');
+                }
+                
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
+                
+            } catch (error) {
+                console.error('TTS polling error:', error);
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    throw new Error('Audio generation timeout');
+                }
+                await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+        }
+        
+        throw new Error('Audio generation timed out');
+    }
 
     stopLogPolling() {
         if (this.logPollingInterval) {
