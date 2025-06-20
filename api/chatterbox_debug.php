@@ -25,6 +25,9 @@ $testEndpoints = [
     '/api/status' => 'API status',
     
     // TTS endpoints based on common patterns
+    '/api/generate_tts_audio' => 'Gradio TTS endpoint (expected)',
+    '/api/predict' => 'Gradio predict endpoint',
+    '/predict' => 'Direct predict endpoint',
     '/api/tts' => 'TTS API endpoint',
     '/tts' => 'Direct TTS endpoint',
     '/synthesize' => 'Synthesize endpoint',
@@ -34,7 +37,9 @@ $testEndpoints = [
     '/speak' => 'Speak endpoint',
     '/api/speak' => 'API speak endpoint',
     '/v1/tts' => 'v1 TTS endpoint',
-    '/api/v1/tts' => 'API v1 TTS endpoint'
+    '/api/v1/tts' => 'API v1 TTS endpoint',
+    '/call/generate_tts_audio' => 'Gradio call endpoint',
+    '/run/generate_tts_audio' => 'Gradio run endpoint'
 ];
 
 $results = [];
@@ -89,7 +94,7 @@ if (!empty($workingEndpoints)) {
         'voice' => 'default'
     ];
     
-    foreach (['/api/tts', '/tts', '/synthesize'] as $endpoint) {
+    foreach (['/api/generate_tts_audio', '/api/predict', '/call/generate_tts_audio', '/run/generate_tts_audio'] as $endpoint) {
         if (in_array($endpoint, $workingEndpoints)) {
             $testUrl = rtrim($serverUrl, '/') . $endpoint;
             

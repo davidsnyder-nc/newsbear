@@ -168,8 +168,13 @@ class ChatterboxTTS {
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        // Chatterbox uses Gradio API format
-        $apiEndpoint = '/api/generate_tts_audio';
+        // Try multiple Gradio API endpoint formats
+        $possibleEndpoints = [
+            '/api/generate_tts_audio',
+            '/call/generate_tts_audio', 
+            '/run/generate_tts_audio',
+            '/api/predict'
+        ];
         
         // Check for sample audio file configuration
         $sampleAudio = $this->getSampleAudioConfig();
@@ -189,45 +194,49 @@ class ChatterboxTTS {
             'fn_index' => 0
         ];
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $apiEndpoint);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Accept: application/json'
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        curl_close($ch);
-        
-        if ($httpCode === 200 && $response) {
-            $responseData = json_decode($response, true);
+        foreach ($possibleEndpoints as $apiEndpoint) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $apiEndpoint);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             
-            // Gradio returns the audio file path/URL in the response
-            if (isset($responseData['data']) && isset($responseData['data'][0])) {
-                $audioInfo = $responseData['data'][0];
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            curl_close($ch);
+            
+            error_log("Chatterbox: Trying {$this->serverUrl}{$apiEndpoint} - HTTP {$httpCode}");
+            
+            if ($httpCode === 200 && $response) {
+                $responseData = json_decode($response, true);
                 
-                // If it's a file path, download the audio
-                if (isset($audioInfo['name']) || isset($audioInfo['path'])) {
-                    $audioUrl = $audioInfo['name'] ?? $audioInfo['path'];
+                // Gradio returns the audio file path/URL in the response
+                if (isset($responseData['data']) && isset($responseData['data'][0])) {
+                    $audioInfo = $responseData['data'][0];
                     
-                    // Make sure it's a full URL
-                    if (!str_starts_with($audioUrl, 'http')) {
-                        $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioUrl, '/');
+                    // If it's a file path, download the audio
+                    if (isset($audioInfo['name']) || isset($audioInfo['path'])) {
+                        $audioUrl = $audioInfo['name'] ?? $audioInfo['path'];
+                        
+                        // Make sure it's a full URL
+                        if (!str_starts_with($audioUrl, 'http')) {
+                            $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioUrl, '/');
+                        }
+                        
+                        error_log("Chatterbox: Success with endpoint {$apiEndpoint}");
+                        return $this->downloadAudioFile($audioUrl);
                     }
-                    
-                    return $this->downloadAudioFile($audioUrl);
                 }
+                
+                error_log("Chatterbox: Response from {$apiEndpoint}: " . substr($response, 0, 200));
             }
-            
-            error_log("Chatterbox: Unexpected response format - " . substr($response, 0, 200));
-            return false;
         }
         
         error_log("Chatterbox API error: No working endpoint found");
