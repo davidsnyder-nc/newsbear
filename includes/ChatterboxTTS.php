@@ -187,8 +187,90 @@ class ChatterboxTTS {
             ]
         ];
         
-        foreach ($possibleEndpoints as $apiEndpoint) {
-            $ch = curl_init();
+        // Step 1: POST request to initiate generation
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $apiEndpoint);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        error_log("Chatterbox: POST {$this->serverUrl}{$apiEndpoint} - HTTP {$httpCode}");
+        error_log("Chatterbox: POST Response: " . substr($response, 0, 200));
+        
+        if ($httpCode !== 200 || !$response) {
+            error_log("Chatterbox: POST request failed - HTTP {$httpCode}");
+            return false;
+        }
+        
+        // Extract EVENT_ID from response
+        $eventId = trim($response, '"');
+        if (empty($eventId)) {
+            error_log("Chatterbox: No EVENT_ID received");
+            return false;
+        }
+        
+        error_log("Chatterbox: Got EVENT_ID: {$eventId}");
+        
+        // Step 2: GET request to fetch results
+        $resultUrl = $this->serverUrl . $apiEndpoint . '/' . $eventId;
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $resultUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // Long timeout for generation
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        
+        $resultResponse = curl_exec($ch);
+        $resultHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        error_log("Chatterbox: GET {$resultUrl} - HTTP {$resultHttpCode}");
+        error_log("Chatterbox: GET Response: " . substr($resultResponse, 0, 200));
+        
+        if ($resultHttpCode === 200 && $resultResponse) {
+            // Parse the streaming response to get the final result
+            $lines = explode("\n", $resultResponse);
+            $finalData = null;
+            
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (str_starts_with($line, 'data: ')) {
+                    $jsonData = substr($line, 6);
+                    $data = json_decode($jsonData, true);
+                    
+                    if (isset($data['msg']) && $data['msg'] === 'process_completed') {
+                        $finalData = $data;
+                        break;
+                    }
+                }
+            }
+            
+            if ($finalData && isset($finalData['output']['data'][0])) {
+                $audioInfo = $finalData['output']['data'][0];
+                
+                if (isset($audioInfo['path'])) {
+                    $audioUrl = $audioInfo['path'];
+                    
+                    // Convert to full URL if needed
+                    if (!str_starts_with($audioUrl, 'http')) {
+                        $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioUrl, '/');
+                    }
+                    
+                    error_log("Chatterbox: Audio file URL: {$audioUrl}");
+                    return $this->downloadAudioFile($audioUrl);
+                }
+            }
+        }
+        
+        error_log("Chatterbox: Failed to get audio result");
         return false;
     }
     
