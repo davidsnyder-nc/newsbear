@@ -203,8 +203,8 @@ class ChatterboxTTS {
             'Accept: application/json'
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minutes for longer audio
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
@@ -258,47 +258,6 @@ class ChatterboxTTS {
         
         error_log("Chatterbox: No audio data found in response");
         error_log("Chatterbox: Full response: " . json_encode($responseData));
-        return false;
-        
-        error_log("Chatterbox: GET {$resultUrl} - HTTP {$resultHttpCode}");
-        error_log("Chatterbox: GET Response: " . substr($resultResponse, 0, 200));
-        
-        if ($resultHttpCode === 200 && $resultResponse) {
-            error_log("Chatterbox: Full streaming response: " . $resultResponse);
-            
-            // Parse the streaming response to get the final result
-            $lines = explode("\n", $resultResponse);
-            $finalData = null;
-            
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if (str_starts_with($line, 'data: ')) {
-                    $jsonData = substr($line, 6);
-                    $data = json_decode($jsonData, true);
-                    
-                    error_log("Chatterbox: Streaming data: " . json_encode($data));
-                    
-                    // The response is a direct array of file data, not wrapped in output structure
-                    if (is_array($data) && isset($data[0])) {
-                        $audioInfo = $data[0];
-                        
-                        // Check if we have a URL or path
-                        if (isset($audioInfo['url'])) {
-                            $audioUrl = $audioInfo['url'];
-                            error_log("Chatterbox: Found audio URL: {$audioUrl}");
-                            return $this->downloadAudioFile($audioUrl);
-                        } elseif (isset($audioInfo['path'])) {
-                            $audioPath = $audioInfo['path'];
-                            $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioPath, '/');
-                            error_log("Chatterbox: Constructed audio URL: {$audioUrl}");
-                            return $this->downloadAudioFile($audioUrl);
-                        }
-                    }
-                }
-            }
-        }
-        
-        error_log("Chatterbox: Failed to get audio result");
         return false;
     }
     
