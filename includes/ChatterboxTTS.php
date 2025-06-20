@@ -189,36 +189,49 @@ class ChatterboxTTS {
             '/generate'
         ];
         
+        // Check for sample audio file configuration
+        $sampleAudio = $this->getSampleAudioConfig();
+        
         $commonFormats = [
             // Format 1: JSON with text and voice
             [
-                'data' => [
+                'data' => array_merge([
                     'text' => $text,
                     'voice' => $voiceStyle,
                     'format' => 'wav'
-                ],
+                ], $sampleAudio),
                 'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
             ],
             // Format 2: JSON with voice_style
             [
-                'data' => [
+                'data' => array_merge([
                     'text' => $text,
                     'voice_style' => $voiceStyle,
                     'format' => 'wav'
-                ],
+                ], $sampleAudio),
                 'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
             ],
-            // Format 3: Form data
+            // Format 3: Chatterbox-TTS specific format
+            [
+                'data' => array_merge([
+                    'text' => $text,
+                    'speaker_wav' => $sampleAudio['sample_file'] ?? null,
+                    'language' => 'en',
+                    'format' => 'wav'
+                ], $sampleAudio),
+                'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
+            ],
+            // Format 4: Form data
             [
                 'data' => "text=" . urlencode($text) . "&voice=" . urlencode($voiceStyle) . "&format=wav",
                 'headers' => ['Content-Type: application/x-www-form-urlencoded', 'Accept: audio/wav']
             ],
-            // Format 4: Simple text parameter
+            // Format 5: Simple text parameter
             [
-                'data' => [
+                'data' => array_merge([
                     'text' => $text,
                     'speaker' => $voiceStyle
-                ],
+                ], $sampleAudio),
                 'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
             ]
         ];
@@ -258,6 +271,29 @@ class ChatterboxTTS {
         
         error_log("Chatterbox API error: No working endpoint found");
         return false;
+    }
+    
+    private function getSampleAudioConfig() {
+        $config = [];
+        
+        // Check for sample audio file setting
+        if (isset($this->settings['chatterboxSampleFile']) && !empty($this->settings['chatterboxSampleFile'])) {
+            $sampleFile = $this->settings['chatterboxSampleFile'];
+            
+            // If it's a local file path (relative to data folder)
+            if (file_exists(__DIR__ . '/../data/' . $sampleFile)) {
+                // Option 1: Send file data in request (for servers that accept base64)
+                $audioData = file_get_contents(__DIR__ . '/../data/' . $sampleFile);
+                $config['sample_audio'] = base64_encode($audioData);
+                $config['sample_format'] = pathinfo($sampleFile, PATHINFO_EXTENSION);
+            } else {
+                // Option 2: Reference file by name (for servers with local access)
+                $config['sample_file'] = $sampleFile;
+                $config['speaker_wav'] = $sampleFile;
+            }
+        }
+        
+        return $config;
     }
     
     private function saveAudioFile($audioData, $jobId) {

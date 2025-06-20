@@ -126,6 +126,7 @@ if ($_POST && !isset($_POST['action'])) {
         'voiceSelection' => $_POST['voiceSelection'] ?? 'en-US-Neural2-D',
         'chatterboxServerUrl' => $_POST['chatterboxServerUrl'] ?? 'http://localhost:8000',
         'chatterboxVoice' => $_POST['chatterboxVoice'] ?? 'news_anchor',
+        'chatterboxSampleFile' => $_POST['chatterboxSampleFile'] ?? '',
         'gnewsEnabled' => isset($_POST['gnewsEnabled']) ? true : false,
         'newsApiEnabled' => isset($_POST['newsApiEnabled']) ? true : false,
         'guardianEnabled' => isset($_POST['guardianEnabled']) ? true : false,
@@ -562,6 +563,15 @@ function isCategoryChecked($category) {
                                                 <option value="dramatic" <?= isSelected('chatterboxVoice', 'dramatic') ?>>Dramatic - Expressive</option>
                                                 <option value="calm" <?= isSelected('chatterboxVoice', 'calm') ?>>Calm - Relaxed delivery</option>
                                             </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Sample Audio File (Optional)</label>
+                                            <input type="text" name="chatterboxSampleFile" value="<?= getValue('chatterboxSampleFile') ?>" placeholder="sample.wav or /path/to/sample.wav" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <div class="mt-2 text-xs text-gray-600">
+                                                <strong>Option 1:</strong> Upload file to data/ folder and enter filename (e.g., "sample.wav")<br>
+                                                <strong>Option 2:</strong> Use file path on Chatterbox server (e.g., "/path/to/sample.wav")
+                                            </div>
                                         </div>
                                         
                                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
