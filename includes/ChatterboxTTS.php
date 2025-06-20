@@ -256,26 +256,22 @@ class ChatterboxTTS {
                     
                     error_log("Chatterbox: Streaming data: " . json_encode($data));
                     
-                    if (isset($data['msg']) && $data['msg'] === 'process_completed') {
-                        $finalData = $data;
-                        break;
+                    // The response is a direct array of file data, not wrapped in output structure
+                    if (is_array($data) && isset($data[0])) {
+                        $audioInfo = $data[0];
+                        
+                        // Check if we have a URL or path
+                        if (isset($audioInfo['url'])) {
+                            $audioUrl = $audioInfo['url'];
+                            error_log("Chatterbox: Found audio URL: {$audioUrl}");
+                            return $this->downloadAudioFile($audioUrl);
+                        } elseif (isset($audioInfo['path'])) {
+                            $audioPath = $audioInfo['path'];
+                            $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioPath, '/');
+                            error_log("Chatterbox: Constructed audio URL: {$audioUrl}");
+                            return $this->downloadAudioFile($audioUrl);
+                        }
                     }
-                }
-            }
-            
-            if ($finalData && isset($finalData['output']['data'][0])) {
-                $audioInfo = $finalData['output']['data'][0];
-                
-                if (isset($audioInfo['path'])) {
-                    $audioUrl = $audioInfo['path'];
-                    
-                    // Convert to full URL if needed
-                    if (!str_starts_with($audioUrl, 'http')) {
-                        $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioUrl, '/');
-                    }
-                    
-                    error_log("Chatterbox: Audio file URL: {$audioUrl}");
-                    return $this->downloadAudioFile($audioUrl);
                 }
             }
         }
