@@ -65,9 +65,9 @@ try {
                     $settings = json_decode(file_get_contents($settingsFile), true) ?: [];
                 }
                 
-                // Set longer execution time for audio processing
-                set_time_limit(600); // 10 minutes
-                ini_set('memory_limit', '512M');
+                // Set unlimited execution time for audio processing
+                set_time_limit(0); // No time limit
+                ini_set('memory_limit', '1G');
                 
                 $chatterbox = new ChatterboxTTS($settings);
                 $result = $chatterbox->processJob($job['id']);
@@ -75,7 +75,7 @@ try {
                 if ($result) {
                     error_log("Chatterbox job completed: " . $job['id']);
                     // Update pending briefing with audio file
-                    $this->updatePendingBriefingWithAudio($job['id'], $result);
+                    updatePendingBriefingWithAudio($job['id'], $result, __DIR__);
                     unset($queue[$index]);
                     $updated = true;
                 } else {
@@ -98,8 +98,8 @@ try {
 }
 
 // Helper function to update pending briefings with completed audio
-function updatePendingBriefingWithAudio($jobId, $audioFile) {
-    $pendingFile = __DIR__ . '/data/pending_briefings.json';
+function updatePendingBriefingWithAudio($jobId, $audioFile, $baseDir) {
+    $pendingFile = $baseDir . '/../data/pending_briefings.json';
     if (!file_exists($pendingFile)) return;
     
     $pending = json_decode(file_get_contents($pendingFile), true) ?: [];
@@ -107,7 +107,7 @@ function updatePendingBriefingWithAudio($jobId, $audioFile) {
     foreach ($pending as $index => $briefing) {
         if (isset($briefing['tts_job_id']) && $briefing['tts_job_id'] === $jobId) {
             // Complete the briefing with audio
-            require_once __DIR__ . '/includes/BriefingHistory.php';
+            require_once dirname($baseDir) . '/includes/BriefingHistory.php';
             $history = new BriefingHistory();
             
             $briefingId = $history->saveBriefing([
@@ -120,7 +120,7 @@ function updatePendingBriefingWithAudio($jobId, $audioFile) {
             ]);
             
             // Update status file
-            $statusFile = __DIR__ . '/downloads/status_' . $briefing['session_id'] . '.json';
+            $statusFile = dirname($baseDir) . '/downloads/status_' . $briefing['session_id'] . '.json';
             if (file_exists($statusFile)) {
                 $status = json_decode(file_get_contents($statusFile), true);
                 $status['complete'] = true;
