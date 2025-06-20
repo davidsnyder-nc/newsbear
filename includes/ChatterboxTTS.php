@@ -146,46 +146,117 @@ class ChatterboxTTS {
     }
     
     private function isServerAvailable() {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->serverUrl . '/health');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        // Try multiple common endpoints to check server availability
+        $endpoints = [
+            '/api/health',
+            '/health', 
+            '/api/status',
+            '/status',
+            '/api/v1/health',
+            '/' // Base endpoint as fallback
+        ];
         
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        foreach ($endpoints as $endpoint) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $endpoint);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode === 200) {
+                error_log("Chatterbox: Server available at {$this->serverUrl}{$endpoint}");
+                return true;
+            }
+        }
         
-        return $httpCode === 200;
+        error_log("Chatterbox: Server not responding on any known endpoints");
+        return false;
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        $data = [
-            'text' => $text,
-            'voice_style' => $voiceStyle,
-            'format' => 'wav'
+        // Try multiple common API endpoint formats
+        $apiEndpoints = [
+            '/api/tts',
+            '/api/synthesize', 
+            '/synthesize',
+            '/api/v1/tts',
+            '/tts',
+            '/generate'
         ];
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->serverUrl . '/synthesize');
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Accept: audio/wav'
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minutes timeout
+        $commonFormats = [
+            // Format 1: JSON with text and voice
+            [
+                'data' => [
+                    'text' => $text,
+                    'voice' => $voiceStyle,
+                    'format' => 'wav'
+                ],
+                'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
+            ],
+            // Format 2: JSON with voice_style
+            [
+                'data' => [
+                    'text' => $text,
+                    'voice_style' => $voiceStyle,
+                    'format' => 'wav'
+                ],
+                'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
+            ],
+            // Format 3: Form data
+            [
+                'data' => "text=" . urlencode($text) . "&voice=" . urlencode($voiceStyle) . "&format=wav",
+                'headers' => ['Content-Type: application/x-www-form-urlencoded', 'Accept: audio/wav']
+            ],
+            // Format 4: Simple text parameter
+            [
+                'data' => [
+                    'text' => $text,
+                    'speaker' => $voiceStyle
+                ],
+                'headers' => ['Content-Type: application/json', 'Accept: audio/wav']
+            ]
+        ];
         
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode === 200 && $response) {
-            return $response;
+        foreach ($apiEndpoints as $endpoint) {
+            foreach ($commonFormats as $format) {
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $endpoint);
+                curl_setopt($ch, CURLOPT_POST, true);
+                
+                if (is_array($format['data'])) {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($format['data']));
+                } else {
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $format['data']);
+                }
+                
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $format['headers']);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+                curl_close($ch);
+                
+                if ($httpCode === 200 && $response && (strpos($contentType, 'audio') !== false || strlen($response) > 1000)) {
+                    error_log("Chatterbox: Success with endpoint {$endpoint} using format " . json_encode($format['data']));
+                    return $response;
+                }
+                
+                if ($httpCode !== 404 && $httpCode !== 405) {
+                    error_log("Chatterbox: Tried {$this->serverUrl}{$endpoint} - HTTP {$httpCode}, Content-Type: {$contentType}");
+                }
+            }
         }
         
-        error_log("Chatterbox API error: HTTP $httpCode");
+        error_log("Chatterbox API error: No working endpoint found");
         return false;
     }
     

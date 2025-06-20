@@ -572,6 +572,10 @@ function isCategoryChecked($category) {
                                                 <li>• Audio requests are queued automatically</li>
                                                 <li>• Status updates provided during generation</li>
                                             </ul>
+                                            <button type="button" onclick="testChatterboxConnection()" class="mt-3 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
+                                                Test Connection
+                                            </button>
+                                            <div id="chatterbox-test-result" class="mt-2 text-xs"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -2016,6 +2020,46 @@ function toggleTtsOptions() {
     } else {
         googleOptions.style.display = 'none';
         chatterboxOptions.style.display = 'none';
+    }
+}
+
+async function testChatterboxConnection() {
+    const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;
+    const resultDiv = document.getElementById('chatterbox-test-result');
+    const button = event.target;
+    
+    button.disabled = true;
+    button.textContent = 'Testing...';
+    resultDiv.innerHTML = '<div class="text-blue-600">Testing connection...</div>';
+    
+    try {
+        const response = await fetch('api/test_chatterbox.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ server_url: serverUrl })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            resultDiv.innerHTML = `
+                <div class="text-green-600 font-medium">${result.message}</div>
+                <div class="text-green-700 mt-1">${result.details}</div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="text-red-600 font-medium">${result.message}</div>
+                <div class="text-red-700 mt-1">${result.details || result.error}</div>
+            `;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="text-red-600 font-medium">Connection failed</div>
+            <div class="text-red-700 mt-1">Error: ${error.message}</div>
+        `;
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Test Connection';
     }
 }
 </script>
