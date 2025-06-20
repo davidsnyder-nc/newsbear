@@ -74,8 +74,47 @@ try {
                 
                 if ($result) {
                     error_log("Chatterbox job completed: " . $job['id']);
-                    // Update pending briefing with audio file
-                    updatePendingBriefingWithAudio($job['id'], $result, __DIR__);
+                    // Complete the briefing immediately here
+                    require_once __DIR__ . '/includes/BriefingHistory.php';
+                    
+                    // Find and complete pending briefing
+                    $pendingFile = __DIR__ . '/data/pending_briefings.json';
+                    if (file_exists($pendingFile)) {
+                        $pending = json_decode(file_get_contents($pendingFile), true) ?: [];
+                        
+                        foreach ($pending as $index => $briefing) {
+                            if (isset($briefing['tts_job_id']) && $briefing['tts_job_id'] === $job['id']) {
+                                // Save to history
+                                $history = new BriefingHistory();
+                                $briefingId = $history->saveBriefing([
+                                    'topics' => $briefing['topics'] ?? [],
+                                    'text' => $briefing['text'],
+                                    'audio_file' => $result,
+                                    'duration' => $briefing['duration'] ?? 5,
+                                    'format' => 'mp3',
+                                    'sources' => $briefing['sources'] ?? []
+                                ]);
+                                
+                                // Update status file with completion
+                                $statusFile = __DIR__ . '/downloads/status_' . $briefing['session_id'] . '.json';
+                                if (file_exists($statusFile)) {
+                                    $status = json_decode(file_get_contents($statusFile), true);
+                                    $status['complete'] = true;
+                                    $status['success'] = true;
+                                    $status['downloadUrl'] = '/downloads/' . basename($result);
+                                    $status['message'] = 'Audio generation completed successfully';
+                                    $status['progress'] = 100;
+                                    file_put_contents($statusFile, json_encode($status));
+                                }
+                                
+                                // Remove from pending
+                                unset($pending[$index]);
+                                file_put_contents($pendingFile, json_encode(array_values($pending), JSON_PRETTY_PRINT));
+                                break;
+                            }
+                        }
+                    }
+                    
                     unset($queue[$index]);
                     $updated = true;
                 } else {
@@ -97,47 +136,7 @@ try {
     error_log("Chatterbox queue processing error: " . $e->getMessage());
 }
 
-// Helper function to update pending briefings with completed audio
-function updatePendingBriefingWithAudio($jobId, $audioFile, $baseDir) {
-    $pendingFile = $baseDir . '/../data/pending_briefings.json';
-    if (!file_exists($pendingFile)) return;
-    
-    $pending = json_decode(file_get_contents($pendingFile), true) ?: [];
-    
-    foreach ($pending as $index => $briefing) {
-        if (isset($briefing['tts_job_id']) && $briefing['tts_job_id'] === $jobId) {
-            // Complete the briefing with audio
-            require_once dirname($baseDir) . '/includes/BriefingHistory.php';
-            $history = new BriefingHistory();
-            
-            $briefingId = $history->saveBriefing([
-                'topics' => $briefing['topics'] ?? [],
-                'text' => $briefing['text'],
-                'audio_file' => $audioFile,
-                'duration' => $briefing['duration'] ?? 5,
-                'format' => 'mp3',
-                'sources' => $briefing['sources'] ?? []
-            ]);
-            
-            // Update status file
-            $statusFile = dirname($baseDir) . '/downloads/status_' . $briefing['session_id'] . '.json';
-            if (file_exists($statusFile)) {
-                $status = json_decode(file_get_contents($statusFile), true);
-                $status['complete'] = true;
-                $status['success'] = true;
-                $status['downloadUrl'] = '/downloads/' . basename($audioFile);
-                $status['message'] = 'Briefing completed successfully';
-                file_put_contents($statusFile, json_encode($status));
-            }
-            
-            // Remove from pending
-            unset($pending[$index]);
-            break;
-        }
-    }
-    
-    file_put_contents($pendingFile, json_encode(array_values($pending), JSON_PRETTY_PRINT));
-}
+
 
 echo "Scheduler completed.\n";
 ?>

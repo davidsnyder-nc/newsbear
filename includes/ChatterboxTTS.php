@@ -107,42 +107,73 @@ class ChatterboxTTS {
         
         try {
             $this->updateJobStatus($jobId, 'processing', 10);
+            $this->updateStatusMessage($jobId, 'Connecting to Chatterbox server...');
             
             // Check if Chatterbox server is available
             if (!$this->isServerAvailable()) {
                 $this->updateJobStatus($jobId, 'failed', 0);
+                $this->updateStatusMessage($jobId, 'Chatterbox server unavailable');
                 error_log("Chatterbox: Server not available at " . $this->serverUrl);
                 return false;
             }
             
             $this->updateJobStatus($jobId, 'processing', 30);
+            $this->updateStatusMessage($jobId, 'Generating audio with Chatterbox...');
             
             // Send request to Chatterbox server
             $audioData = $this->sendToChatterbox($job['text'], $job['voice_style']);
             
             if (!$audioData) {
                 $this->updateJobStatus($jobId, 'failed', 0);
+                $this->updateStatusMessage($jobId, 'Audio generation failed');
                 return false;
             }
             
             $this->updateJobStatus($jobId, 'processing', 80);
+            $this->updateStatusMessage($jobId, 'Saving audio file...');
             
             // Save audio file
             $audioFile = $this->saveAudioFile($audioData, $jobId);
             
             if ($audioFile) {
                 $this->updateJobStatus($jobId, 'completed', 100, $audioFile);
+                $this->updateStatusMessage($jobId, 'Audio generation completed');
                 return $audioFile;
             } else {
                 $this->updateJobStatus($jobId, 'failed', 0);
+                $this->updateStatusMessage($jobId, 'Failed to save audio file');
                 return false;
             }
             
         } catch (Exception $e) {
             error_log("Chatterbox processing error: " . $e->getMessage());
             $this->updateJobStatus($jobId, 'failed', 0);
+            $this->updateStatusMessage($jobId, 'Processing error: ' . $e->getMessage());
             return false;
         }
+    }
+    
+    private function updateStatusMessage($jobId, $message) {
+        // Update the briefing status file if it exists
+        $pending = $this->getPendingBriefings();
+        
+        foreach ($pending as $briefing) {
+            if (isset($briefing['tts_job_id']) && $briefing['tts_job_id'] === $jobId) {
+                $statusFile = __DIR__ . '/../downloads/status_' . $briefing['session_id'] . '.json';
+                if (file_exists($statusFile)) {
+                    $status = json_decode(file_get_contents($statusFile), true);
+                    $status['message'] = $message;
+                    file_put_contents($statusFile, json_encode($status));
+                }
+                break;
+            }
+        }
+    }
+    
+    private function getPendingBriefings() {
+        $pendingFile = __DIR__ . '/../data/pending_briefings.json';
+        if (!file_exists($pendingFile)) return [];
+        return json_decode(file_get_contents($pendingFile), true) ?: [];
     }
     
     private function isServerAvailable() {
