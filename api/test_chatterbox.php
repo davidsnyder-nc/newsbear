@@ -26,21 +26,21 @@ try {
     
     $chatterbox = new ChatterboxTTS($testSettings);
     
-    // Test server availability
-    $reflection = new ReflectionClass($chatterbox);
-    $isServerAvailable = $reflection->getMethod('isServerAvailable');
-    $isServerAvailable->setAccessible(true);
+    // Test direct connection first
+    $connectionTest = testDirectConnection($serverUrl);
     
-    if (!$isServerAvailable->invoke($chatterbox)) {
+    if (!$connectionTest['success']) {
         echo json_encode([
             'success' => false,
             'message' => 'Chatterbox server not responding',
-            'details' => 'Server at ' . $serverUrl . ' is not accessible. Check if Chatterbox is running and the port is correct.',
+            'details' => $connectionTest['error'],
+            'debug_info' => $connectionTest['debug'],
             'suggestions' => [
-                'Verify Chatterbox-TTS is running',
-                'Check if the port matches your web UI port',
-                'Try accessing ' . $serverUrl . ' in your browser',
-                'Check firewall settings'
+                'Verify Chatterbox-TTS is running on ' . $serverUrl,
+                'Check firewall/network settings',
+                'Test direct browser access to ' . $serverUrl,
+                'Verify the server URL format (include http://)',
+                'Check if server accepts connections from this IP'
             ]
         ]);
         exit;
@@ -70,4 +70,52 @@ try {
             'Ensure the API endpoints are accessible'
         ]
     ]);
+}
+
+function testDirectConnection($serverUrl) {
+    $endpoints = ['/', '/health', '/api/health', '/docs', '/api/docs'];
+    $debug = [];
+    
+    foreach ($endpoints as $endpoint) {
+        $testUrl = rtrim($serverUrl, '/') . $endpoint;
+        $debug[] = "Testing: $testUrl";
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $testUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'NewsBear/2.0');
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+        
+        $debug[] = "  Response: HTTP $httpCode";
+        if ($error) {
+            $debug[] = "  Error: $error";
+        }
+        if ($response && strlen($response) < 500) {
+            $debug[] = "  Response sample: " . substr($response, 0, 100);
+        }
+        
+        if ($httpCode >= 200 && $httpCode < 400) {
+            return [
+                'success' => true,
+                'endpoint' => $testUrl,
+                'http_code' => $httpCode,
+                'debug' => $debug
+            ];
+        }
+    }
+    
+    return [
+        'success' => false,
+        'error' => "No working endpoints found. Server may not be running or accessible.",
+        'debug' => $debug
+    ];
 }

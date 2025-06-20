@@ -582,9 +582,14 @@ function isCategoryChecked($category) {
                                                 <li>• Audio requests are queued automatically</li>
                                                 <li>• Status updates provided during generation</li>
                                             </ul>
-                                            <button type="button" onclick="testChatterboxConnection()" class="mt-3 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
-                                                Test Connection
-                                            </button>
+                                            <div class="flex gap-2 mt-3">
+                                                <button type="button" onclick="testChatterboxConnection()" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
+                                                    Test Connection
+                                                </button>
+                                                <button type="button" onclick="debugChatterboxEndpoints()" class="px-3 py-1 bg-orange-600 text-white text-xs rounded hover:bg-orange-700 transition-colors">
+                                                    Debug Endpoints
+                                                </button>
+                                            </div>
                                             <div id="chatterbox-test-result" class="mt-2 text-xs"></div>
                                         </div>
                                     </div>
@@ -2040,7 +2045,7 @@ async function testChatterboxConnection() {
     
     button.disabled = true;
     button.textContent = 'Testing...';
-    resultDiv.innerHTML = '<div class="text-blue-600">Testing connection...</div>';
+    resultDiv.innerHTML = '<div class="text-blue-600">Testing Gradio connection...</div>';
     
     try {
         const response = await fetch('api/test_chatterbox.php', {
@@ -2070,6 +2075,54 @@ async function testChatterboxConnection() {
     } finally {
         button.disabled = false;
         button.textContent = 'Test Connection';
+    }
+}
+
+async function debugChatterboxEndpoints() {
+    const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;
+    const resultDiv = document.getElementById('chatterbox-test-result');
+    const button = event.target;
+    
+    button.disabled = true;
+    button.textContent = 'Debugging...';
+    resultDiv.innerHTML = '<div class="text-blue-600">Testing all endpoints...</div>';
+    
+    try {
+        const response = await fetch('api/chatterbox_debug.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ server_url: serverUrl })
+        });
+        
+        const result = await response.json();
+        
+        let html = `<div class="text-sm space-y-2">`;
+        html += `<div><strong>Server:</strong> ${result.server_url}</div>`;
+        html += `<div><strong>Working endpoints:</strong> ${result.working_endpoints}/${result.total_endpoints_tested}</div>`;
+        
+        if (result.working_endpoint_list.length > 0) {
+            html += `<div class="text-green-600"><strong>Available:</strong> ${result.working_endpoint_list.join(', ')}</div>`;
+        }
+        
+        if (result.tts_tests && result.tts_tests.length > 0) {
+            html += `<div class="mt-2"><strong>TTS Tests:</strong></div>`;
+            result.tts_tests.forEach(test => {
+                const status = test.accepts_tts ? 'text-green-600' : 'text-red-600';
+                html += `<div class="${status}">• ${test.endpoint}: HTTP ${test.http_code} (${test.content_type})</div>`;
+            });
+        }
+        
+        html += `</div>`;
+        resultDiv.innerHTML = html;
+        
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="text-red-600 font-medium">Debug failed</div>
+            <div class="text-red-700 mt-1">Error: ${error.message}</div>
+        `;
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Debug Endpoints';
     }
 }
 </script>

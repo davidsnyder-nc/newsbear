@@ -1,0 +1,60 @@
+. Install the javascript client (docs) if you don't already have it installed.
+
+copy
+$ npm i -D @gradio/client
+2. Find the API endpoint below corresponding to your desired function in the app. Copy the code snippet, replacing the placeholder values with your own input data. Or use the 
+API Recorder
+
+ to automatically generate your API requests.
+
+api_name: /generate_tts_audio
+copy
+import { Client } from "@gradio/client";
+
+const response_0 = await fetch("https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav");
+const exampleAudio = await response_0.blob();
+						
+const client = await Client.connect("http://192.168.1.20:7861/");
+const result = await client.predict("/generate_tts_audio", { 		
+		text_input: "Hello!!", 
+				audio_prompt_path_input: exampleAudio, 		
+		exaggeration_input: 0.25, 		
+		temperature_input: 0.05, 		
+		seed_num_input: 3, 		
+		cfgw_input: 0.2, 		
+		chunk_size: 100, 
+});
+
+console.log(result.data);
+Accepts 7 parameters:
+text_input string Default: "Hello! This is a test of the Chatterbox-TTS voice cloning system running locally on Apple Silicon. You can now input much longer text and it will be automatically split into chunks for processing."
+
+The input value that is provided in the "Text to synthesize (supports long text with automatic chunking)" Textbox component.
+
+audio_prompt_path_input any Required
+
+The input value that is provided in the "Reference Audio File (Optional - 6+ seconds recommended)" Audio component. The FileData class is a subclass of the GradioModel class that represents a file object within a Gradio interface. It is used to store file data and metadata when a file is uploaded. Attributes: path: The server file path where the file is stored. url: The normalized server URL pointing to the file. size: The size of the file in bytes. orig_name: The original filename before upload. mime_type: The MIME type of the file. is_stream: Indicates whether the file is a stream. meta: Additional metadata used internally (should not be changed).
+
+exaggeration_input number Default: 0.5
+
+The input value that is provided in the "Exaggeration (Neutral = 0.5, extreme values can be unstable)" Slider component.
+
+temperature_input number Default: 0.8
+
+The input value that is provided in the "Temperature" Slider component.
+
+seed_num_input number Default: 0
+
+The input value that is provided in the "Random seed (0 for random)" Number component.
+
+cfgw_input number Default: 0.5
+
+The input value that is provided in the "CFG/Pace" Slider component.
+
+chunk_size number Default: 250
+
+The input value that is provided in the "Chunk Size (characters per chunk for long text)" Slider component.
+
+Returns 1 element
+
+The output value that appears in the "Generated Speech" Audio component.
