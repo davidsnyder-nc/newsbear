@@ -168,18 +168,17 @@ class ChatterboxTTS {
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        // Hugging Face Spaces Gradio endpoints
+        // Standard Gradio endpoints for HF Spaces
         $possibleEndpoints = [
-            '/call/generate_tts_audio', // HF Spaces standard format
-            '/api/predict', // Alternative Gradio format
-            '/run/predict', // Run prediction format
-            '/api/generate_tts_audio' // Original format
+            '/run/predict', // Standard Gradio predict
+            '/call/predict', // Gradio call format  
+            '/api/predict' // API predict format
         ];
         
         // Check for sample audio file configuration
         $sampleAudio = $this->getSampleAudioConfig();
         
-        // Gradio API format for Chatterbox-TTS Apple Silicon
+        // Standard Gradio predict format for any function
         $gradioData = [
             'data' => [
                 $text, // text_input (Text to synthesize)
@@ -190,8 +189,7 @@ class ChatterboxTTS {
                 0.2, // cfgw_input (CFG/Pace)
                 100 // chunk_size (Chunk Size for long text)
             ],
-            'event_data' => null,
-            'fn_index' => 0
+            'fn_index' => 0 // Use function index 0 (first/main function)
         ];
         
         foreach ($possibleEndpoints as $apiEndpoint) {
