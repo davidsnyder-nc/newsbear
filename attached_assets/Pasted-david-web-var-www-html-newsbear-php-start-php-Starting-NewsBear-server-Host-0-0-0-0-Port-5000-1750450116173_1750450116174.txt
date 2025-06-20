@@ -1,0 +1,425 @@
+david@web:/var/www/html/newsbear$ php start.php
+Starting NewsBear server...
+Host: 0.0.0.0
+Port: 5000
+URL: http://localhost:5000
+
+Press Ctrl+C to stop the server
+Go to Settings to configure your API keys
+
+[Fri Jun 20 16:07:05 2025] PHP 8.2.28 Development Server (http://0.0.0.0:5000) started
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62096 Accepted
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62097 Accepted
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62096 [200]: GET /
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62096 Closing
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62097 [200]: GET /style.css?v=1750450030
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62098 Accepted
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62097 Closing
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62098 [200]: GET /attached_assets/newsbear_brown_logo.png
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62099 Accepted
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62099 [200]: GET /script.js?v=1750450030
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62099 Closing
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62098 Closing
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62101 Accepted
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62101 [200]: GET /config/user_settings.json
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62101 Closing
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62102 Accepted
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62102 [404]: GET /favicon.ico - No such file or directory
+[Fri Jun 20 16:07:10 2025] 192.168.1.150:62102 Closing
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62103 Accepted
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62103 [200]: GET /settings.php
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62103 Closing
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62104 Accepted
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62104 [200]: GET /style.css?v=1750450031
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62104 Closing
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62105 Accepted
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62105 [200]: POST /settings.php
+[Fri Jun 20 16:07:11 2025] 192.168.1.150:62105 Closing
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62106 Accepted
+[Fri Jun 20 16:07:20 2025] DEBUG: Saving settings with preferredTerms: ''
+[Fri Jun 20 16:07:20 2025] DEBUG: POST data for preferredTerms: ''
+[Fri Jun 20 16:07:20 2025] DEBUG: Categories being saved: []
+[Fri Jun 20 16:07:20 2025] DEBUG: POST categories data: "NOT SET"
+[Fri Jun 20 16:07:20 2025] DEBUG: RSS Feeds POST data: {"5":{"url":"https:\/\/https:\/\/techcrunch.com\/feed\/.com\/feed\/","name":"techcrunch","category":"technology"},"4":{"url":"https:\/\/www.polygon.com\/rss\/index.xml","name":"Polygon","category":"gaming"},"3":{"url":"https:\/\/kotaku.com\/rss","name":"kotaku","category":"gaming"},"2":{"url":"https:\/\/feeds.arstechnica.com\/arstechnica\/index","name":"arstechnica","category":"technology"},"1":{"url":"https:\/\/www.theverge.com\/rss\/index.xml","name":"theverge","category":"technology"}}
+[Fri Jun 20 16:07:20 2025] DEBUG: Saved RSS feeds to file: [{"url":"https:\/\/https:\/\/techcrunch.com\/feed\/.com\/feed\/","name":"techcrunch","category":"Technology"},{"url":"https:\/\/www.polygon.com\/rss\/index.xml","name":"Polygon","category":"Gaming"},{"url":"https:\/\/kotaku.com\/rss","name":"kotaku","category":"Gaming"},{"url":"https:\/\/feeds.arstechnica.com\/arstechnica\/index","name":"arstechnica","category":"Technology"},{"url":"https:\/\/www.theverge.com\/rss\/index.xml","name":"theverge","category":"Technology"}]
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62106 [302]: POST /settings.php
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62106 Closing
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62107 Accepted
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62107 [200]: GET /settings.php?saved=1
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62107 Closing
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62108 Accepted
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62108 [200]: GET /style.css?v=1750450040
+[Fri Jun 20 16:07:20 2025] 192.168.1.150:62108 Closing
+[Fri Jun 20 16:07:21 2025] 192.168.1.150:62109 Accepted
+[Fri Jun 20 16:07:21 2025] 192.168.1.150:62109 [200]: POST /settings.php
+[Fri Jun 20 16:07:21 2025] 192.168.1.150:62109 Closing
+[Fri Jun 20 16:08:03 2025] 192.168.1.150:62118 Accepted
+[Fri Jun 20 16:08:03 2025] 192.168.1.150:62118 [200]: GET /api/scheduling.php
+[Fri Jun 20 16:08:03 2025] 192.168.1.150:62118 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62119 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62120 Accepted
+[Fri Jun 20 16:08:09 2025] DEBUG: Saving settings with preferredTerms: ''
+[Fri Jun 20 16:08:09 2025] DEBUG: POST data for preferredTerms: ''
+[Fri Jun 20 16:08:09 2025] DEBUG: Categories being saved: ["general"]
+[Fri Jun 20 16:08:09 2025] DEBUG: POST categories data: ["general"]
+[Fri Jun 20 16:08:09 2025] DEBUG: RSS Feeds POST data: {"5":{"url":"https:\/\/www.theverge.com\/rss\/index.xml","name":"theverge","category":"technology"},"4":{"url":"https:\/\/feeds.arstechnica.com\/arstechnica\/index","name":"arstechnica","category":"technology"},"3":{"url":"https:\/\/kotaku.com\/rss","name":"kotaku","category":"gaming"},"2":{"url":"https:\/\/www.polygon.com\/rss\/index.xml","name":"Polygon","category":"gaming"},"1":{"url":"https:\/\/https:\/\/techcrunch.com\/feed\/.com\/feed\/","name":"techcrunch","category":"technology"}}
+[Fri Jun 20 16:08:09 2025] DEBUG: Saved RSS feeds to file: [{"url":"https:\/\/www.theverge.com\/rss\/index.xml","name":"theverge","category":"Technology"},{"url":"https:\/\/feeds.arstechnica.com\/arstechnica\/index","name":"arstechnica","category":"Technology"},{"url":"https:\/\/kotaku.com\/rss","name":"kotaku","category":"Gaming"},{"url":"https:\/\/www.polygon.com\/rss\/index.xml","name":"Polygon","category":"Gaming"},{"url":"https:\/\/https:\/\/techcrunch.com\/feed\/.com\/feed\/","name":"techcrunch","category":"Technology"}]
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62119 [302]: POST /settings.php?saved=1
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62119 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62120 [200]: GET /settings.php?saved=1
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62120 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62121 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62121 [200]: GET /style.css?v=1750450089
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62121 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62122 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62122 [200]: POST /settings.php
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62122 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62123 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62123 [200]: GET /
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62123 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62124 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62124 [200]: GET /style.css?v=1750450089
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62124 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62125 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62126 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62125 [200]: GET /attached_assets/newsbear_brown_logo.png
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62126 [200]: GET /script.js?v=1750450089
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62126 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62125 Closing
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62127 Accepted
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62127 [200]: GET /config/user_settings.json
+[Fri Jun 20 16:08:09 2025] 192.168.1.150:62127 Closing
+[Fri Jun 20 16:08:11 2025] 192.168.1.150:62128 Accepted
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: STATUS: Starting generation... (0%)
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: === Starting briefing generation ===
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Session ID: briefing_6855bfab04d9d0.03509562
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Selected categories: general
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Audio length: 3-5
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Story count: default
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: === STEP 1: FETCHING NEWS ===
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Checking enabled sources: GNews=NO, NewsAPI=NO, Guardian=YES, NYT=NO
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Selected categories: general
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: STATUS: Fetching headlines... (10%)
+[Fri Jun 20 16:08:11 2025] NewsAPI Constructor - Available keys:
+[Fri Jun 20 16:08:11 2025] GNews: NO
+[Fri Jun 20 16:08:11 2025] NewsAPI: NO
+[Fri Jun 20 16:08:11 2025] Guardian: YES
+[Fri Jun 20 16:08:11 2025] NYT: NO
+[Fri Jun 20 16:08:11 2025] NewsBear Debug [16:08:11]: Fetching from news APIs (GNews, NewsAPI, Guardian, NYT, Local)...
+[Fri Jun 20 16:08:11 2025] RSS fetch: Found 40 articles from RSS feeds (added after local)
+[Fri Jun 20 16:08:11 2025] Should fetch from main APIs: YES - Categories: general
+[Fri Jun 20 16:08:12 2025] Guardian fetch: Retrieved 10 articles
+[Fri Jun 20 16:08:13 2025] Classified article 'Iran foreign minister says Tehran ready to ‘consider diplomacy’ after European ministers say they’re open to more talks – Middle East crisis live' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'A week of war has left Iran stunned and bloodied' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'What next after EU finds ‘indications’ that Israel is in breach of human rights obligations?' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'EU cites ‘indications’ Israel is breaching human rights obligations over conduct in Gaza' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'Cars and steps do not mix: why The Italian Job has a lot to answer for' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'Macron lays out broad European offer for Iran to end war with Israel' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'Israel warns of ‘prolonged war’ with Iran as conflict enters second week' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'Unicef warns children could die of thirst in Gaza amid collapse of water systems' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'Canada poised to pass infrastructure bill despite pushback from Indigenous people' as category: general
+[Fri Jun 20 16:08:13 2025] Classified article 'British nationals who want to leave Israel to be offered flights to UK, says David Lammy' as category: general
+[Fri Jun 20 16:08:13 2025] Applied AI categorization to news articles
+[Fri Jun 20 16:08:13 2025] === API STATUS REPORT ===
+[Fri Jun 20 16:08:13 2025] gnews: no API key
+[Fri Jun 20 16:08:13 2025] newsapi: no API key
+[Fri Jun 20 16:08:13 2025] guardian: success
+[Fri Jun 20 16:08:13 2025] nyt: no API key
+[Fri Jun 20 16:08:13 2025] Total news articles fetched: 50
+[Fri Jun 20 16:08:13 2025] ========================
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: News APIs returned 50 articles
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Fetching from configured RSS feeds...
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: RSS feeds returned 60 articles (unfiltered)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Applying unified category filtering...
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Selected categories for filtering: [general]
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Mario Kart World fans are bagging races in a fight for last place' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'All Scale-Bearing Merchant deals and choices in Elden Ring Nightreign' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: '28 Years Later is a bleak fever dream with rage pumping through its veins' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Record DDoS pummels site with once-unimaginable 7.3Tbps of junk traffic' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Microsoft lays out its path to useful quantum computing' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'How to find the best deals during Amazon’s four-day Prime Day sale' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The Deadpool/Batman crossover’s backup stories sound more fun than the main event' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Rooftops &#038; Alleys could be the next big parkour game, but it trips over its own feet' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'MIT student prints AI polymer masks to restore paintings in hours' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Apple’s tiny M4 Mac mini has dropped to its lowest price yet' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Applebee&#8217;s and IHOP have plans for AI' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Kotaku’s Weekend Guide: 3 Delightful Games We’re Swinging Into Summer With' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Man’s health crashes after getting donated kidney—it was riddled with worms' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Mario Kart World's Mirror Mode Is A Little Too Confusing To Activate' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'YouTube is hiding an excellent, official high-speed Pac-Man mod in plain sight' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Six Things I Wish I Knew Before Setting Up My Switch 2' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Sprite + Tea Review: This Crap Needs To Be Outlawed' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'What Do Smart Steering And Auto-Accelerate Do In Mario Kart World?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Someone Already Tried Selling Magic: The Gathering's Golden Chocobo Final Fantasy Card For $50,000' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Rocket Report: Two big Asian reuse milestones, Vandenberg becomes SpaceX west' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'All trial locations in Dune Awakening' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Longer commercial breaks lower the value of ad-based streaming subscriptions' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'How Long Will It Take You To Crack The Case In Raidou Remastered?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Just How Long Is Nintendo Switch 2 Welcome Tour?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'China’s next big game is wowing fans with its high gloss action' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'To avoid admitting ignorance, Meta AI says man’s number is a company helpline' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Dune Awakening: How Long Until You Hit The Endgame?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Elden Ring Nightreign Players Who Thought They Could Finally Walk Away Are Getting Demolished But Its Surprise New Boss' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Honkai: Star Rail 3.4 livestream codes' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Amazon improves Kindle accessibility with new text spacing adjustments' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Microsoft is blocking Google Chrome through its family safety feature' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The Solo Leveling video game makes you feel like Jinwoo — then the grind kicks in' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Tesla’s first robotaxi rides will have a ‘safety monitor’ in the passenger seat' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The cuts in Final Fantasy Tactics remake might not be what we want, but they are what we need' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Truth, lies, and the Trump Phone' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Meta announces Oakley smart glasses' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Study: Meta AI model can reproduce almost half of Harry Potter book' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'YAIBA: Samurai Legend pushes back against fandom&#8217;s obsession with aura' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Israel-tied Predatory Sparrow hackers are waging cyberwar on Iran’s financial system' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'You sound like ChatGPT' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'Iran foreign minister says Tehran ready to ‘consider diplomacy’ after European ministers say they’re open to more talks – Middle East crisis live' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'A week of war has left Iran stunned and bloodied' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'What next after EU finds ‘indications’ that Israel is in breach of human rights obligations?' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'EU cites ‘indications’ Israel is breaching human rights obligations over conduct in Gaza' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'Cars and steps do not mix: why The Italian Job has a lot to answer for' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'Macron lays out broad European offer for Iran to end war with Israel' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'Israel warns of ‘prolonged war’ with Iran as conflict enters second week' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'Unicef warns children could die of thirst in Gaza amid collapse of water systems' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'Canada poised to pass infrastructure bill despite pushback from Indigenous people' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Including article: 'British nationals who want to leave Israel to be offered flights to UK, says David Lammy' (category: general)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Mario Kart World fans are bagging races in a fight for last place' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'All Scale-Bearing Merchant deals and choices in Elden Ring Nightreign' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: '28 Years Later is a bleak fever dream with rage pumping through its veins' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Record DDoS pummels site with once-unimaginable 7.3Tbps of junk traffic' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Microsoft lays out its path to useful quantum computing' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'How to find the best deals during Amazon’s four-day Prime Day sale' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The Deadpool/Batman crossover’s backup stories sound more fun than the main event' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Rooftops &#038; Alleys could be the next big parkour game, but it trips over its own feet' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'MIT student prints AI polymer masks to restore paintings in hours' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Apple’s tiny M4 Mac mini has dropped to its lowest price yet' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Applebee&#8217;s and IHOP have plans for AI' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Kotaku’s Weekend Guide: 3 Delightful Games We’re Swinging Into Summer With' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Man’s health crashes after getting donated kidney—it was riddled with worms' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Mario Kart World's Mirror Mode Is A Little Too Confusing To Activate' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'YouTube is hiding an excellent, official high-speed Pac-Man mod in plain sight' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Six Things I Wish I Knew Before Setting Up My Switch 2' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Sprite + Tea Review: This Crap Needs To Be Outlawed' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'What Do Smart Steering And Auto-Accelerate Do In Mario Kart World?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Someone Already Tried Selling Magic: The Gathering's Golden Chocobo Final Fantasy Card For $50,000' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Rocket Report: Two big Asian reuse milestones, Vandenberg becomes SpaceX west' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'All trial locations in Dune Awakening' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Longer commercial breaks lower the value of ad-based streaming subscriptions' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'How Long Will It Take You To Crack The Case In Raidou Remastered?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Just How Long Is Nintendo Switch 2 Welcome Tour?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'China’s next big game is wowing fans with its high gloss action' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'To avoid admitting ignorance, Meta AI says man’s number is a company helpline' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Dune Awakening: How Long Until You Hit The Endgame?' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Elden Ring Nightreign Players Who Thought They Could Finally Walk Away Are Getting Demolished But Its Surprise New Boss' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Honkai: Star Rail 3.4 livestream codes' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Amazon improves Kindle accessibility with new text spacing adjustments' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Wikipedia Is The Latest Place To Join The Daily Gaming Craze' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Microsoft is blocking Google Chrome through its family safety feature' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The Solo Leveling video game makes you feel like Jinwoo — then the grind kicks in' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Tesla’s first robotaxi rides will have a ‘safety monitor’ in the passenger seat' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The cuts in Final Fantasy Tactics remake might not be what we want, but they are what we need' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Truth, lies, and the Trump Phone' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Meta announces Oakley smart glasses' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Study: Meta AI model can reproduce almost half of Harry Potter book' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'Polygon' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'YAIBA: Samurai Legend pushes back against fandom&#8217;s obsession with aura' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'At Least One Band Is Bummed To Be Cut From THPS 3+4' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Israel-tied Predatory Sparrow hackers are waging cyberwar on Iran’s financial system' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'The Nintendo Console Launches, Ranked From Worst To Best' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Stellar Blade, As Told By Steam Reviews' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Tips For Playing The Magic: the Gathering x Final Fantasy VII Commander Deck' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: '10 Shark Movies to Sink Your Teeth Into (That Aren’t Jaws)' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'SpaceX’s next Starship just blew up on its test stand in South Texas' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Senate passes GENIUS Act—criticized as gifting Trump ample opportunity to grift' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Smart TV OS owners face “constant conflict” between privacy, advertiser demands' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'You sound like ChatGPT' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Address bar shows hp.com. Browser displays scammers’ malicious text anyway.' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'That Silent Hill 2 Movie Will Hit Theaters In January 2026' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'After RFK Jr. overhauls CDC panel, measles and flu vaccines are up for debate' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'New dating for White Sands footprints confirms controversial theory' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Elden Ring Nightreign Is Lying To You About How Long It Takes To Revive Someone And It's Not Even Close' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Over 2,500 Nintendo Switch 2 Consoles Were Stolen From A Semi-Truck' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'xAI faces legal threat over alleged Colossus data center pollution in Memphis' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Source-based override: 'kotaku' classified as gaming
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Elden Ring Movie Director Explains His Secret To Getting Good At Dark Souls' (category: gaming not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Via the False Claims Act, NIH puts universities on edge' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Spanish blackout report: Power plants meant to stabilize voltage didn’t' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: EXCLUDING article: 'Why Microsoft’s next Xbox should just run Windows already' (category: technology not in selected categories)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Category filtering results: 10 included, 100 excluded
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: After category filtering: 10 articles remain
+[Fri Jun 20 16:08:13 2025] Content filtering: 0 preferred, 10 regular articles
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Total content collected: 10 items from all sources
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: SUCCESS: Retrieved 10 total news items from all sources
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: === STEP 2: CHECKING TOPIC OVERLAP ===
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: STATUS: Checking for smart briefing... (20%)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Found 0 topics already covered today (for deduplication)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: === STEP 3: AI STORY SELECTION ===
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: STATUS: Selecting stories using AI... (30%)
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Sending 10 news items to AI for story selection
+[Fri Jun 20 16:08:13 2025] Source diversity shuffle: Reordered 10 articles from 1 sources
+[Fri Jun 20 16:08:13 2025] NewsBear Debug [16:08:13]: Attempting AI story selection with gemini...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: AI response from gemini (took 1s): 1, 4, 7, 8, 10...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Parsing selection #1: [The Guardian] Iran foreign minister says Tehran ready to ‘consider diplo...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Parsing selection #4: [The Guardian] EU cites ‘indications’ Israel is breaching human rights ...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Parsing selection #7: [The Guardian] Israel warns of ‘prolonged war’ with Iran as conflict en...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Parsing selection #8: [The Guardian] Unicef warns children could die of thirst in Gaza amid colla...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Parsing selection #10: [The Guardian] British nationals who want to leave Israel to be offered fli...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Only 5 stories selected by AI, need 7. Adding supplemental stories...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Supplemental story added: [The Guardian] A week of war has left Iran stunned and bloodied...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Supplemental story added: [The Guardian] What next after EU finds ‘indications’ that Israel is in...
+[Fri Jun 20 16:08:14 2025] Source diversity violation: The Guardian has 7 stories (max: 1)
+[Fri Jun 20 16:08:14 2025] Enforcing source diversity - rebalancing story selection
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: AI selection completed: 1 stories chosen
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Selected story 1: [The Guardian] Iran foreign minister says Tehran ready to ‘consider diplomacy’ after Europe...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: === STEP 4: VALIDATING STORY AUTHENTICITY ===
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Accepted story from The Guardian: Iran foreign minister says Tehran ready to ‘consider diplo...
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Accepted 1 of 1 stories from configured sources
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Story validation completed: 1 stories passed authenticity checks
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Content analysis: 1 authentic news stories, 0 weather/entertainment items
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: === STEP 5: GENERATING BRIEFING CONTENT ===
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: STATUS: Summarizing with AI... (60%)
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Starting AI content generation with 1 validated stories
+[Fri Jun 20 16:08:14 2025] NewsBear Debug [16:08:14]: Starting content generation with gemini...
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: Content generation completed with gemini (took 3s): 356 words generated
+[Fri Jun 20 16:08:17 2025] AI Response word count: 356, Target: 356
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: Content generation completed: 356 words, 2526 characters
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: === STEP 6: GENERATING AUDIO ===
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: STATUS: Generating audio... (80%)
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: Starting text-to-speech conversion for 356 word briefing
+[Fri Jun 20 16:08:17 2025] TTS: Using provider - chatterbox
+[Fri Jun 20 16:08:17 2025] TTS: Settings ttsProvider = chatterbox
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: Async TTS provider detected, job ID: chatterbox_6855bfb17d2e39.26145409
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: STATUS: Audio generation queued... (90%)
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: === BRIEFING GENERATION QUEUED ===
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: Audio processing will continue in background
+[Fri Jun 20 16:08:17 2025] NewsBear Debug [16:08:17]: STATUS: Audio queued for processing (100%)
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62128 [200]: POST /api/generate.php
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62128 Closing
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62129 Accepted
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62130 Accepted
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62129 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450097482
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62129 Closing
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62130 [200]: POST /api/status.php
+[Fri Jun 20 16:08:17 2025] 192.168.1.150:62130 Closing
+[Fri Jun 20 16:08:18 2025] 192.168.1.150:62131 Accepted
+[Fri Jun 20 16:08:18 2025] 192.168.1.150:62131 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450097984
+[Fri Jun 20 16:08:18 2025] 192.168.1.150:62131 Closing
+[Fri Jun 20 16:08:18 2025] 192.168.1.150:62132 Accepted
+[Fri Jun 20 16:08:18 2025] 192.168.1.150:62132 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450098483
+[Fri Jun 20 16:08:18 2025] 192.168.1.150:62132 Closing
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62133 Accepted
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62133 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450098983
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62133 Closing
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62134 Accepted
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62134 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450099483
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62134 Closing
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62135 Accepted
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62135 [200]: POST /api/status.php
+[Fri Jun 20 16:08:19 2025] 192.168.1.150:62135 Closing
+[Fri Jun 20 16:08:20 2025] 192.168.1.150:62136 Accepted
+[Fri Jun 20 16:08:20 2025] 192.168.1.150:62136 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450099983
+[Fri Jun 20 16:08:20 2025] 192.168.1.150:62136 Closing
+[Fri Jun 20 16:08:20 2025] 192.168.1.150:62137 Accepted
+[Fri Jun 20 16:08:20 2025] 192.168.1.150:62137 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450100483
+[Fri Jun 20 16:08:20 2025] 192.168.1.150:62137 Closing
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62138 Accepted
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62138 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450100983
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62138 Closing
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62139 Accepted
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62139 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450101484
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62139 Closing
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62140 Accepted
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62140 [200]: POST /api/status.php
+[Fri Jun 20 16:08:21 2025] 192.168.1.150:62140 Closing
+[Fri Jun 20 16:08:22 2025] 192.168.1.150:62141 Accepted
+[Fri Jun 20 16:08:22 2025] 192.168.1.150:62141 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450101983
+[Fri Jun 20 16:08:22 2025] 192.168.1.150:62141 Closing
+[Fri Jun 20 16:08:22 2025] 192.168.1.150:62142 Accepted
+[Fri Jun 20 16:08:22 2025] 192.168.1.150:62142 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450102483
+[Fri Jun 20 16:08:22 2025] 192.168.1.150:62142 Closing
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62143 Accepted
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62143 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450102983
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62143 Closing
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62144 Accepted
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62144 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450103484
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62144 Closing
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62145 Accepted
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62145 [200]: POST /api/status.php
+[Fri Jun 20 16:08:23 2025] 192.168.1.150:62145 Closing
+[Fri Jun 20 16:08:24 2025] 192.168.1.150:62146 Accepted
+[Fri Jun 20 16:08:24 2025] 192.168.1.150:62146 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450103983
+[Fri Jun 20 16:08:24 2025] 192.168.1.150:62146 Closing
+[Fri Jun 20 16:08:24 2025] 192.168.1.150:62147 Accepted
+[Fri Jun 20 16:08:24 2025] 192.168.1.150:62147 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450104483
+[Fri Jun 20 16:08:24 2025] 192.168.1.150:62147 Closing
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62148 Accepted
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62148 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450104983
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62148 Closing
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62149 Accepted
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62149 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450105484
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62149 Closing
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62150 Accepted
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62150 [200]: POST /api/status.php
+[Fri Jun 20 16:08:25 2025] 192.168.1.150:62150 Closing
+[Fri Jun 20 16:08:26 2025] 192.168.1.150:62151 Accepted
+[Fri Jun 20 16:08:26 2025] 192.168.1.150:62151 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450105983
+[Fri Jun 20 16:08:26 2025] 192.168.1.150:62151 Closing
+[Fri Jun 20 16:08:26 2025] 192.168.1.150:62152 Accepted
+[Fri Jun 20 16:08:26 2025] 192.168.1.150:62152 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450106484
+[Fri Jun 20 16:08:26 2025] 192.168.1.150:62152 Closing
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62153 Accepted
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62153 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450106983
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62153 Closing
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62154 Accepted
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62154 [200]: GET /api/debug_log.php?session=briefing_6855bfab04d9d0.03509562&_t=1750450107483
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62154 Closing
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62155 Accepted
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62155 [200]: GET /attached_assets/newsbear_brown_logo.png?t=1750450107523
+[Fri Jun 20 16:08:27 2025] 192.168.1.150:62155 Closing
