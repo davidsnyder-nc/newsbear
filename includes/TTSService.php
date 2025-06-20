@@ -1,10 +1,13 @@
 <?php
 
+require_once __DIR__ . '/ChatterboxTTS.php';
+
 class TTSService {
     private $settings;
     private $ttsProvider;
     private $googleApiKey;
     private $voiceSelection;
+    private $chatterboxTTS;
     
     public function __construct($settings = null) {
         $this->settings = $settings ?: [];
@@ -14,15 +17,43 @@ class TTSService {
         $this->googleApiKey = ($this->settings['googleTtsEnabled'] ?? true) ? 
             ($this->settings['googleTtsApiKey'] ?: getenv('GOOGLE_TTS_API_KEY')) : null;
         $this->voiceSelection = $this->settings['voiceSelection'] ?? 'en-US-Neural2-D';
+        
+        // Chatterbox TTS setup
+        if ($this->ttsProvider === 'chatterbox') {
+            $this->chatterboxTTS = new ChatterboxTTS($this->settings);
+        }
     }
     
     public function synthesizeSpeech($ssmlText) {
         error_log("TTS: Using provider - " . $this->ttsProvider);
         error_log("TTS: Settings ttsProvider = " . ($this->settings['ttsProvider'] ?? 'not set'));
-
         
-        // Only Google TTS is supported
-        return $this->synthesizeWithGoogle($ssmlText);
+        // Route to appropriate TTS provider
+        switch ($this->ttsProvider) {
+            case 'chatterbox':
+                if (!$this->chatterboxTTS) {
+                    $this->chatterboxTTS = new ChatterboxTTS($this->settings);
+                }
+                return $this->chatterboxTTS->synthesizeSpeech($ssmlText);
+                
+            case 'google':
+            default:
+                return $this->synthesizeWithGoogle($ssmlText);
+        }
+    }
+    
+    public function getJobStatus($jobId) {
+        if ($this->ttsProvider === 'chatterbox') {
+            if (!$this->chatterboxTTS) {
+                $this->chatterboxTTS = new ChatterboxTTS($this->settings);
+            }
+            return $this->chatterboxTTS->getJobStatus($jobId);
+        }
+        return null;
+    }
+    
+    public function isAsyncProvider() {
+        return $this->ttsProvider === 'chatterbox';
     }
     
 

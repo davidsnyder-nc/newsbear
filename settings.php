@@ -124,6 +124,8 @@ if ($_POST && !isset($_POST['action'])) {
         'googleTtsApiKey' => $_POST['googleTtsApiKey'] ?? '',
         'ttsProvider' => $_POST['ttsProvider'] ?? 'google',
         'voiceSelection' => $_POST['voiceSelection'] ?? 'en-US-Neural2-D',
+        'chatterboxServerUrl' => $_POST['chatterboxServerUrl'] ?? 'http://localhost:8000',
+        'chatterboxVoice' => $_POST['chatterboxVoice'] ?? 'news_anchor',
         'gnewsEnabled' => isset($_POST['gnewsEnabled']) ? true : false,
         'newsApiEnabled' => isset($_POST['newsApiEnabled']) ? true : false,
         'guardianEnabled' => isset($_POST['guardianEnabled']) ? true : false,
@@ -212,6 +214,8 @@ $defaults = [
 
     'ttsProvider' => 'google',
     'voiceSelection' => 'en-US-Neural2-D',
+    'chatterboxServerUrl' => 'http://localhost:8000',
+    'chatterboxVoice' => 'news_anchor',
 
     'gnewsEnabled' => true,
     'newsApiEnabled' => true,
@@ -510,6 +514,7 @@ function isCategoryChecked($category) {
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Text-to-Speech Provider</label>
                                     <select name="ttsProvider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" onchange="toggleTtsOptions()">
                                         <option value="google" <?= isSelected('ttsProvider', 'google') ?>>Google TTS (Premium Quality)</option>
+                                        <option value="chatterbox" <?= isSelected('ttsProvider', 'chatterbox') ?>>Chatterbox TTS (Local Server)</option>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">Choose your preferred text-to-speech engine</p>
                                 </div>
@@ -539,6 +544,36 @@ function isCategoryChecked($category) {
                                         </optgroup>
                                     </select>
                                     <p class="text-xs text-gray-500 mt-1">$ = Standard quality, $$ = Enhanced quality, $$$ = Studio quality</p>
+                                </div>
+                                
+                                <div id="chatterbox-options" style="display: <?= ($settings['ttsProvider'] ?? 'google') === 'chatterbox' ? 'block' : 'none' ?>">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Chatterbox Server URL</label>
+                                            <input type="url" name="chatterboxServerUrl" value="<?= getValue('chatterboxServerUrl') ?>" placeholder="http://localhost:8000" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                            <p class="text-xs text-gray-500 mt-1">URL of your local Chatterbox TTS server</p>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Voice Style</label>
+                                            <select name="chatterboxVoice" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                                <option value="news_anchor" <?= isSelected('chatterboxVoice', 'news_anchor') ?>>News Anchor - Professional delivery</option>
+                                                <option value="conversational" <?= isSelected('chatterboxVoice', 'conversational') ?>>Conversational - Natural tone</option>
+                                                <option value="dramatic" <?= isSelected('chatterboxVoice', 'dramatic') ?>>Dramatic - Expressive</option>
+                                                <option value="calm" <?= isSelected('chatterboxVoice', 'calm') ?>>Calm - Relaxed delivery</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <h4 class="text-sm font-medium text-blue-800 mb-2">Local Chatterbox Setup</h4>
+                                            <ul class="text-xs text-blue-700 space-y-1">
+                                                <li>• Requires local Chatterbox server running</li>
+                                                <li>• Processing takes longer than cloud TTS</li>
+                                                <li>• Audio requests are queued automatically</li>
+                                                <li>• Status updates provided during generation</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                                 
 
@@ -1970,11 +2005,17 @@ function populateScheduleForm(schedule) {
 function toggleTtsOptions() {
     const ttsProvider = document.querySelector('select[name="ttsProvider"]').value;
     const googleOptions = document.getElementById('google-voice-options');
+    const chatterboxOptions = document.getElementById('chatterbox-options');
     
     if (ttsProvider === 'google') {
         googleOptions.style.display = 'block';
+        chatterboxOptions.style.display = 'none';
+    } else if (ttsProvider === 'chatterbox') {
+        googleOptions.style.display = 'none';
+        chatterboxOptions.style.display = 'block';
     } else {
         googleOptions.style.display = 'none';
+        chatterboxOptions.style.display = 'none';
     }
 }
 </script>
