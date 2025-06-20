@@ -1,0 +1,43 @@
+[Fri Jun 20 15:12:25 2025] 192.168.1.150:58825 Closing
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58826 Accepted
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58826 [200]: GET /settings.php
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58826 Closing
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58827 Accepted
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58827 [200]: GET /style.css?v=1750446746
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58827 Closing
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58828 Accepted
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58828 [200]: POST /settings.php
+[Fri Jun 20 15:12:26 2025] 192.168.1.150:58828 Closing
+[Fri Jun 20 15:12:29 2025] 192.168.1.150:58829 Accepted
+[Fri Jun 20 15:12:29 2025] 192.168.1.150:58829 [200]: POST /api/test_chatterbox.php
+[Fri Jun 20 15:12:29 2025] 192.168.1.150:58829 Closing
+[Fri Jun 20 15:12:31 2025] 192.168.1.150:58830 Accepted
+[Fri Jun 20 15:12:31 2025] Chatterbox: POST http://192.168.1.20:7861//gradio_api/call/generate_tts_audio - HTTP 404
+[Fri Jun 20 15:12:31 2025] Chatterbox: POST Response: {"detail":"Not Found"}
+[Fri Jun 20 15:12:31 2025] Chatterbox: POST request failed - HTTP 404
+[Fri Jun 20 15:12:31 2025] 192.168.1.150:58830 [200]: POST /api/test_chatterbox_tts.php
+[Fri Jun 20 15:12:31 2025] 192.168.1.150:58830 Closing
+[Fri Jun 20 15:12:33 2025] 192.168.1.150:58833 Accepted
+[Fri Jun 20 15:12:33 2025] 192.168.1.150:58833 [200]: POST /api/chatterbox_debug.php
+[Fri Jun 20 15:12:33 2025] 192.168.1.150:58833 Closing
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58840 Accepted
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58841 Accepted
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58840 [200]: GET /settings.php
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58840 Closing
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58841 [200]: GET /style.css?v=1750446757
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58841 Closing
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58842 Accepted
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58842 [200]: POST /settings.php
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58842 Closing
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58843 Accepted
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58843 [404]: GET /favicon.ico - No such file or directory
+[Fri Jun 20 15:12:37 2025] 192.168.1.150:58843 Closing
+[Fri Jun 20 15:12:39 2025] 192.168.1.150:58844 Accepted
+[Fri Jun 20 15:12:39 2025] Chatterbox: POST http://192.168.1.20:7861//gradio_api/call/generate_tts_audio - HTTP 404
+[Fri Jun 20 15:12:39 2025] Chatterbox: POST Response: {"detail":"Not Found"}
+[Fri Jun 20 15:12:39 2025] Chatterbox: POST request failed - HTTP 404
+[Fri Jun 20 15:12:39 2025] 192.168.1.150:58844 [200]: POST /api/test_chatterbox_tts.php
+[Fri Jun 20 15:12:39 2025] 192.168.1.150:58844 Closing
+[Fri Jun 20 15:12:46 2025] 192.168.1.150:58845 Accepted
+[Fri Jun 20 15:12:46 2025] 192.168.1.150:58845 [200]: POST /api/chatterbox_debug.php
+[Fri Jun 20 15:12:46 2025] 192.168.1.150:58845 Closing

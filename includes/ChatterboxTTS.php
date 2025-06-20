@@ -168,8 +168,8 @@ class ChatterboxTTS {
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        // Gradio API endpoint from the documentation
-        $apiEndpoint = '/gradio_api/call/generate_tts_audio';
+        // Gradio API endpoint from the documentation  
+        $apiEndpoint = 'gradio_api/call/generate_tts_audio';
         
         // Check for sample audio file configuration
         $sampleAudio = $this->getSampleAudioConfig();
@@ -189,7 +189,7 @@ class ChatterboxTTS {
         
         // Step 1: POST request to initiate generation
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->serverUrl . $apiEndpoint);
+        curl_setopt($ch, CURLOPT_URL, rtrim($this->serverUrl, '/') . '/' . $apiEndpoint);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -220,7 +220,7 @@ class ChatterboxTTS {
         error_log("Chatterbox: Got EVENT_ID: {$eventId}");
         
         // Step 2: GET request to fetch results
-        $resultUrl = $this->serverUrl . $apiEndpoint . '/' . $eventId;
+        $resultUrl = rtrim($this->serverUrl, '/') . '/' . $apiEndpoint . '/' . $eventId;
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $resultUrl);
