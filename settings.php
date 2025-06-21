@@ -106,7 +106,7 @@ if ($_POST && !isset($_POST['action'])) {
         'includeLocal' => isset($_POST['includeLocal']) ? true : false,
         'includeTV' => isset($_POST['includeTV']) ? true : false,
         'zipCode' => $_POST['zipCode'] ?? '',
-        'timeFrame' => $_POST['timeFrame'] ?? 'auto',
+        'newsTimeframe' => (int)($_POST['newsTimeframe'] ?? 24),
         'audioLength' => $_POST['audioLength'] ?? '5-10',
         'darkTheme' => isset($_POST['darkTheme']) ? true : false,
         'customHeader' => $_POST['customHeader'] ?? '',
@@ -177,7 +177,7 @@ $defaults = [
     'includeLocal' => true,
     'includeTV' => true,
     'zipCode' => '28411',
-    'timeFrame' => 'auto',
+    'newsTimeframe' => 24,
     'audioLength' => '5-10',
     'darkTheme' => false,
     'customHeader' => '',
@@ -449,13 +449,13 @@ $rssFeeds = [];
                             <div class="space-y-4">
                                 <h3 class="text-lg font-medium text-gray-800 border-b pb-2">General Settings</h3>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Time Frame</label>
-                                    <select name="timeFrame" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
-                                        <option value="auto" <?= isSelected('timeFrame', 'auto') ?>>Auto</option>
-                                        <option value="morning" <?= isSelected('timeFrame', 'morning') ?>>Morning</option>
-                                        <option value="afternoon" <?= isSelected('timeFrame', 'afternoon') ?>>Afternoon</option>
-                                        <option value="evening" <?= isSelected('timeFrame', 'evening') ?>>Evening</option>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">News Freshness</label>
+                                    <select name="newsTimeframe" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                        <option value="24" <?= isSelected('newsTimeframe', '24') ?>>Last 24 hours (Today)</option>
+                                        <option value="168" <?= isSelected('newsTimeframe', '168') ?>>Last 7 days (This week)</option>
+                                        <option value="720" <?= isSelected('newsTimeframe', '720') ?>>Last 30 days (This month)</option>
                                     </select>
+                                    <p class="text-xs text-gray-500 mt-1">Controls how recent news stories must be to appear in your briefing</p>
                                 </div>
                                 
                                 <div>
