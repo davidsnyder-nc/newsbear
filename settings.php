@@ -1631,21 +1631,24 @@ function toggleHistoryText(briefingId) {
 }
 
 async function generateHistoryAudio(briefingId) {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
     try {
+        // Show loading state immediately
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Generating...';
+        button.disabled = true;
+        
         // Get the briefing text content first
         const response = await fetch(`api/history.php?id=${briefingId}&action=get_text`);
         const data = await response.json();
         
         if (!data.success || !data.text_content) {
             alert('Unable to retrieve briefing text for audio generation.');
+            button.innerHTML = originalText;
+            button.disabled = false;
             return;
         }
-        
-        // Show loading state
-        const button = event.target;
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Generating...';
-        button.disabled = true;
         
         // Generate audio using TTS
         const ttsResponse = await fetch('api/generate_audio.php', {
@@ -1671,9 +1674,8 @@ async function generateHistoryAudio(briefingId) {
         
     } catch (error) {
         console.error('Audio generation error:', error);
-        alert('Network error during audio generation: ' + error.message);
-        const button = event.target;
-        button.innerHTML = '<i class="fas fa-microphone mr-1"></i>Create MP3';
+        alert('Network error during audio generation: ' + (error.message || 'Unknown error'));
+        button.innerHTML = originalText;
         button.disabled = false;
     }
 }
