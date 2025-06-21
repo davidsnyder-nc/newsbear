@@ -88,10 +88,11 @@ class NewsAPI {
             } else {
                 try {
                     $gnewsArticles = $this->fetchFromGNews($categories);
-                    error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles");
-                    $allNews = array_merge($allNews, $gnewsArticles);
-                    $apiStatus['gnews'] = count($gnewsArticles) > 0 ? 'success' : 'no results';
-                    if (count($gnewsArticles) > 0) {
+                    $filteredArticles = $this->filterByDate($gnewsArticles);
+                    error_log("GNews fetch: Retrieved " . count($gnewsArticles) . " articles, " . count($filteredArticles) . " after date filtering");
+                    $allNews = array_merge($allNews, $filteredArticles);
+                    $apiStatus['gnews'] = count($filteredArticles) > 0 ? 'success' : 'no results';
+                    if (count($filteredArticles) > 0) {
                         $rateLimit->recordSuccess('gnews');
                     }
                 } catch (Exception $e) {
@@ -111,10 +112,11 @@ class NewsAPI {
             } else {
                 try {
                     $newsApiArticles = $this->fetchFromNewsAPI($categories);
-                    error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles");
-                    $allNews = array_merge($allNews, $newsApiArticles);
-                    $apiStatus['newsapi'] = count($newsApiArticles) > 0 ? 'success' : 'no results';
-                    if (count($newsApiArticles) > 0) {
+                    $filteredArticles = $this->filterByDate($newsApiArticles);
+                    error_log("NewsAPI fetch: Retrieved " . count($newsApiArticles) . " articles, " . count($filteredArticles) . " after date filtering");
+                    $allNews = array_merge($allNews, $filteredArticles);
+                    $apiStatus['newsapi'] = count($filteredArticles) > 0 ? 'success' : 'no results';
+                    if (count($filteredArticles) > 0) {
                         $rateLimit->recordSuccess('newsapi');
                     }
                 } catch (Exception $e) {
@@ -134,10 +136,11 @@ class NewsAPI {
             } else {
                 try {
                     $guardianArticles = $this->fetchFromGuardian($categories);
-                    error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles");
-                    $allNews = array_merge($allNews, $guardianArticles);
-                    $apiStatus['guardian'] = count($guardianArticles) > 0 ? 'success' : 'no results';
-                    if (count($guardianArticles) > 0) {
+                    $filteredArticles = $this->filterByDate($guardianArticles);
+                    error_log("Guardian fetch: Retrieved " . count($guardianArticles) . " articles, " . count($filteredArticles) . " after date filtering");
+                    $allNews = array_merge($allNews, $filteredArticles);
+                    $apiStatus['guardian'] = count($filteredArticles) > 0 ? 'success' : 'no results';
+                    if (count($filteredArticles) > 0) {
                         $rateLimit->recordSuccess('guardian');
                     }
                 } catch (Exception $e) {
@@ -218,9 +221,14 @@ class NewsAPI {
     }
     
     /**
-     * Filter articles by date to ensure freshness
+     * Filter articles by date to ensure freshness based on user setting
      */
-    private function filterByDate($articles, $maxHoursOld = 24) {
+    private function filterByDate($articles, $maxHoursOld = null) {
+        // Use setting from user preferences if not specified
+        if ($maxHoursOld === null) {
+            $maxHoursOld = $this->settings['newsTimeframe'] ?? 24;
+        }
+        
         $cutoffTime = time() - ($maxHoursOld * 3600);
         $freshArticles = [];
         
@@ -242,12 +250,12 @@ class NewsAPI {
             if ($articleTime && $articleTime >= $cutoffTime) {
                 $freshArticles[] = $article;
             } else {
-                error_log("FILTERED OLD ARTICLE: " . ($article['title'] ?? 'Unknown') . " - " . 
-                         ($article['publishedAt'] ?? $article['webPublicationDate'] ?? $article['published_date'] ?? 'no date'));
+                $hoursOld = $articleTime ? round((time() - $articleTime) / 3600, 1) : 'unknown';
+                error_log("FILTERED OLD ARTICLE: " . ($article['title'] ?? 'Unknown') . " - {$hoursOld} hours old (limit: {$maxHoursOld}h)");
             }
         }
         
-        error_log("Date filtering: " . count($freshArticles) . " fresh articles from " . count($articles) . " total");
+        error_log("Date filtering: " . count($freshArticles) . " fresh articles from " . count($articles) . " total (within {$maxHoursOld} hours)");
         return $freshArticles;
     }
     
