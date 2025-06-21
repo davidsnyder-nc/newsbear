@@ -156,10 +156,25 @@ try {
         
         debugLog("Total articles fetched: " . count($fetchedNews), $sessionId);
         
+        // Filter articles to only include enabled categories BEFORE processing
+        $enabledCategories = array_merge($selectedCategories, ['local', 'entertainment', 'weather']);
+        $filteredFetchedNews = [];
+        
+        foreach ($fetchedNews as $item) {
+            $itemCategory = strtolower($item['category'] ?? '');
+            if (in_array($itemCategory, $enabledCategories)) {
+                $filteredFetchedNews[] = $item;
+            } else {
+                debugLog("FILTERED: Article '" . ($item['title'] ?? 'Untitled') . "' excluded - category '$itemCategory' not enabled", $sessionId);
+            }
+        }
+        
+        debugLog("Articles after category filtering: " . count($filteredFetchedNews), $sessionId);
+        
         // Separate local news from regular news
         $localCount = 0;
         $regularCount = 0;
-        foreach ($fetchedNews as $item) {
+        foreach ($filteredFetchedNews as $item) {
             if (($item['category'] ?? '') === 'local') {
                 $item['priority'] = 3; // Third priority
                 $priorityItems[] = $item;

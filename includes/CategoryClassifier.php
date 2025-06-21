@@ -73,14 +73,21 @@ class CategoryClassifier {
             $response = $this->aiService->generateText($prompt, 'gemini');
             $classifications = $this->parseClassificationResponse($response);
             
-            // Apply classifications to articles
+            // Apply classifications to articles and filter by enabled categories
             $classifiedArticles = [];
+            $enabledCategories = $this->settings['categories'] ?? [];
+            
             foreach ($articles as $index => $article) {
                 $newCategory = strtolower($classifications[$index] ?? 'general');
-                $article['category'] = $newCategory;
-                $classifiedArticles[] = $article;
                 
-                error_log("Classified article '{$article['title']}' as category: $newCategory");
+                // Only include articles that match enabled categories
+                if (in_array($newCategory, $enabledCategories)) {
+                    $article['category'] = $newCategory;
+                    $classifiedArticles[] = $article;
+                    error_log("Classified article '{$article['title']}' as category: $newCategory");
+                } else {
+                    error_log("FILTERED OUT article '{$article['title']}' - category '$newCategory' not in enabled categories: " . implode(', ', $enabledCategories));
+                }
             }
             
             return $classifiedArticles;
@@ -139,10 +146,11 @@ class CategoryClassifier {
         
         $prompt .= "\nCLASSIFICATION RULES:\n";
         $prompt .= "1. MANDATORY: You must classify every article using ONLY the categories listed above\n";
-        $prompt .= "2. If an article doesn't clearly fit a specific category, assign it to 'general'\n";
-        $prompt .= "3. NEVER use categories not listed above (no 'world', 'politics', etc. unless specifically listed)\n";
+        $prompt .= "2. If an article doesn't clearly fit ANY specific category, assign it to 'general'\n";
+        $prompt .= "3. NEVER use categories not listed above (no 'world', 'politics', 'sports', etc. unless specifically listed)\n";
         $prompt .= "4. Use exact category names as listed above (lowercase)\n";
-        $prompt .= "5. Custom categories take priority when content clearly matches\n\n";
+        $prompt .= "5. IMPORTANT: Sports content should be classified as 'sports' ONLY if 'sports' is in the available categories\n";
+        $prompt .= "6. If sports content appears but 'sports' is not available, classify as 'general'\n\n";
         
         $prompt .= "ARTICLES TO CLASSIFY:\n";
         
