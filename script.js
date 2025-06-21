@@ -406,9 +406,11 @@ class NewsBriefApp {
         const btn = document.getElementById('generate-btn');
         if (btn) {
             btn.disabled = true;
-            // Add pulsing animation for main generate button
-            btn.classList.add('generate-processing');
+            btn.textContent = 'Generating...';
+            // Add visual feedback
+            btn.classList.add('generate-processing', 'transform', 'scale-95');
             btn.classList.remove('hover:bg-blue-700', 'hover:scale-105');
+            btn.style.transform = 'scale(0.95)';
         }
     }
 
@@ -416,8 +418,10 @@ class NewsBriefApp {
         const generateBtn = document.getElementById('generate-btn');
         if (generateBtn) {
             generateBtn.disabled = false;
-            generateBtn.classList.remove('generate-processing');
+            generateBtn.textContent = '🎙️ Create My News Brief';
+            generateBtn.classList.remove('generate-processing', 'transform', 'scale-95');
             generateBtn.classList.add('hover:bg-blue-700', 'hover:scale-105');
+            generateBtn.style.transform = '';
         }
     }
 

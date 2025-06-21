@@ -53,7 +53,10 @@ class TTSService {
     }
     
     public function isAsyncProvider() {
-        return $this->ttsProvider === 'chatterbox';
+        error_log("TTS: isAsyncProvider() called - provider: " . $this->ttsProvider);
+        $isAsync = $this->ttsProvider === 'chatterbox';
+        error_log("TTS: isAsyncProvider() returning: " . ($isAsync ? 'true' : 'false'));
+        return $isAsync;
     }
     
 

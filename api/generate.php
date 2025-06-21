@@ -58,17 +58,23 @@ class BriefingGenerator {
         // Start background process
         $this->updateStatus('Starting generation...', 0);
         
-        // Return session ID immediately
-        echo json_encode(['status' => 'processing', 'sessionId' => $this->sessionId]);
+        // Check if this is an async TTS provider first
+        $ttsService = new TTSService($this->settings);
+        $isAsyncProvider = $ttsService->isAsyncProvider();
         
-        // Flush output if possible
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        } else {
-            if (ob_get_level()) {
-                ob_end_flush();
+        if (!$isAsyncProvider) {
+            // Traditional flow: Return session ID immediately for polling
+            echo json_encode(['status' => 'processing', 'sessionId' => $this->sessionId]);
+            
+            // Flush output if possible
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            } else {
+                if (ob_get_level()) {
+                    ob_end_flush();
+                }
+                flush();
             }
-            flush();
         }
         
         // Continue processing in background
@@ -240,8 +246,7 @@ class BriefingGenerator {
                 $audioResult = $this->generateAudio($briefingContent);
                 
                 // Check if this is an async TTS provider (returns job ID)
-                $ttsService = new TTSService($this->settings);
-                if ($ttsService->isAsyncProvider()) {
+                if ($isAsyncProvider) {
                     $this->debugLog("Async TTS provider detected, job ID: " . $audioResult);
                     
                     // Store the job details and return immediately
@@ -254,7 +259,8 @@ class BriefingGenerator {
                     $this->debugLog("Audio processing will continue in background");
                     $this->updateStatus('Audio queued for processing', 100);
                     
-                    return [
+                    // For async providers, return success immediately
+                    echo json_encode([
                         'success' => true,
                         'status' => 'success',
                         'message' => 'Briefing generated successfully',
@@ -264,7 +270,8 @@ class BriefingGenerator {
                         'estimated_duration' => $this->getEstimatedDuration($briefingContent),
                         'briefing_text' => $briefingContent,
                         'async_background' => true
-                    ];
+                    ]);
+                    return;
                 } else {
                     $audioFile = $audioResult;
                     $this->debugLog("Audio generation " . ($audioFile ? "completed successfully: " . basename($audioFile) : "failed"));
