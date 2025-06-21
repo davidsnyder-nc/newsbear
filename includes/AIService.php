@@ -87,7 +87,7 @@ class AIService {
             ],
             'generationConfig' => [
                 'temperature' => 0.7,
-                'maxOutputTokens' => 2000
+                'maxOutputTokens' => 2500
             ]
         ];
         

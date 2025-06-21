@@ -351,7 +351,9 @@ STORIES TO USE (and ONLY these stories):\n\n";
 
 5. QUALITY CONTROL: Focus on meaningful expansion of PROVIDED stories only. Build context around given facts without inventing specifics.
 
-Remember: End with the exact closing: '$closing'";
+MANDATORY ENDING: You MUST end the briefing with the exact closing message: '$closing'
+
+Do not forget or omit this closing message under any circumstances.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     debugLog("Sending prompt to AI service...", $sessionId);
