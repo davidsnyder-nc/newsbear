@@ -130,9 +130,35 @@ try {
             $storyCount = 20;
     }
     
-    // Ensure we don't exceed available stories
-    $storyCount = min($storyCount, count($newsItems));
-    $selectedStories = array_slice($newsItems, 0, $storyCount);
+    // Filter out stories with insufficient content and prioritize longer descriptions
+    $filteredStories = [];
+    foreach ($newsItems as $story) {
+        $content = $story['content'] ?? $story['description'] ?? '';
+        $title = $story['title'] ?? '';
+        
+        // Skip stories with very brief content (less than 50 characters total)
+        if (strlen($content . $title) < 50) {
+            continue;
+        }
+        
+        // Skip stories that are just headlines with no description
+        if (strlen($content) < 20 && strlen($title) > 0) {
+            continue;
+        }
+        
+        // Add content length score for sorting
+        $story['content_score'] = strlen($content) + (strlen($title) * 0.5);
+        $filteredStories[] = $story;
+    }
+    
+    // Sort by content richness (longer descriptions first)
+    usort($filteredStories, function($a, $b) {
+        return $b['content_score'] - $a['content_score'];
+    });
+    
+    // Select the best stories up to our target count
+    $storyCount = min($storyCount, count($filteredStories));
+    $selectedStories = array_slice($filteredStories, 0, $storyCount);
 
     // Generate briefing content with proper opening/closing
     $hour = intval(date('H'));
@@ -155,7 +181,13 @@ try {
     
     $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' 
 
-NOTE: The content provided below are just brief headlines/descriptions. You must EXPAND each one into a full, detailed news story with context, analysis, and implications.\n\n";
+IMPORTANT: Use ONLY the factual information provided. DO NOT fabricate details, quotes, or events. You may:
+- Provide general context about similar situations
+- Explain significance and implications
+- Add transitions and professional commentary
+- Expand on the information given with reasonable inferences
+
+DO NOT invent specific details, names, dates, or quotes not in the source material.\n\n";
     
     // Add story content with more detail for longer broadcasts
     foreach ($selectedStories as $index => $story) {
@@ -166,29 +198,25 @@ NOTE: The content provided below are just brief headlines/descriptions. You must
         $prompt .= "URL: " . ($story['url'] ?? 'No URL') . "\n\n";
     }
     
-    $prompt .= "\nCRITICAL INSTRUCTIONS FOR $audioLength MINUTE BRIEFING:
+    $prompt .= "\nBRIEFING REQUIREMENTS FOR $audioLength MINUTE BROADCAST:
 
-1. EXPAND EVERY STORY: The descriptions above are just headlines/summaries. Transform each into a full 3-5 sentence news story with:
-   - Background context and details
-   - Why this matters to listeners
-   - What led to this situation
-   - Potential implications or next steps
+1. FACTUAL EXPANSION ONLY: Expand each story using only the provided information plus general context and implications
 
-2. STORY LENGTH: Each story should be 60-100 words minimum (not just 1-2 sentences)
+2. STORY DEVELOPMENT: For each story, include:
+   - The core facts as provided
+   - General context about this type of situation
+   - Why this matters to the audience
+   - Broader implications or significance
+   
+3. PROFESSIONAL PRESENTATION: Write as a news anchor with natural transitions between stories
 
-3. ADD PROFESSIONAL ANALYSIS: Include context like 'This comes after...' or 'Officials say this represents...' or 'The decision follows...'
+4. TARGET LENGTH: Aim for approximately " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
 
-4. USE NATURAL TRANSITIONS: Connect stories with phrases like 'In related news...' or 'Turning to business...'
+5. NO FABRICATION: Do not invent specific details, quotes, numbers, or events not in the source material
 
-5. TARGET LENGTH: Write approximately " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
+6. QUALITY OVER QUANTITY: Focus on meaningful expansion rather than filler content
 
-6. CONVERSATIONAL TONE: Write as a professional news anchor would speak, with natural flow
-
-7. NO SHORTCUTS: Do not just repeat the brief descriptions - create full news coverage
-
-Example: If given 'Carson announces fireworks policy', expand to: 'The city of Carson has announced a strict new zero-tolerance policy on illegal fireworks, with fines reaching up to $5,000. This comes in response to growing complaints from residents about noise and safety concerns during holiday celebrations. City officials say the new enforcement measures will begin immediately and include both citations and confiscation of illegal fireworks. The policy represents one of the toughest stances in the region...'
-
-Write substantial, informative content for each story.";
+Use the provided facts as your foundation and build professionally around them with context and analysis.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
