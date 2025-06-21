@@ -181,13 +181,16 @@ try {
     
     $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' 
 
-IMPORTANT: Use ONLY the factual information provided. DO NOT fabricate details, quotes, or events. You may:
-- Provide general context about similar situations
-- Explain significance and implications
-- Add transitions and professional commentary
-- Expand on the information given with reasonable inferences
+CRITICAL RULES - VIOLATION WILL RESULT IN REJECTION:
+1. Use ONLY the stories and sources listed below - NO OTHER SOURCES
+2. DO NOT mention any publication names, news outlets, or sources not explicitly listed
+3. DO NOT reference 'The New York Times', 'CNN', 'BBC' or any outlet unless it appears in the source list below
+4. DO NOT fabricate quotes, specific details, names, dates, or events
+5. ONLY expand with general context and reasonable inferences from provided facts
+6. If you cannot complete a story with available information, move to the next story
+7. NEVER truncate mid-sentence - always complete your thoughts
 
-DO NOT invent specific details, names, dates, or quotes not in the source material.\n\n";
+STORIES TO USE (and ONLY these stories):\n\n";
     
     // Add story content with more detail for longer broadcasts
     foreach ($selectedStories as $index => $story) {
@@ -198,31 +201,28 @@ DO NOT invent specific details, names, dates, or quotes not in the source materi
         $prompt .= "URL: " . ($story['url'] ?? 'No URL') . "\n\n";
     }
     
-    $prompt .= "\nBRIEFING REQUIREMENTS FOR $audioLength MINUTE BROADCAST:
+    $prompt .= "\nSTRICT BRIEFING REQUIREMENTS:
 
-1. FACTUAL EXPANSION ONLY: Expand each story using only the provided information plus general context and implications
+1. SOURCE RESTRICTION: Use ONLY the stories listed above. Do not mention any news outlet or publication not explicitly shown in the source list.
 
-2. STORY DEVELOPMENT: For each story, include:
-   - The core facts as provided
-   - General context about this type of situation
-   - Why this matters to the audience
-   - Broader implications or significance
+2. CONTENT LIMITS: 
+   - Expand stories using ONLY provided facts plus general context
+   - NO specific details, quotes, or events not in source material
+   - NO references to unnamed sources or publications
    
-3. PROFESSIONAL PRESENTATION: Write as a news anchor with natural transitions between stories
+3. COMPLETION REQUIREMENT: 
+   - ALWAYS complete your sentences and thoughts
+   - If running out of content, conclude professionally with the provided closing
+   - NEVER stop mid-sentence or reference phantom sources
 
-4. CLEAN TEXT FORMAT: 
-   - Do NOT use asterisks, markdown formatting, or bold text
-   - Do NOT include story headers like 'Story 1:' or section labels
-   - Write in plain text suitable for text-to-speech
-   - Use natural paragraph breaks only
+4. PROFESSIONAL PRESENTATION: 
+   - Natural news anchor style with smooth transitions
+   - Plain text only - no formatting, asterisks, or section headers
+   - Target " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
 
-5. TARGET LENGTH: Aim for approximately " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
+5. QUALITY CONTROL: Focus on meaningful expansion of PROVIDED stories only. Build context around given facts without inventing specifics.
 
-6. NO FABRICATION: Do not invent specific details, quotes, numbers, or events not in the source material
-
-7. QUALITY OVER QUANTITY: Focus on meaningful expansion rather than filler content
-
-Use the provided facts as your foundation and build professionally around them with context and analysis. Write in natural, spoken news format without any text formatting.";
+Remember: End with the exact closing: '$closing'";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
