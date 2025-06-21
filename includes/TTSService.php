@@ -13,8 +13,8 @@ class TTSService {
         $this->settings = $settings ?: [];
         $this->ttsProvider = $this->settings['ttsProvider'] ?? 'google';
         
-        // Google TTS setup - check environment first, then settings
-        $this->googleApiKey = getenv('GOOGLE_TTS_API_KEY') ?: ($this->settings['googleTtsApiKey'] ?? null);
+        // Google TTS setup - use settings first
+        $this->googleApiKey = $this->settings['googleTtsApiKey'] ?? getenv('GOOGLE_TTS_API_KEY');
         $this->voiceSelection = $this->settings['voiceSelection'] ?? 'en-US-Neural2-D';
         
 
@@ -22,8 +22,13 @@ class TTSService {
     }
     
     public function synthesizeSpeech($ssmlText) {
-        error_log("TTS: Using provider - " . $this->ttsProvider);
-        error_log("TTS: Settings ttsProvider = " . ($this->settings['ttsProvider'] ?? 'not set'));
+        error_log("TTS: Starting synthesis with provider - " . $this->ttsProvider);
+        error_log("TTS: API Key available: " . ($this->googleApiKey ? 'YES (' . strlen($this->googleApiKey) . ' chars)' : 'NO'));
+        error_log("TTS: Input text length: " . strlen($ssmlText));
+        
+        if (!$this->googleApiKey) {
+            throw new Exception("Google TTS API key is missing. Please check your configuration.");
+        }
         
         // Route to appropriate TTS provider
         switch ($this->ttsProvider) {

@@ -41,8 +41,13 @@ try {
     }
     
     // Generate audio
+    error_log("generate_audio.php: Starting TTS synthesis for briefing $briefingId");
+    error_log("generate_audio.php: Text content length: " . strlen($textContent));
+    
     $ttsService = new TTSService($settings);
     $audioFile = $ttsService->synthesizeSpeech($textContent);
+    
+    error_log("generate_audio.php: TTS result: " . ($audioFile ? "SUCCESS - $audioFile" : "FAILED"));
     
     if (!$audioFile) {
         throw new Exception('Failed to generate audio file');
@@ -66,9 +71,15 @@ try {
     error_log("Audio generation error: " . $e->getMessage());
     error_log("Audio generation stack trace: " . $e->getTraceAsString());
     
+    // Return detailed error for debugging
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to generate audio: ' . $e->getMessage()
+        'message' => $e->getMessage(),
+        'debug' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]
     ]);
 }
 ?>
