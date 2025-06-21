@@ -48,14 +48,18 @@ class TTSService {
 
     
     private function synthesizeWithGoogle($ssmlText) {
+        // Check if Google API key is available
+        if (!$this->googleApiKey) {
+            throw new Exception("Google TTS API key is not configured");
+        }
+        
         // Clean up the SSML text
         $ssmlText = $this->cleanSSML($ssmlText);
         
         // Log the input text details
         error_log("Google TTS Input - Character count: " . strlen($ssmlText));
         error_log("Google TTS Input - Word count: " . str_word_count(strip_tags($ssmlText)));
-        error_log("Google TTS Input - First 200 chars: " . substr($ssmlText, 0, 200));
-        error_log("Google TTS Input - Last 200 chars: " . substr($ssmlText, -200));
+        error_log("Google TTS Input - API Key available: " . ($this->googleApiKey ? 'YES' : 'NO'));
         
         // Check if text exceeds Google's 5000 byte limit
         if (strlen($ssmlText) > 4800) { // Increased threshold, leave smaller buffer
@@ -147,6 +151,7 @@ class TTSService {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         
         if (curl_error($ch)) {
+            curl_close($ch);
             throw new Exception("TTS cURL error: " . curl_error($ch));
         }
         

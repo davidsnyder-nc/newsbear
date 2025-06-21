@@ -50,7 +50,7 @@ try {
     
     // Update the briefing record with the audio file
     $history = new BriefingHistory();
-    $success = $history->updateBriefingAudioFile($briefingId, $audioFile);
+    $success = $history->updateBriefingAudioFile($briefingId, basename($audioFile));
     
     if (!$success) {
         throw new Exception('Failed to update briefing record with audio file');
