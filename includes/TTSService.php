@@ -89,19 +89,20 @@ class TTSService {
         $date = date('Y-m-d');
         $timestamp = date('His');
         $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
-        $filepath = __DIR__ . "/../data/history/{$filename}";
+        $filepath = __DIR__ . "/../downloads/{$filename}";
         
-        // Ensure history directory exists
-        $historyDir = __DIR__ . "/../data/history";
-        if (!is_dir($historyDir)) {
-            mkdir($historyDir, 0755, true);
+        // Ensure downloads directory exists
+        $downloadsDir = __DIR__ . "/../downloads";
+        if (!is_dir($downloadsDir)) {
+            mkdir($downloadsDir, 0755, true);
         }
         
         // Save combined audio file
-        file_put_contents($filepath, $combinedAudio);
+        $bytesWritten = file_put_contents($filepath, $combinedAudio);
+        error_log("TTS: Combined audio saved to {$filepath} ({$bytesWritten} bytes)");
         
         // Return relative path from web root
-        return "data/history/{$filename}";
+        return "downloads/{$filename}";
     }
     
     private function synthesizeSingleChunk($ssmlText, $saveFile = true) {
@@ -169,19 +170,26 @@ class TTSService {
             $date = date('Y-m-d');
             $timestamp = date('His');
             $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
-            $filepath = __DIR__ . "/../data/history/{$filename}";
+            $filepath = __DIR__ . "/../downloads/{$filename}";
             
-            // Ensure history directory exists
-            $historyDir = __DIR__ . "/../data/history";
-            if (!is_dir($historyDir)) {
-                mkdir($historyDir, 0755, true);
+            // Ensure downloads directory exists
+            $downloadsDir = __DIR__ . "/../downloads";
+            if (!is_dir($downloadsDir)) {
+                mkdir($downloadsDir, 0755, true);
             }
             
             // Save audio file
-            file_put_contents($filepath, $audioData);
+            $bytesWritten = file_put_contents($filepath, $audioData);
+            error_log("TTS: Saved audio file to {$filepath} ({$bytesWritten} bytes)");
+            
+            // Verify file was created
+            if (!file_exists($filepath) || filesize($filepath) === 0) {
+                error_log("TTS: File verification failed - {$filepath}");
+                return null;
+            }
             
             // Return relative path from web root
-            return "data/history/{$filename}";
+            return "downloads/{$filename}";
         }
         
         return $audioData;
