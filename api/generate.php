@@ -109,12 +109,12 @@ try {
     $selectedStories = array_slice($newsItems, 0, $storyCount);
 
     // Generate briefing content using simple text generation
-    $prompt = "Generate a professional news briefing from these stories:\n\n";
+    $prompt = "Generate a clean, professional news briefing text from these stories. Write ONLY the news content that should be read aloud - no production notes, music cues, or stage directions. Just the news text:\n\n";
     foreach ($selectedStories as $story) {
         $prompt .= "Title: " . ($story['title'] ?? 'Untitled') . "\n";
         $prompt .= "Content: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n\n";
     }
-    $prompt .= "\nPlease create a cohesive news briefing script.";
+    $prompt .= "\nCreate a cohesive news briefing with clean, readable text suitable for text-to-speech. Do not include any production instructions, music cues, or formatting beyond basic paragraph breaks.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
