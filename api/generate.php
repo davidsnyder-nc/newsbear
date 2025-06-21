@@ -210,13 +210,19 @@ DO NOT invent specific details, names, dates, or quotes not in the source materi
    
 3. PROFESSIONAL PRESENTATION: Write as a news anchor with natural transitions between stories
 
-4. TARGET LENGTH: Aim for approximately " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
+4. CLEAN TEXT FORMAT: 
+   - Do NOT use asterisks, markdown formatting, or bold text
+   - Do NOT include story headers like "Story 1:" or section labels
+   - Write in plain text suitable for text-to-speech
+   - Use natural paragraph breaks only
 
-5. NO FABRICATION: Do not invent specific details, quotes, numbers, or events not in the source material
+5. TARGET LENGTH: Aim for approximately " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
 
-6. QUALITY OVER QUANTITY: Focus on meaningful expansion rather than filler content
+6. NO FABRICATION: Do not invent specific details, quotes, numbers, or events not in the source material
 
-Use the provided facts as your foundation and build professionally around them with context and analysis.";
+7. QUALITY OVER QUANTITY: Focus on meaningful expansion rather than filler content
+
+Use the provided facts as your foundation and build professionally around them with context and analysis. Write in natural, spoken news format without any text formatting.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
