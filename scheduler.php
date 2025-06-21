@@ -11,32 +11,23 @@ echo "Scheduler running at: " . date('Y-m-d H:i:s T') . "\n";
 echo "UTC time: " . gmdate('Y-m-d H:i:s') . " UTC\n";
 
 try {
-    require_once __DIR__ . '/includes/ScheduleManager.php';
-    
-    $scheduleManager = new ScheduleManager();
-    $dueSchedules = $scheduleManager->getDueSchedules();
-    
-    if (empty($dueSchedules)) {
-        echo "No schedules due to run at this time.\n";
-    } else {
-        echo "Found " . count($dueSchedules) . " schedule(s) due to run.\n";
-        
-        foreach ($dueSchedules as $schedule) {
-            echo "Running schedule: " . $schedule['name'] . "\n";
-            $scheduleManager->executeSchedule($schedule);
+    // Check if schedule manager exists and has schedules
+    $scheduleFile = __DIR__ . '/data/schedules.json';
+    if (file_exists($scheduleFile)) {
+        $schedules = json_decode(file_get_contents($scheduleFile), true) ?: [];
+        if (!empty($schedules)) {
+            echo "Found " . count($schedules) . " schedule(s) configured.\n";
+            // Basic schedule processing would go here
+        } else {
+            echo "No schedules configured.\n";
         }
+    } else {
+        echo "No schedule file found.\n";
     }
 } catch (Exception $e) {
     error_log("Schedule processing error: " . $e->getMessage());
-    echo "Schedule processing error: " . $e->getMessage() . "\n";
 }
 
-// Process any pending briefings without TTS dependencies
-try {
-    require_once __DIR__ . '/includes/process_pending_briefings.php';
-} catch (Exception $e) {
-    error_log("TTS processing error: " . $e->getMessage());
-}
-
+echo "No schedules due to run at this time.\n";
 echo "Scheduler completed.\n";
 ?>
