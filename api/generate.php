@@ -62,42 +62,63 @@ try {
         throw new Exception('No content categories selected. Please select at least one news category or enable weather/TV content in settings.');
     }
 
-    // Fetch news
-    $newsItems = [];
-    if (!empty($selectedCategories)) {
-        $newsItems = $newsAPI->fetchFromAllSources(
-            $selectedCategories, 
-            $settings['zipCode'] ?? null, 
-            $settings['includeLocal'] ?? false
-        );
-    }
+    // Collect priority content first (local weather, local news, TV/movies)
+    $priorityItems = [];
+    $regularNewsItems = [];
 
-    // Add weather if enabled
+    // Add weather FIRST if enabled
     if ($settings['includeWeather'] ?? false) {
         $weatherService = new WeatherService($settings);
         $weatherItems = $weatherService->getWeatherBriefing($settings['zipCode'] ?? null);
         if (!empty($weatherItems)) {
-            $newsItems = array_merge($newsItems, $weatherItems);
+            foreach ($weatherItems as $item) {
+                $item['priority'] = 1; // Highest priority
+                $priorityItems[] = $item;
+            }
         }
     }
 
-    // Add TV/Movie content if enabled
+    // Add TV/Movie content SECOND if enabled
     if ($settings['includeTV'] ?? false) {
         $tmdbService = new TMDBService($settings['tmdbApiKey'] ?? '');
         $tvContent = $tmdbService->getTVContent();
         if ($tvContent) {
             $tvBriefing = $tmdbService->formatForBriefing($tvContent);
             if (!empty($tvBriefing)) {
-                $newsItems[] = [
+                $priorityItems[] = [
                     'title' => 'Entertainment & TV Today',
                     'content' => $tvBriefing,
                     'category' => 'entertainment',
                     'source' => 'The Movie Database',
-                    'publishedAt' => date('c')
+                    'publishedAt' => date('c'),
+                    'priority' => 2
                 ];
             }
         }
     }
+
+    // Fetch regular news (including local news which gets priority = 3)
+    if (!empty($selectedCategories)) {
+        $fetchedNews = $newsAPI->fetchFromAllSources(
+            $selectedCategories, 
+            $settings['zipCode'] ?? null, 
+            $settings['includeLocal'] ?? false
+        );
+        
+        // Separate local news from regular news
+        foreach ($fetchedNews as $item) {
+            if (($item['category'] ?? '') === 'local') {
+                $item['priority'] = 3; // Third priority
+                $priorityItems[] = $item;
+            } else {
+                $item['priority'] = 4; // Regular news
+                $regularNewsItems[] = $item;
+            }
+        }
+    }
+
+    // Combine priority items first, then regular news
+    $newsItems = array_merge($priorityItems, $regularNewsItems);
 
     if (empty($newsItems)) {
         throw new Exception('No content available from enabled sources. Please check your API keys and settings.');
@@ -151,8 +172,17 @@ try {
         $filteredStories[] = $story;
     }
     
-    // Sort by content richness (longer descriptions first)
+    // Sort by priority first, then content richness
     usort($filteredStories, function($a, $b) {
+        $priorityA = $a['priority'] ?? 4;
+        $priorityB = $b['priority'] ?? 4;
+        
+        // Lower priority number = higher importance
+        if ($priorityA !== $priorityB) {
+            return $priorityA - $priorityB;
+        }
+        
+        // If same priority, sort by content richness
         return $b['content_score'] - $a['content_score'];
     });
     
