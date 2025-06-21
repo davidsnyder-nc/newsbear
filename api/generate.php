@@ -103,9 +103,35 @@ try {
         throw new Exception('No content available from enabled sources. Please check your API keys and settings.');
     }
 
-    // Select stories (simple selection)
+    // Select stories based on audio length setting
     $audioLength = $settings['audioLength'] ?? '5-10';
-    $storyCount = 10; // Default story count
+    
+    // Calculate story count based on audio length
+    switch ($audioLength) {
+        case '1-3':
+            $storyCount = 8;
+            break;
+        case '3-5':
+            $storyCount = 12;
+            break;
+        case '5-10':
+            $storyCount = 20;
+            break;
+        case '10-15':
+            $storyCount = 30;
+            break;
+        case '15-20':
+            $storyCount = 40;
+            break;
+        case '20-30':
+            $storyCount = 50;
+            break;
+        default:
+            $storyCount = 20;
+    }
+    
+    // Ensure we don't exceed available stories
+    $storyCount = min($storyCount, count($newsItems));
     $selectedStories = array_slice($newsItems, 0, $storyCount);
 
     // Generate briefing content with proper opening/closing
@@ -127,12 +153,17 @@ try {
         $closing = "That wraps up tonight's news. Stay safe, and we'll catch you tomorrow.";
     }
     
-    $prompt = "Generate a clean, professional news briefing text from these stories. Start with '$greeting Here are today's top stories.' and end with '$closing' Write ONLY the news content that should be read aloud - no production notes, music cues, or stage directions:\n\n";
-    foreach ($selectedStories as $story) {
+    $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' Write detailed, engaging content that will fill the requested time duration:\n\n";
+    
+    // Add story content with more detail for longer broadcasts
+    foreach ($selectedStories as $index => $story) {
+        $prompt .= "Story " . ($index + 1) . ":\n";
         $prompt .= "Title: " . ($story['title'] ?? 'Untitled') . "\n";
-        $prompt .= "Content: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n\n";
+        $prompt .= "Content: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n";
+        $prompt .= "Source: " . ($story['source'] ?? 'Unknown') . "\n\n";
     }
-    $prompt .= "\nCreate a cohesive news briefing with clean, readable text suitable for text-to-speech. Include proper transitions between stories. Do not include any production instructions, music cues, or formatting beyond basic paragraph breaks.";
+    
+    $prompt .= "\nIMPORTANT: Create a $audioLength minute news briefing with comprehensive coverage. Include detailed analysis, context, and smooth transitions between stories. Write substantially more content for longer durations. Provide thorough coverage of each story with background information and implications. Do not include production instructions or music cues.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
