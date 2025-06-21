@@ -273,8 +273,11 @@ function isCategoryChecked($category) {
     return in_array($category, $settings['categories'] ?? []) ? 'checked' : '';
 }
 
-// Custom categories removed - using predefined categories only
-
+// Load RSS feeds
+$rssFeeds = getRssFeeds();
+if (!is_array($rssFeeds)) {
+    $rssFeeds = [];
+}
 
 ?>
 <!DOCTYPE html>
@@ -996,32 +999,7 @@ function toggleDarkThemeFromSettings() {
 let rssFeedCounter = <?= is_array($rssFeeds) ? count($rssFeeds) : 0 ?>;
 // Custom categories removed - using predefined categories only
 
-// Tab Management
-function showTab(tabName) {
-    // Hide all tab content
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.add('hidden');
-    });
-    
-    // Remove active class from all tabs
-    document.querySelectorAll('.tab-button').forEach(tab => {
-        tab.classList.remove('active', 'bg-blue-600', 'text-white');
-        tab.classList.add('bg-gray-200', 'text-gray-700');
-    });
-    
-    // Show selected tab content
-    const targetContent = document.getElementById(tabName + '-content');
-    if (targetContent) {
-        targetContent.classList.remove('hidden');
-    }
-    
-    // Activate the selected tab
-    const activeTab = document.querySelector(`[onclick="showTab('${tabName}')"]`);
-    if (activeTab) {
-        activeTab.classList.add('active', 'bg-blue-600', 'text-white');
-        activeTab.classList.remove('bg-gray-200', 'text-gray-700');
-    }
-}
+// Tab management now loaded at top of page
 
 // RSS Sub-tab Management
 function showRssSubTab(tabName) {
