@@ -212,7 +212,7 @@ DO NOT invent specific details, names, dates, or quotes not in the source materi
 
 4. CLEAN TEXT FORMAT: 
    - Do NOT use asterisks, markdown formatting, or bold text
-   - Do NOT include story headers like "Story 1:" or section labels
+   - Do NOT include story headers like 'Story 1:' or section labels
    - Write in plain text suitable for text-to-speech
    - Use natural paragraph breaks only
 
