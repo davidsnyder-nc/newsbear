@@ -474,14 +474,14 @@ $todaysTopics = $history->getTodaysTopics();
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert('Failed to generate audio: ' + (data.error || 'Unknown error'));
+                    showToast('Failed to generate audio: ' + (data.error || 'Unknown error'), 'error');
                     button.innerHTML = originalText;
                     button.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to generate audio');
+                showToast('Failed to generate audio', 'error');
                 button.innerHTML = originalText;
                 button.disabled = false;
             });
