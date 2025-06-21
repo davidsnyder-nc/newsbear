@@ -46,9 +46,6 @@ try {
 }
 
 echo "Scheduler completed.\n";
-                                ]);
-                                
-                                // Update status file with completion
                                 $statusFile = __DIR__ . '/downloads/status_' . $briefing['session_id'] . '.json';
                                 if (file_exists($statusFile)) {
                                     $status = json_decode(file_get_contents($statusFile), true);

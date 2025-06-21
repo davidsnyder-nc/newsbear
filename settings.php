@@ -2171,12 +2171,10 @@ function toggleTtsOptions() {
 
 
 
+</script>
+
 </body>
 </html>
-    
-    try {
-        const response = await fetch('api/test_chatterbox_tts.php', {
-            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 server_url: serverUrl,
