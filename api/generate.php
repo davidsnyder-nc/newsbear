@@ -412,7 +412,7 @@ STORIES TO USE (and ONLY these stories):\n\n";
 4. PROFESSIONAL PRESENTATION: 
    - Natural news anchor style with smooth transitions
    - Plain text only - no formatting, asterisks, or section headers
-   - Target " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
+   - Target $targetWords words total
 
 5. QUALITY CONTROL: Focus on meaningful expansion of PROVIDED stories only. Build context around given facts without inventing specifics.
 
@@ -429,8 +429,13 @@ Do not forget or omit this closing message under any circumstances.";
         throw new Exception('Failed to generate briefing content');
     }
     
-    $wordCount = str_word_count($briefingContent);
-    debugLog("AI generation complete - word count: $wordCount", $sessionId);
+    $actualWordCount = str_word_count($briefingContent);
+    debugLog("AI generation complete - word count: $actualWordCount (target: $targetWords)", $sessionId);
+    
+    // If content is significantly shorter than target, log a warning
+    if ($actualWordCount < ($targetWords * 0.7)) {
+        debugLog("WARNING: Generated content is shorter than expected ($actualWordCount vs $targetWords words)", $sessionId);
+    }
 
     debugLog("=== STEP 4: AUDIO GENERATION ===", $sessionId);
     

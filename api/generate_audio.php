@@ -64,10 +64,11 @@ try {
     
 } catch (Exception $e) {
     error_log("Audio generation error: " . $e->getMessage());
+    error_log("Audio generation stack trace: " . $e->getTraceAsString());
     
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => 'Failed to generate audio: ' . $e->getMessage()
     ]);
 }
 ?>

@@ -13,9 +13,8 @@ class TTSService {
         $this->settings = $settings ?: [];
         $this->ttsProvider = $this->settings['ttsProvider'] ?? 'google';
         
-        // Google TTS setup
-        $this->googleApiKey = ($this->settings['googleTtsEnabled'] ?? true) ? 
-            ($this->settings['googleTtsApiKey'] ?: getenv('GOOGLE_TTS_API_KEY')) : null;
+        // Google TTS setup - check environment first, then settings
+        $this->googleApiKey = getenv('GOOGLE_TTS_API_KEY') ?: ($this->settings['googleTtsApiKey'] ?? null);
         $this->voiceSelection = $this->settings['voiceSelection'] ?? 'en-US-Neural2-D';
         
 
