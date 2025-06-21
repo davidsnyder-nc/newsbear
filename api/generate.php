@@ -418,6 +418,12 @@ STORIES TO USE (and ONLY these stories):\n\n";
 
 MANDATORY ENDING: You MUST end the briefing with the exact closing message: '$closing'
 
+CRITICAL COMPLETION RULES:
+- Always complete your final sentence
+- Never end mid-sentence or mid-thought
+- If approaching content limits, wrap up gracefully and include the closing
+- The closing message '$closing' must be the final text
+
 Do not forget or omit this closing message under any circumstances.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
@@ -427,6 +433,26 @@ Do not forget or omit this closing message under any circumstances.";
     if (empty($briefingContent)) {
         debugLog("ERROR: AI service returned empty content", $sessionId);
         throw new Exception('Failed to generate briefing content');
+    }
+    
+    // Check if content was cut off mid-sentence and doesn't have proper closing
+    if (!str_ends_with(trim($briefingContent), $closing)) {
+        debugLog("WARNING: Briefing does not end with required closing message", $sessionId);
+        
+        // If content ends mid-sentence, try to complete it gracefully
+        $lastSentence = trim(substr($briefingContent, strrpos($briefingContent, '.') + 1));
+        if (!empty($lastSentence) && !str_ends_with($briefingContent, '.')) {
+            debugLog("WARNING: Content appears to end mid-sentence: '$lastSentence'", $sessionId);
+            
+            // Remove incomplete sentence and add closing
+            $briefingContent = substr($briefingContent, 0, strrpos($briefingContent, '.') + 1);
+            $briefingContent .= "\n\n" . $closing;
+            debugLog("Fixed incomplete ending and added closing message", $sessionId);
+        } else {
+            // Just add the closing
+            $briefingContent .= "\n\n" . $closing;
+            debugLog("Added missing closing message", $sessionId);
+        }
     }
     
     $actualWordCount = str_word_count($briefingContent);
