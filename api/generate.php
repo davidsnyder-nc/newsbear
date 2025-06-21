@@ -110,6 +110,26 @@ class BriefingGenerator {
             $newsItems = $this->fetchNews();
             $this->debugLog("SUCCESS: Retrieved " . count($newsItems) . " total news items from all sources");
             
+            // Add weather content directly if enabled (before error check)
+            if ($this->settings['includeWeather'] ?? false) {
+                $this->debugLog("Adding weather content directly...");
+                $weatherService = new WeatherService($this->settings);
+                $weatherItems = $weatherService->getWeatherBriefing($this->settings['zipCode'] ?? null);
+                if (!empty($weatherItems)) {
+                    $this->debugLog("Weather service returned " . count($weatherItems) . " items");
+                    $newsItems = array_merge($newsItems, $weatherItems);
+                } else {
+                    $this->debugLog("No weather API key - adding placeholder weather");
+                    $newsItems[] = [
+                        'title' => 'Weather Update',
+                        'content' => 'Weather information is currently unavailable. Please configure your weather API key in settings.',
+                        'category' => 'weather',
+                        'source' => 'Weather Service',
+                        'publishedAt' => date('c')
+                    ];
+                }
+            }
+            
             // Ensure we have real news content before proceeding
             if (empty($newsItems)) {
                 $this->debugLog("ERROR: No news items retrieved from any source", 'ERROR');
