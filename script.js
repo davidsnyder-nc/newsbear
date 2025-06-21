@@ -41,6 +41,7 @@ class NewsBriefApp {
         ];
         this.messageInterval = null;
         this.currentMessageIndex = 0;
+        this.persistentToast = null;
         this.init();
     }
 
@@ -175,6 +176,7 @@ class NewsBriefApp {
             this.isGenerating = false;
             this.enableButton();
             this.stopWittyMessages();
+            this.showGenerateButton();
         }
     }
 
@@ -275,6 +277,7 @@ class NewsBriefApp {
             clearInterval(this.messageInterval);
             this.messageInterval = null;
         }
+        this.hidePersistentToast();
     }
 
     showRandomWittyMessage() {
@@ -453,24 +456,55 @@ class NewsBriefApp {
     }
 
     showToast(message, type = 'info') {
-        // Toast notification centered at top
+        if (type === 'witty') {
+            // Handle persistent witty toast differently
+            this.showPersistentWittyToast(message);
+            return;
+        }
+        
+        // Regular toast notifications at top center
         const toast = document.createElement('div');
         toast.className = `fixed top-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-white z-50 transition-all duration-300 ${
             type === 'success' ? 'bg-green-600' : 
             type === 'error' ? 'bg-red-600' : 
-            type === 'warning' ? 'bg-yellow-600' : 
-            type === 'witty' ? 'bg-purple-600' : 'bg-blue-600'
+            type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
         }`;
         toast.textContent = message;
         
         document.body.appendChild(toast);
         
-        // Auto-remove after delay (longer for witty messages)
-        const delay = type === 'witty' ? 2000 : 3000;
         setTimeout(() => {
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 300);
-        }, delay);
+        }, 3000);
+    }
+
+    showPersistentWittyToast(message) {
+        // Create or update persistent toast at bottom
+        if (!this.persistentToast) {
+            this.persistentToast = document.createElement('div');
+            this.persistentToast.className = 'fixed bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-4 rounded-lg bg-purple-600 text-white z-50 transition-all duration-500 max-w-md text-center shadow-lg';
+            document.body.appendChild(this.persistentToast);
+        }
+        
+        // Update message with fade effect
+        this.persistentToast.style.opacity = '0.7';
+        setTimeout(() => {
+            this.persistentToast.textContent = message;
+            this.persistentToast.style.opacity = '1';
+        }, 200);
+    }
+
+    hidePersistentToast() {
+        if (this.persistentToast) {
+            this.persistentToast.style.opacity = '0';
+            setTimeout(() => {
+                if (this.persistentToast) {
+                    this.persistentToast.remove();
+                    this.persistentToast = null;
+                }
+            }, 500);
+        }
     }
 
     hideGenerateButton() {
