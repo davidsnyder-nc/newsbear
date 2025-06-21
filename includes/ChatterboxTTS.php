@@ -251,39 +251,72 @@ class ChatterboxTTS {
             return false;
         }
         
-        // Parse Gradio response
+        // Parse TTS API response
         $responseData = json_decode($response, true);
         if (!$responseData) {
             error_log("Chatterbox: Invalid JSON response: " . $response);
             return false;
         }
         
-        error_log("Chatterbox: API Response received, checking for audio data");
+        error_log("Chatterbox: TTS API Response received, checking for job data");
         
-        // Extract audio data from Gradio response
-        if (isset($responseData['data']) && is_array($responseData['data']) && !empty($responseData['data'])) {
-            $audioInfo = $responseData['data'][0] ?? null;
+        // Check for job_id in response (async processing)
+        if (isset($responseData['job_id'])) {
+            $jobId = $responseData['job_id'];
+            error_log("Chatterbox: Job started with ID: {$jobId}");
             
-            if (is_array($audioInfo)) {
-                // Check for file URL or path
-                if (isset($audioInfo['url'])) {
-                    $audioUrl = $audioInfo['url'];
-                    error_log("Chatterbox: Found audio URL: {$audioUrl}");
-                    return $this->downloadAudioFile($audioUrl);
-                } elseif (isset($audioInfo['path'])) {
-                    $audioPath = $audioInfo['path'];
-                    $audioUrl = rtrim($this->serverUrl, '/') . '/file=' . ltrim($audioPath, '/');
-                    error_log("Chatterbox: Constructed audio URL: {$audioUrl}");
-                    return $this->downloadAudioFile($audioUrl);
-                }
-            } elseif (is_string($audioInfo)) {
-                error_log("Chatterbox: Audio data received as string");
-                return $audioInfo;
-            }
+            // Poll for completion
+            return $this->pollForCompletion($jobId);
         }
         
-        error_log("Chatterbox: No audio data found in response");
+        error_log("Chatterbox: No job_id found in response");
         error_log("Chatterbox: Full response: " . json_encode($responseData));
+        return false;
+    }
+    
+    private function pollForCompletion($jobId) {
+        $maxAttempts = 60; // 10 minutes max
+        $attempts = 0;
+        
+        while ($attempts < $maxAttempts) {
+            $statusUrl = rtrim($this->serverUrl, '/') . '/status/' . $jobId;
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $statusUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode === 200) {
+                $statusData = json_decode($response, true);
+                if ($statusData) {
+                    if ($statusData['status'] === 'completed') {
+                        if (isset($statusData['download_url'])) {
+                            $downloadUrl = rtrim($this->serverUrl, '/') . $statusData['download_url'];
+                            error_log("Chatterbox: Audio ready at: {$downloadUrl}");
+                            return $this->downloadAudioFile($downloadUrl);
+                        }
+                    } elseif ($statusData['status'] === 'failed') {
+                        error_log("Chatterbox: Job failed");
+                        return false;
+                    }
+                    // Update progress if available
+                    if (isset($statusData['progress'])) {
+                        error_log("Chatterbox: Progress: {$statusData['progress']}%");
+                    }
+                }
+            }
+            
+            $attempts++;
+            sleep(10); // Wait 10 seconds between checks
+        }
+        
+        error_log("Chatterbox: Polling timeout reached");
         return false;
     }
     
