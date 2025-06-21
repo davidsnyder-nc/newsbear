@@ -217,6 +217,40 @@ class NewsAPI {
         return $allNews;
     }
     
+    /**
+     * Filter articles by date to ensure freshness
+     */
+    private function filterByDate($articles, $maxHoursOld = 24) {
+        $cutoffTime = time() - ($maxHoursOld * 3600);
+        $freshArticles = [];
+        
+        foreach ($articles as $article) {
+            $articleTime = null;
+            
+            // Try to parse various date formats
+            if (isset($article['publishedAt'])) {
+                $articleTime = strtotime($article['publishedAt']);
+            } elseif (isset($article['webPublicationDate'])) {
+                $articleTime = strtotime($article['webPublicationDate']);
+            } elseif (isset($article['published_date'])) {
+                $articleTime = strtotime($article['published_date']);
+            } elseif (isset($article['pub_date'])) {
+                $articleTime = strtotime($article['pub_date']);
+            }
+            
+            // If we can't determine the date, assume it's old and filter it out
+            if ($articleTime && $articleTime >= $cutoffTime) {
+                $freshArticles[] = $article;
+            } else {
+                error_log("FILTERED OLD ARTICLE: " . ($article['title'] ?? 'Unknown') . " - " . 
+                         ($article['publishedAt'] ?? $article['webPublicationDate'] ?? $article['published_date'] ?? 'no date'));
+            }
+        }
+        
+        error_log("Date filtering: " . count($freshArticles) . " fresh articles from " . count($articles) . " total");
+        return $freshArticles;
+    }
+    
     private function fetchFromGNews($categories) {
         $news = [];
         
