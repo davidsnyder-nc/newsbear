@@ -51,9 +51,19 @@ function processRssFeeds($rssFeeds) {
 }
 
 function getRssFeeds() {
-    require_once __DIR__ . '/includes/RSSFeedHandler.php';
-    $rssHandler = new RSSFeedHandler();
-    return $rssHandler->getRssFeeds();
+    $rssFile = 'data/rss_feeds.json';
+    
+    if (!file_exists($rssFile)) {
+        return [];
+    }
+    
+    $content = file_get_contents($rssFile);
+    if (empty($content)) {
+        return [];
+    }
+    
+    $feeds = json_decode($content, true);
+    return is_array($feeds) ? $feeds : [];
 }
 
 // Handle AJAX requests
@@ -650,10 +660,31 @@ function isCategoryChecked($category) {
                             </div>
                             
                             <div id="rss-feeds-container" class="space-y-4 mt-6">
-                                <!-- RSS feeds will be dynamically added here -->
+                                <?php foreach ($rssFeeds as $index => $feed): ?>
+                                    <div class="rss-feed-item bg-gray-50 p-4 rounded-md border" id="feed-<?= $index ?>">
+                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                            <input type="text" name="rssFeeds[<?= $index ?>][name]" placeholder="Feed Name" value="<?= htmlspecialchars($feed['name'] ?? '') ?>" class="form-input">
+                                            <input type="url" name="rssFeeds[<?= $index ?>][url]" placeholder="RSS Feed URL" value="<?= htmlspecialchars($feed['url'] ?? '') ?>" class="form-input md:col-span-2">
+                                            <div class="flex gap-2">
+                                                <select name="rssFeeds[<?= $index ?>][category]" class="form-input flex-1">
+                                                    <option value="">Select Category</option>
+                                                    <option value="general" <?= strtolower($feed['category'] ?? '') === 'general' ? 'selected' : '' ?>>General</option>
+                                                    <option value="business" <?= strtolower($feed['category'] ?? '') === 'business' ? 'selected' : '' ?>>Business</option>
+                                                    <option value="technology" <?= strtolower($feed['category'] ?? '') === 'technology' ? 'selected' : '' ?>>Technology</option>
+                                                    <option value="science" <?= strtolower($feed['category'] ?? '') === 'science' ? 'selected' : '' ?>>Science</option>
+                                                    <option value="health" <?= strtolower($feed['category'] ?? '') === 'health' ? 'selected' : '' ?>>Health</option>
+                                                    <option value="entertainment" <?= strtolower($feed['category'] ?? '') === 'entertainment' ? 'selected' : '' ?>>Entertainment</option>
+                                                    <option value="sports" <?= strtolower($feed['category'] ?? '') === 'sports' ? 'selected' : '' ?>>Sports</option>
+                                                    <option value="gaming" <?= strtolower($feed['category'] ?? '') === 'gaming' ? 'selected' : '' ?>>Gaming</option>
+                                                </select>
+                                                <button type="button" onclick="removeRssFeed('feed-<?= $index ?>')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                             
-                            <div class="text-center text-gray-500 text-sm" id="no-rss-message">
+                            <div class="text-center text-gray-500 text-sm" id="no-rss-message" style="<?= count($rssFeeds) > 0 ? 'display: none;' : '' ?>">
                                 No RSS feeds configured. Click "Add RSS Feed" to get started.
                             </div>
                         </div>
@@ -962,7 +993,7 @@ function toggleDarkThemeFromSettings() {
 }
 
 // RSS Feed Management
-let rssFeedCounter = 0;
+let rssFeedCounter = <?= count($rssFeeds) ?>;
 // Custom categories removed - using predefined categories only
 
 // RSS Sub-tab Management
