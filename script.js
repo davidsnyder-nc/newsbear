@@ -150,6 +150,8 @@ class NewsBriefApp {
 
         } catch (error) {
             console.error('Generation error:', error);
+            this.addDebugLogEntry(`Generation failed: ${error.message}`, 'error');
+            
             if (error.name === 'AbortError') {
                 this.showError('Request timed out. The server may be busy. Please try again.');
             } else if (error.message.includes('Failed to fetch')) {
@@ -162,6 +164,7 @@ class NewsBriefApp {
         } finally {
             this.isGenerating = false;
             this.enableButton();
+            this.stopWittyMessages();
         }
     }
 
