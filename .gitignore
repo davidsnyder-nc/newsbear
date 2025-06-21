@@ -1,54 +1,53 @@
-# Configuration files with sensitive data
+# User data and configuration
 config/user_settings.json
-*.env
-.env.*
-
-# Audio files and TTS cache
-*.wav
-*.mp3
-data/audio/
-
-# Data and history files
 data/
 downloads/
-
-# Cache and temporary files
 .cache/
-.upm/
-.local/
 
-# Environment files
+# API Keys and sensitive files
+*.key
+*.pem
 .env
 .env.local
 
-# Generated audio files
-*.mp3
-
-# Temporary files and logs
-*.tmp
+# Logs
 *.log
-data/scheduler.log
-data/debug/
+error_log
+access_log
 
-# Attached assets from testing
-attached_assets/Pasted-*
-attached_assets/Screenshot*
-attached_assets/screencapture-*
-attached_assets/download_*
-attached_assets/user_settings_*
+# Temporary files
+*.tmp
+*~
+.DS_Store
+Thumbs.db
 
 # IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# OS files
-.DS_Store
-Thumbs.db
+# PHP cache
+opcache/
 
-# Replit files
-.replit
-replit.nix
+# Node modules (if any)
+node_modules/
 
-# Backup files
-*_backup.*
-*_broken.*
+# Python files (if any)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# Audio files in data directories
+data/history/*.mp3
+data/history/*.wav
+downloads/*.mp3
+downloads/*.wav
+
+# User uploads and attachments
+attached_assets/Screenshot*
+attached_assets/Pasted*
