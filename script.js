@@ -37,7 +37,31 @@ class NewsBriefApp {
             "Making deadlines meet their maker...",
             "Translating reporter-speak to human...",
             "Convincing stories to play nicely together...",
-            "Bear-ing the weight of world events..."
+            "Bear-ing the weight of world events...",
+            "Wrangling words into wisdom...",
+            "Polishing headlines until they shine...",
+            "Extracting signal from the noise...",
+            "Teaching robots to speak like humans...",
+            "Mixing up a perfect news cocktail...",
+            "Untangling today's web of events...",
+            "Curating chaos into coherence...",
+            "Transforming headlines into harmony...",
+            "Decoding the day's digital drama...",
+            "Weaving stories into one tapestry...",
+            "Building bridges between breaking news...",
+            "Conducting the daily news orchestra...",
+            "Channeling the collective consciousness...",
+            "Turning information overload into insight...",
+            "Crafting your personalized news potion...",
+            "Solving the puzzle of today's events...",
+            "Taming the wild world of information...",
+            "Spinning straw headlines into gold...",
+            "Organizing the universe, one story at a time...",
+            "Teaching algorithms to think like journalists...",
+            "Creating order from the breaking news storm...",
+            "Fine-tuning your daily dose of reality...",
+            "Assembling the ultimate news buffet...",
+            "Distilling wisdom from the information flood..."
         ];
         this.messageInterval = null;
         this.currentMessageIndex = 0;
@@ -277,21 +301,42 @@ class NewsBriefApp {
             clearInterval(this.messageInterval);
             this.messageInterval = null;
         }
+        // Reset used messages for next generation
+        this.usedMessages = [];
         this.hidePersistentToast();
     }
 
     showRandomWittyMessage() {
-        // Pick a random message different from the current one
-        let newIndex;
-        do {
-            newIndex = Math.floor(Math.random() * this.wittyMessages.length);
-        } while (newIndex === this.currentMessageIndex && this.wittyMessages.length > 1);
+        // Initialize used messages array if not exists
+        if (!this.usedMessages) {
+            this.usedMessages = [];
+        }
         
-        this.currentMessageIndex = newIndex;
-        const message = this.wittyMessages[this.currentMessageIndex];
+        // Reset if all messages have been used
+        if (this.usedMessages.length >= this.wittyMessages.length) {
+            this.usedMessages = [];
+        }
         
-        // Show in toast notification instead of status text
-        this.showToast(message, 'witty');
+        // Pick a random message that hasn't been used yet
+        let availableMessages = this.wittyMessages.filter((msg, index) => 
+            !this.usedMessages.includes(index)
+        );
+        
+        if (availableMessages.length === 0) {
+            // Fallback to any message
+            availableMessages = this.wittyMessages;
+        }
+        
+        const randomIndex = Math.floor(Math.random() * availableMessages.length);
+        const selectedMessage = availableMessages[randomIndex];
+        const originalIndex = this.wittyMessages.indexOf(selectedMessage);
+        
+        // Mark this message as used
+        this.usedMessages.push(originalIndex);
+        this.currentMessageIndex = originalIndex;
+        
+        // Show in toast notification
+        this.showToast(selectedMessage, 'witty');
         
         // Also update status text as fallback
         const statusText = document.getElementById('status-text');
