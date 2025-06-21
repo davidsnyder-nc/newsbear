@@ -140,8 +140,8 @@ class NewsBriefApp {
 
             const result = await response.json();
 
-            // Start log polling with the actual session ID
-            if (result.sessionId) {
+            // Start log polling with the actual session ID (unless it's async TTS)
+            if (result.sessionId && !result.tts_job_id) {
                 this.currentSessionId = result.sessionId;
                 this.startLogPolling(result.sessionId);
             }
@@ -151,12 +151,8 @@ class NewsBriefApp {
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
             } else if (result.tts_job_id) {
-                // Handle async TTS (Chatterbox) - show immediate success
-                this.updateStatus('Briefing generated successfully!', 100);
-                this.addDebugLogEntry('Briefing text generated successfully', 'success');
-                this.addDebugLogEntry('Audio version will be available in History shortly', 'info');
-                
-                // Show success immediately with briefing text
+                // Handle async TTS (Chatterbox) - show immediate completion
+                this.stopLogPolling(); // Stop any polling immediately
                 this.showSuccess(null, result.briefing_text, 
                     'Your briefing is ready! Audio version processing in background.');
             } else {
@@ -342,8 +338,8 @@ class NewsBriefApp {
                 if (briefingTextElement) {
                     briefingTextElement.innerHTML = `
                         <div class="background-processing-notice">
-                            <h4>Briefing Generated Successfully!</h4>
-                            <p>Your news briefing is ready to read below. An audio version is being created and will appear in your History section shortly.</p>
+                            <h4>Briefing Complete!</h4>
+                            <p>Your news briefing is ready below. Audio version will appear in History when finished.</p>
                             <a href="history.php" class="btn btn-primary" style="display: inline-block; margin: 10px 0; padding: 8px 16px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px;">View History</a>
                         </div>
                         <div style="margin-top: 20px;">
