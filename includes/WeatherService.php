@@ -91,5 +91,35 @@ class WeatherService {
         
         return json_decode($response, true);
     }
+    
+    public function getWeatherBriefing($zipCode) {
+        error_log("WeatherService: getWeatherBriefing called with zip: " . ($zipCode ?? 'null'));
+        error_log("WeatherService: API key available: " . ($this->apiKey ? 'YES' : 'NO'));
+        
+        if (!$zipCode) {
+            error_log("WeatherService: No zip code provided");
+            return [];
+        }
+        
+        if (!$this->apiKey) {
+            error_log("WeatherService: No API key available");
+            return [];
+        }
+        
+        $weather = $this->getWeather($zipCode);
+        if (!$weather) {
+            error_log("WeatherService: getWeather returned null");
+            return [];
+        }
+        
+        error_log("WeatherService: Successfully generated weather briefing");
+        return [[
+            'title' => 'Local Weather Update',
+            'content' => $weather,
+            'category' => 'weather',
+            'source' => 'Weather Service',
+            'publishedAt' => date('c')
+        ]];
+    }
 }
 ?>
