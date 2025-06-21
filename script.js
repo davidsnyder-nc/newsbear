@@ -142,13 +142,6 @@ class NewsBriefApp {
 
 
 
-            // Traditional polling flow for other providers
-            this.showDebugLog();
-            if (result.sessionId) {
-                this.currentSessionId = result.sessionId;
-                this.startLogPolling(result.sessionId);
-            }
-
             if (result.success) {
                 this.showSuccess(result.downloadUrl, result.briefingText);
             } else {
