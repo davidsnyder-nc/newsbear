@@ -280,19 +280,17 @@ class BriefingGenerator {
                     $this->debugLog("Audio processing will continue in background");
                     $this->updateStatus('Audio queued for processing', 100);
                     
-                    // For async providers, return success immediately
+                    // For async providers, return text immediately and indicate audio is processing
                     echo json_encode([
                         'success' => true,
                         'status' => 'success', 
-                        'message' => 'Audio generation queued - briefing text available now, audio will be ready in history shortly',
+                        'message' => 'Briefing generated! Audio is being processed and will be available in history shortly.',
                         'progress' => 100,
                         'complete' => true,
                         'briefingText' => $briefingContent,
                         'isAsync' => true,
-                        'tts_job_id' => $audioResult,
-                        'estimated_duration' => $this->getEstimatedDuration($briefingContent),
-                        'briefing_text' => $briefingContent,
-                        'async_background' => true
+                        'showText' => true, // Show briefing text instead of audio player
+                        'audioProcessing' => true // Indicate audio is being processed
                     ]);
                     return;
                 } else {

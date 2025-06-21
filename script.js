@@ -294,7 +294,7 @@ class NewsBriefApp {
         }
     }
 
-    showSuccess(downloadUrl, briefingText = null, customMessage = null) {
+    showSuccess(downloadUrl, briefingText = null, customMessage = null, isAsync = false) {
         this.stopWittyMessages();
         this.switchToBrownLogo();
         
