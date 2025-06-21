@@ -154,7 +154,7 @@ class BriefingGenerator {
             $this->debugLog("Sending " . count($newsItems) . " news items to AI for story selection");
             
             $selectedStories = $this->selectStories($newsItems, $todaysTopics);
-            $this->debugLog("AI selection completed: " . count($selectedStories) . " stories chosen");
+            $this->debugLog("AI selection completed: " . count($selectedStories ?? []) . " stories chosen");
             
             // If AI selection failed but we have articles, use smart fallback
             if (empty($selectedStories) && !empty($newsItems)) {
@@ -652,7 +652,7 @@ class BriefingGenerator {
             // Handle case where no categories are selected (weather/local/TV only)
             if ($totalSelectedCategories == 0) {
                 // No category-based distribution needed - use all content
-                $finalSelectedStories = array_slice($newsItems, 0, $storyCount);
+                $finalSelectedStories = array_slice($newsItems, 0, min($storyCount, count($newsItems)));
                 $this->debugLog("No categories selected - using " . count($finalSelectedStories) . " items without AI selection");
                 return $finalSelectedStories;
             } else {
