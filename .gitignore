@@ -36,8 +36,8 @@ Thumbs.db
 .idea/
 
 # Screenshots and user uploads
-attached_assets/Screenshot*.png
-attached_assets/Screenshot*.jpg
+attached_assets/Screenshot*
+attached_assets/uploads/
 
 # API status tracking
 data/api_status.json
