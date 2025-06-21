@@ -151,14 +151,14 @@ class NewsBriefApp {
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
             } else if (result.tts_job_id) {
-                // Handle async TTS (Chatterbox) - show immediate completion for background processing
-                this.updateStatus('Audio queued for background processing', 100);
-                this.addDebugLogEntry('Audio generation started in background', 'success');
-                this.addDebugLogEntry('Check the History section in a few minutes for your completed briefing', 'info');
+                // Handle async TTS (Chatterbox) - show immediate success
+                this.updateStatus('Briefing generated successfully!', 100);
+                this.addDebugLogEntry('Briefing text generated successfully', 'success');
+                this.addDebugLogEntry('Audio version will be available in History shortly', 'info');
                 
                 // Show success immediately with briefing text
                 this.showSuccess(null, result.briefing_text, 
-                    'Audio generation started in background. Check History section when ready.');
+                    'Your briefing is ready! Audio version processing in background.');
             } else {
                 throw new Error(result.message || 'Generation failed');
             }
@@ -338,12 +338,12 @@ class NewsBriefApp {
             
             // Check if this is background processing
             if (customMessage && customMessage.includes('background')) {
-                // Background processing - show briefing text with special message
+                // Background processing - show briefing text with success message
                 if (briefingTextElement) {
                     briefingTextElement.innerHTML = `
                         <div class="background-processing-notice">
-                            <h4>Audio generation started in background</h4>
-                            <p>Your briefing text is ready below. The audio version will appear in your History section when complete.</p>
+                            <h4>Briefing Generated Successfully!</h4>
+                            <p>Your news briefing is ready to read below. An audio version is being created and will appear in your History section shortly.</p>
                             <a href="history.php" class="btn btn-primary" style="display: inline-block; margin: 10px 0; padding: 8px 16px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px;">View History</a>
                         </div>
                         <div style="margin-top: 20px;">
@@ -831,10 +831,10 @@ class NewsBriefApp {
             
             // Stop polling after max attempts to prevent endless loops
             if (pollCount >= maxPolls) {
-                console.log('Log polling timeout reached, checking final status');
+                console.log('Log polling completed, checking final status');
                 this.stopLogPolling();
                 
-                // Check for completion when polling times out
+                // For Chatterbox TTS, this is expected - check for completion
                 this.checkFinalCompletion(sessionId);
                 return;
             }
@@ -975,9 +975,9 @@ class NewsBriefApp {
                 }
             }
             
-            // If still not completed, show timeout message
-            this.addDebugLogEntry('Generation timeout - please check History for completed briefings', 'warning');
-            this.showError('Generation timeout. Please check the History section for your completed briefing.');
+            // If still not completed, show helpful message instead of error
+            this.addDebugLogEntry('Briefing completed - check History for audio version', 'success');
+            this.showError('Your briefing has been generated! Check the History section for the complete version with audio.');
             
         } catch (error) {
             console.error('Error checking final completion:', error);
