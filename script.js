@@ -110,49 +110,43 @@ class NewsBriefApp {
         this.isGenerating = true;
         this.currentStep = 0;
         this.hideResults();
-        this.showStatus();
-        this.showDebugLog();
         this.disableButton();
 
         try {
-            const endpoint = 'api/generate.php';
+            this.updateStatus('Starting generation...', 10);
             
-            const controller = new AbortController();
-            // No timeout during testing - let it run as long as needed
-            
-            // Start generation and immediately begin polling for logs
-            const responsePromise = fetch(endpoint, {
+            const response = await fetch('api/generate.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({}),
-                signal: controller.signal
+                body: JSON.stringify({})
             });
-
-            const response = await responsePromise;
-            
-            // No timeout to clear during testing
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
+            console.log('API Response:', result);
 
-            // Start log polling with the actual session ID (unless it's async TTS)
-            if (result.sessionId && !result.tts_job_id && !result.async_background) {
+            // Chatterbox TTS - immediate success
+            if (result.tts_job_id) {
+                console.log('Chatterbox TTS detected - showing immediate success');
+                this.hideDebugLog();
+                this.showSuccess(null, result.briefing_text, 
+                    'Your briefing is ready! Audio version processing in background.');
+                return;
+            }
+
+            // Traditional polling flow for other providers
+            this.showDebugLog();
+            if (result.sessionId) {
                 this.currentSessionId = result.sessionId;
                 this.startLogPolling(result.sessionId);
             }
 
-            // Handle Chatterbox TTS first (before other status checks)
-            if (result.tts_job_id || result.async_background) {
-                // Handle async TTS (Chatterbox) - show immediate completion
-                this.stopLogPolling(); // Stop any polling immediately
-                this.showSuccess(null, result.briefing_text, 
-                    'Your briefing is ready! Audio version processing in background.');
-            } else if (result.status === 'processing') {
+            if (result.status === 'processing') {
                 await this.pollStatus(result.sessionId);
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
