@@ -41,16 +41,26 @@ try {
             }
         }
     } else {
-        // Check if session is old or orphaned (created more than 2 hours ago)
-        $sessionTime = hexdec(substr($sessionId, -8)); // Extract timestamp from session ID
-        if (time() - $sessionTime > 7200) { // 2 hours
-            http_response_code(410); // Gone
-            echo json_encode([
-                'success' => false,
-                'error' => 'Session expired',
-                'stop_polling' => true
-            ]);
-            return;
+        // Check if session exists in any form
+        $sessionPattern = $sessionId;
+        $sessionFiles = glob(__DIR__ . '/../data/*' . $sessionId . '*');
+        
+        // If no session files exist and session ID looks old, stop polling
+        if (empty($sessionFiles)) {
+            // Extract timestamp from session ID if it contains one
+            $sessionParts = explode('_', $sessionId);
+            if (count($sessionParts) > 1) {
+                $sessionTime = floatval($sessionParts[1]);
+                if ($sessionTime > 0 && time() - $sessionTime > 3600) { // 1 hour
+                    http_response_code(410); // Gone
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Session expired',
+                        'stop_polling' => true
+                    ]);
+                    return;
+                }
+            }
         }
     }
     
