@@ -43,13 +43,46 @@ def simulate_tts_generation(job):
             if job.status == "cancelled":
                 return
                 
-        # Create a simple audio file (placeholder)
+        # Create a simple audio file with actual tone
         audio_file = audio_dir / f"{job.job_id}.wav"
         
-        # Create a minimal WAV file header for testing
+        # Generate a simple tone as audio (440Hz for 2 seconds)
+        import struct
+        import math
+        
+        sample_rate = 44100
+        duration = 2.0
+        frequency = 440.0
+        num_samples = int(sample_rate * duration)
+        
+        # Generate sine wave samples
+        samples = []
+        for i in range(num_samples):
+            t = i / sample_rate
+            amplitude = 0.3 * math.sin(2 * math.pi * frequency * t)
+            sample = int(amplitude * 32767)
+            samples.append(struct.pack('<h', sample))
+        
+        # Create WAV file
         with open(audio_file, 'wb') as f:
-            # Simple WAV header (44 bytes) + minimal audio data
-            f.write(b'RIFF\x2e\x00\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x44\xac\x00\x00\x88\x58\x01\x00\x02\x00\x10\x00data\x0a\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+            # WAV header
+            f.write(b'RIFF')
+            f.write(struct.pack('<I', 36 + len(samples) * 2))
+            f.write(b'WAVE')
+            f.write(b'fmt ')
+            f.write(struct.pack('<I', 16))  # Subchunk1Size
+            f.write(struct.pack('<H', 1))   # AudioFormat (PCM)
+            f.write(struct.pack('<H', 1))   # NumChannels (mono)
+            f.write(struct.pack('<I', sample_rate))
+            f.write(struct.pack('<I', sample_rate * 2))  # ByteRate
+            f.write(struct.pack('<H', 2))   # BlockAlign
+            f.write(struct.pack('<H', 16))  # BitsPerSample
+            f.write(b'data')
+            f.write(struct.pack('<I', len(samples) * 2))
+            
+            # Write audio data
+            for sample in samples:
+                f.write(sample)
         
         job.audio_file = str(audio_file)
         job.status = "completed"
