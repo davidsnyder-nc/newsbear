@@ -110,10 +110,17 @@ class NewsBriefApp {
         this.isGenerating = true;
         this.currentStep = 0;
         this.hideResults();
+        this.showStatus();
         this.disableButton();
+        this.hideGenerateButton();
+        
+        // Check and show debug log if enabled
+        await this.checkDebugLogSettings();
+        this.showDebugLog();
 
         try {
-            this.updateStatus('Starting generation...', 10);
+            this.addDebugLogEntry('Starting briefing generation...', 'info');
+            this.startWittyMessages();
             
             const response = await fetch('api/generate.php', {
                 method: 'POST',
@@ -142,7 +149,10 @@ class NewsBriefApp {
 
 
 
+            this.addDebugLogEntry('Response received successfully', 'success');
+            
             if (result.success) {
+                this.addDebugLogEntry('Briefing generated successfully!', 'success');
                 this.showSuccess(result.downloadUrl, result.briefingText);
             } else {
                 throw new Error(result.message || 'Generation failed');
@@ -275,9 +285,15 @@ class NewsBriefApp {
         } while (newIndex === this.currentMessageIndex && this.wittyMessages.length > 1);
         
         this.currentMessageIndex = newIndex;
+        const message = this.wittyMessages[this.currentMessageIndex];
+        
+        // Show in toast notification instead of status text
+        this.showToast(message, 'witty');
+        
+        // Also update status text as fallback
         const statusText = document.getElementById('status-text');
         if (statusText) {
-            statusText.textContent = this.wittyMessages[this.currentMessageIndex];
+            statusText.textContent = 'Generating your news briefing...';
         }
     }
 
@@ -437,19 +453,24 @@ class NewsBriefApp {
     }
 
     showToast(message, type = 'info') {
-        // Simple toast notification
+        // Toast notification centered at top
         const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+        toast.className = `fixed top-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg text-white z-50 transition-all duration-300 ${
             type === 'success' ? 'bg-green-600' : 
-            type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            type === 'error' ? 'bg-red-600' : 
+            type === 'warning' ? 'bg-yellow-600' : 
+            type === 'witty' ? 'bg-purple-600' : 'bg-blue-600'
         }`;
         toast.textContent = message;
         
         document.body.appendChild(toast);
         
+        // Auto-remove after delay (longer for witty messages)
+        const delay = type === 'witty' ? 2000 : 3000;
         setTimeout(() => {
-            toast.remove();
-        }, 3000);
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, delay);
     }
 
     hideGenerateButton() {
