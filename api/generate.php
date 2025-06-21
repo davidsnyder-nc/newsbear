@@ -156,21 +156,54 @@ try {
         
         debugLog("Total articles fetched: " . count($fetchedNews), $sessionId);
         
-        // FIRST: Apply AI categorization to properly classify all articles
+        // Apply strict date filtering first
+        $maxHours = $settings['newsTimeframe'] ?? 24;
+        debugLog("Applying date filter - max hours old: $maxHours", $sessionId);
+        
+        $dateCutoff = time() - ($maxHours * 3600);
+        $dateFilteredNews = [];
+        
+        foreach ($fetchedNews as $item) {
+            $articleTime = null;
+            
+            // Try to parse various date formats
+            if (isset($item['publishedAt'])) {
+                $articleTime = strtotime($item['publishedAt']);
+            } elseif (isset($item['webPublicationDate'])) {
+                $articleTime = strtotime($item['webPublicationDate']);
+            } elseif (isset($item['published_date'])) {
+                $articleTime = strtotime($item['published_date']);
+            } elseif (isset($item['pub_date'])) {
+                $articleTime = strtotime($item['pub_date']);
+            }
+            
+            if ($articleTime && $articleTime >= $dateCutoff) {
+                $dateFilteredNews[] = $item;
+                $hoursOld = round((time() - $articleTime) / 3600, 1);
+                debugLog("DATE ACCEPTED: Article '" . ($item['title'] ?? 'Untitled') . "' - {$hoursOld} hours old", $sessionId);
+            } else {
+                $hoursOld = $articleTime ? round((time() - $articleTime) / 3600, 1) : 'unknown';
+                debugLog("DATE REJECTED: Article '" . ($item['title'] ?? 'Untitled') . "' - {$hoursOld} hours old (limit: {$maxHours}h)", $sessionId);
+            }
+        }
+        
+        debugLog("Date filtering: " . count($dateFilteredNews) . " articles remain (from " . count($fetchedNews) . " total)", $sessionId);
+        
+        // THEN: Apply AI categorization to properly classify all articles
         try {
             require_once __DIR__ . '/../includes/CategoryClassifier.php';
             $classifier = new CategoryClassifier($settings);
-            $fetchedNews = $classifier->classifyArticles($fetchedNews);
+            $dateFilteredNews = $classifier->classifyArticles($dateFilteredNews);
             debugLog("AI categorization complete", $sessionId);
         } catch (Exception $e) {
             debugLog("Category classification error: " . $e->getMessage(), $sessionId);
         }
         
-        // THEN: Apply strict category filtering after categorization
+        // FINALLY: Apply strict category filtering after categorization
         $enabledCategories = $selectedCategories; // Only user-selected categories
         $filteredFetchedNews = [];
         
-        foreach ($fetchedNews as $item) {
+        foreach ($dateFilteredNews as $item) {
             $itemCategory = strtolower($item['category'] ?? '');
             
             // Allow through if it matches selected categories OR is a special system category
@@ -179,9 +212,9 @@ try {
             
             if ($isSelectedCategory || ($isSystemCategory && ($settings['includeLocal'] || $settings['includeTV'] || $settings['includeWeather']))) {
                 $filteredFetchedNews[] = $item;
-                debugLog("INCLUDED: Article '" . ($item['title'] ?? 'Untitled') . "' - category '$itemCategory'", $sessionId);
+                debugLog("CATEGORY ACCEPTED: Article '" . ($item['title'] ?? 'Untitled') . "' - category '$itemCategory'", $sessionId);
             } else {
-                debugLog("FILTERED OUT: Article '" . ($item['title'] ?? 'Untitled') . "' - category '$itemCategory' not in selected categories", $sessionId);
+                debugLog("CATEGORY REJECTED: Article '" . ($item['title'] ?? 'Untitled') . "' - category '$itemCategory' not in selected categories", $sessionId);
             }
         }
         
