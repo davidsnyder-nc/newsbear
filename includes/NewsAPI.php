@@ -56,9 +56,18 @@ class NewsAPI {
             $rssFeeds = $rssHandler->getRssFeeds();
             
             if (!empty($rssFeeds)) {
-                $rssNews = $rssHandler->getAllRssArticles(10);
-                $allNews = array_merge($allNews, $rssNews);
-                error_log("RSS fetch: Found " . count($rssNews) . " articles from " . count($rssFeeds) . " RSS feeds");
+                // Filter only enabled feeds
+                $enabledFeeds = array_filter($rssFeeds, function($feed) {
+                    return isset($feed['enabled']) && $feed['enabled'] === true;
+                });
+                
+                if (!empty($enabledFeeds)) {
+                    $rssNews = $rssHandler->getAllRssArticles(10);
+                    $allNews = array_merge($allNews, $rssNews);
+                    error_log("RSS fetch: Found " . count($rssNews) . " articles from " . count($enabledFeeds) . " enabled RSS feeds");
+                } else {
+                    error_log("RSS fetch: No enabled RSS feeds found, skipping");
+                }
             } else {
                 error_log("RSS fetch: No RSS feeds configured, skipping");
             }
