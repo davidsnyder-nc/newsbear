@@ -10,6 +10,7 @@ class ChatterboxTTS {
         $this->settings = $settings ?: [];
         $this->serverUrl = $this->settings['chatterboxServerUrl'] ?? 'http://localhost:8000';
         $this->voiceStyle = $this->settings['chatterboxVoice'] ?? 'news_anchor';
+        $this->outputFormat = $this->settings['chatterboxFormat'] ?? 'wav'; // Support both wav and mp3
         $this->queueFile = __DIR__ . '/../data/tts_queue.json';
         
         // Ensure queue file exists
@@ -216,7 +217,8 @@ class ChatterboxTTS {
         // Simple TTS API payload
         $ttsData = [
             'text' => $text,
-            'voice' => $voiceStyle ?: 'default'
+            'voice' => $voiceStyle ?: 'default',
+            'format' => $this->outputFormat ?? 'wav'
         ];
         
         // POST request to TTS API
@@ -371,17 +373,12 @@ class ChatterboxTTS {
         $timeFrame = $this->getTimeFrame();
         $date = date('Y-m-d');
         $timestamp = date('His');
-        $filename = "chatterbox-news-{$timeFrame}-{$date}-{$timestamp}.wav";
-        $filepath = __DIR__ . "/../data/history/{$filename}";
-        
-        // Ensure directory exists
-        $dir = dirname($filepath);
-        if (!file_exists($dir)) {
-            mkdir($dir, 0755, true);
-        }
+        $extension = $this->outputFormat ?? 'wav';
+        $filename = $jobId . '.' . $extension;
+        $filepath = $downloadsDir . '/' . $filename;
         
         if (file_put_contents($filepath, $audioData)) {
-            return "data/history/{$filename}";
+            return $filename; // Return just filename, downloads/ will be added by frontend
         }
         
         return false;

@@ -126,6 +126,7 @@ if ($_POST && !isset($_POST['action'])) {
         'voiceSelection' => $_POST['voiceSelection'] ?? 'en-US-Neural2-D',
         'chatterboxServerUrl' => $_POST['chatterboxServerUrl'] ?? 'http://localhost:8000',
         'chatterboxVoice' => $_POST['chatterboxVoice'] ?? 'news_anchor',
+        'chatterboxFormat' => $_POST['chatterboxFormat'] ?? 'wav',
         'chatterboxSampleFile' => $_POST['chatterboxSampleFile'] ?? '',
         'gnewsEnabled' => isset($_POST['gnewsEnabled']) ? true : false,
         'newsApiEnabled' => isset($_POST['newsApiEnabled']) ? true : false,
@@ -217,6 +218,7 @@ $defaults = [
     'voiceSelection' => 'en-US-Neural2-D',
     'chatterboxServerUrl' => 'http://localhost:8000',
     'chatterboxVoice' => 'news_anchor',
+    'chatterboxFormat' => 'wav',
 
     'gnewsEnabled' => true,
     'newsApiEnabled' => true,
