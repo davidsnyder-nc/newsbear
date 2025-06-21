@@ -664,12 +664,19 @@ if (!is_array($rssFeeds)) {
                             
                             <div id="rss-feeds-container" class="space-y-4 mt-6">
                                 <?php foreach ($rssFeeds as $index => $feed): ?>
-                                    <div class="rss-feed-item bg-gray-50 p-4 rounded-md border" id="feed-<?= $index ?>">
-                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                                            <input type="text" name="rssFeeds[<?= $index ?>][name]" placeholder="Feed Name" value="<?= htmlspecialchars($feed['name'] ?? '') ?>" class="form-input">
-                                            <input type="url" name="rssFeeds[<?= $index ?>][url]" placeholder="RSS Feed URL" value="<?= htmlspecialchars($feed['url'] ?? '') ?>" class="form-input md:col-span-2">
-                                            <div class="flex gap-2">
-                                                <select name="rssFeeds[<?= $index ?>][category]" class="form-input flex-1">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm" id="feed-<?= $index ?>">
+                                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                                            <div class="lg:col-span-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Feed Name</label>
+                                                <input type="text" name="rssFeeds[<?= $index ?>][name]" placeholder="Feed Name" value="<?= htmlspecialchars($feed['name'] ?? '') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                            </div>
+                                            <div class="lg:col-span-5">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">RSS Feed URL</label>
+                                                <input type="url" name="rssFeeds[<?= $index ?>][url]" placeholder="https://example.com/feed.xml" value="<?= htmlspecialchars($feed['url'] ?? '') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                            </div>
+                                            <div class="lg:col-span-3">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                                <select name="rssFeeds[<?= $index ?>][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
                                                     <option value="">Select Category</option>
                                                     <option value="general" <?= strtolower($feed['category'] ?? '') === 'general' ? 'selected' : '' ?>>General</option>
                                                     <option value="business" <?= strtolower($feed['category'] ?? '') === 'business' ? 'selected' : '' ?>>Business</option>
@@ -680,7 +687,12 @@ if (!is_array($rssFeeds)) {
                                                     <option value="sports" <?= strtolower($feed['category'] ?? '') === 'sports' ? 'selected' : '' ?>>Sports</option>
                                                     <option value="gaming" <?= strtolower($feed['category'] ?? '') === 'gaming' ? 'selected' : '' ?>>Gaming</option>
                                                 </select>
-                                                <button type="button" onclick="removeRssFeed('feed-<?= $index ?>')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded">Remove</button>
+                                            </div>
+                                            <div class="lg:col-span-1">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
+                                                <button type="button" onclick="removeRssFeed('feed-<?= $index ?>')" class="w-full bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -1219,7 +1231,7 @@ function removeRssFeed(feedId) {
         // Check if any feeds remain
         const container = document.getElementById('rss-feeds-container');
         const noMessage = document.getElementById('no-rss-message');
-        if (container.children.length === 0) {
+        if (container && container.children.length === 0 && noMessage) {
             noMessage.style.display = 'block';
         }
     }
