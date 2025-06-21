@@ -684,7 +684,7 @@ function isCategoryChecked($category) {
                                 <?php endforeach; ?>
                             </div>
                             
-                            <div class="text-center text-gray-500 text-sm" id="no-rss-message" style="<?= count($rssFeeds) > 0 ? 'display: none;' : '' ?>">
+                            <div class="text-center text-gray-500 text-sm" id="no-rss-message" style="<?= (is_array($rssFeeds) && count($rssFeeds) > 0) ? 'display: none;' : '' ?>">
                                 No RSS feeds configured. Click "Add RSS Feed" to get started.
                             </div>
                         </div>
@@ -993,8 +993,35 @@ function toggleDarkThemeFromSettings() {
 }
 
 // RSS Feed Management
-let rssFeedCounter = <?= count($rssFeeds) ?>;
+let rssFeedCounter = <?= is_array($rssFeeds) ? count($rssFeeds) : 0 ?>;
 // Custom categories removed - using predefined categories only
+
+// Tab Management
+function showTab(tabName) {
+    // Hide all tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab-button').forEach(tab => {
+        tab.classList.remove('active', 'bg-blue-600', 'text-white');
+        tab.classList.add('bg-gray-200', 'text-gray-700');
+    });
+    
+    // Show selected tab content
+    const targetContent = document.getElementById(tabName + '-content');
+    if (targetContent) {
+        targetContent.classList.remove('hidden');
+    }
+    
+    // Activate the selected tab
+    const activeTab = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+    if (activeTab) {
+        activeTab.classList.add('active', 'bg-blue-600', 'text-white');
+        activeTab.classList.remove('bg-gray-200', 'text-gray-700');
+    }
+}
 
 // RSS Sub-tab Management
 function showRssSubTab(tabName) {
