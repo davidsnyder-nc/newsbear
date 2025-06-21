@@ -131,7 +131,7 @@ try {
     if ($generateMp3) {
         // Generate audio
         $ttsService = new TTSService($settings);
-        $audioFile = $ttsService->generateAudio($briefingContent);
+        $audioFile = $ttsService->synthesizeSpeech($briefingContent);
         if ($audioFile) {
             $downloadUrl = 'downloads/' . basename($audioFile);
         }
