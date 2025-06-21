@@ -51,7 +51,7 @@ try {
             $sessionParts = explode('_', $sessionId);
             if (count($sessionParts) > 1) {
                 $sessionTime = floatval($sessionParts[1]);
-                if ($sessionTime > 0 && time() - $sessionTime > 600) { // 10 minutes
+                if ($sessionTime > 0 && time() - $sessionTime > 120) { // 2 minutes for testing
                     http_response_code(410); // Gone
                     echo json_encode([
                         'success' => false,

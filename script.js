@@ -795,7 +795,7 @@ class NewsBriefApp {
         // Reset log tracking
         this.lastLogCount = 0;
         let pollCount = 0;
-        const maxPolls = 7200; // Stop after 1 hour (7200 * 500ms)
+        const maxPolls = 60; // Stop after 30 seconds (60 * 500ms) for testing
         
         // Fetch logs immediately first
         this.fetchDebugLogs(sessionId);
@@ -805,8 +805,11 @@ class NewsBriefApp {
             
             // Stop polling after max attempts to prevent endless loops
             if (pollCount >= maxPolls) {
-                console.log('Log polling timeout reached, stopping');
+                console.log('Log polling timeout reached, checking final status');
                 this.stopLogPolling();
+                
+                // Check for completion when polling times out
+                this.checkFinalCompletion(sessionId);
                 return;
             }
             
@@ -923,6 +926,37 @@ class NewsBriefApp {
         }
         
         throw new Error('Audio generation timed out');
+    }
+
+    async checkFinalCompletion(sessionId) {
+        try {
+            // Wait a bit for any background processing to complete
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Check session status
+            const response = await fetch('api/status.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.status === 'completed') {
+                    this.addDebugLogEntry('Briefing completed - final check successful', 'success');
+                    this.showSuccess(data.download_url, data.briefing_text, 'Briefing completed successfully!');
+                    return;
+                }
+            }
+            
+            // If still not completed, show timeout message
+            this.addDebugLogEntry('Generation timeout - please check History for completed briefings', 'warning');
+            this.showError('Generation timeout. Please check the History section for your completed briefing.');
+            
+        } catch (error) {
+            console.error('Error checking final completion:', error);
+            this.showError('Generation timeout. Please refresh and check History.');
+        }
     }
 
     stopLogPolling() {
