@@ -355,9 +355,25 @@ try {
     
     debugLog("=== STEP 3: AI GENERATION ===", $sessionId);
     debugLog("Using AI model: " . ($settings['aiSelection'] ?? 'gemini'), $sessionId);
-    debugLog("Target word count: " . (intval(substr($audioLength, 0, 2)) * 150), $sessionId);
     
-    $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' 
+    // Calculate target word count based on audio length
+    $targetWords = match($audioLength) {
+        '1-3' => 450,    // 1.5 min * 300 words/min
+        '3-5' => 1200,   // 4 min * 300 words/min
+        '5-10' => 2250,  // 7.5 min * 300 words/min
+        '10-15' => 3750, // 12.5 min * 300 words/min
+        '15-20' => 5250, // 17.5 min * 300 words/min
+        '20-30' => 7500, // 25 min * 300 words/min
+        default => 2250
+    };
+    
+    debugLog("Target word count: $targetWords (for $audioLength minutes)", $sessionId);
+    
+    $prompt = "Generate a comprehensive news briefing script for exactly $audioLength minutes of audio content (approximately $targetWords words). 
+
+IMPORTANT: This briefing MUST be approximately $targetWords words long to fill the requested $audioLength minutes. Write detailed, thorough coverage of each story.
+
+Start with '$greeting Here are today's top stories.' and end with '$closing' 
 
 CRITICAL RULES - VIOLATION WILL RESULT IN REJECTION:
 1. Use ONLY the stories and sources listed below - NO OTHER SOURCES

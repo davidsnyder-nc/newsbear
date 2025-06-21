@@ -158,7 +158,11 @@ class TTSService {
         curl_close($ch);
         
         if ($httpCode !== 200) {
-            throw new Exception("TTS API error: HTTP {$httpCode} - {$response}");
+            error_log("TTS API Error - HTTP Code: $httpCode");
+            error_log("TTS API Error - Response: " . substr($response, 0, 500));
+            error_log("TTS API Error - Voice: " . $this->voiceSelection);
+            error_log("TTS API Error - API Key length: " . strlen($this->googleApiKey));
+            throw new Exception("Google TTS API returned HTTP $httpCode. Check your API key and quota.");
         }
         
         $responseData = json_decode($response, true);
