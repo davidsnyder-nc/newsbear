@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/ChatterboxTTS.php';
+
 
 class TTSService {
     private $settings;
@@ -43,18 +43,12 @@ class TTSService {
     }
     
     public function getJobStatus($jobId) {
-        if ($this->ttsProvider === 'chatterbox') {
-            if (!$this->chatterboxTTS) {
-                $this->chatterboxTTS = new ChatterboxTTS($this->settings);
-            }
-            return $this->chatterboxTTS->getJobStatus($jobId);
-        }
         return null;
     }
     
     public function isAsyncProvider() {
         error_log("TTS: isAsyncProvider() called - provider: " . $this->ttsProvider);
-        $isAsync = $this->ttsProvider === 'chatterbox';
+        $isAsync = false; // No async providers available
         error_log("TTS: isAsyncProvider() returning: " . ($isAsync ? 'true' : 'false'));
         return $isAsync;
     }

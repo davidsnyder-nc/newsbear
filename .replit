@@ -20,10 +20,6 @@ args = "News Brief Server"
 task = "workflow.run"
 args = "Scheduler"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Chatterbox TTS"
-
 [[workflows.workflow]]
 name = "News Brief Server"
 author = "agent"
@@ -40,15 +36,6 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "while true; do php scheduler.php; sleep 60; done"
-
-[[workflows.workflow]]
-name = "Chatterbox TTS"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd chatterbox-tts && python simple_tts.py"
-waitForPort = 8000
 
 [deployment]
 run = ["sh", "-c", "php -S 0.0.0.0:5000 -t ."]
