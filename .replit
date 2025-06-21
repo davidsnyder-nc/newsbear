@@ -2,7 +2,7 @@ modules = ["php", "php-8.2", "python-3.11"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["atomicparsley", "ffmpeg", "ffmpeg-full", "id3v2", "imagemagick", "libsndfile"]
+packages = ["atomicparsley", "ffmpeg", "ffmpeg-full", "id3v2", "imagemagick", "libsndfile", "pkg-config"]
 
 [workflows]
 runButton = "Project"
