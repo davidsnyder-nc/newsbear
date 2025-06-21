@@ -156,27 +156,7 @@ if ($_POST && !isset($_POST['action'])) {
     error_log("DEBUG: POST categories data: " . json_encode($_POST['categories'] ?? 'NOT SET'));
     error_log("DEBUG: RSS Feeds POST data: " . json_encode($_POST['rssFeeds'] ?? 'NOT SET'));
     
-    // Handle RSS feeds separately
-    if (isset($_POST['rssFeeds']) && is_array($_POST['rssFeeds'])) {
-        $processedFeeds = processRssFeeds($_POST['rssFeeds']);
-        $rssFile = 'data/rss_feeds.json';
-        
-        // Create data directory if it doesn't exist
-        if (!is_dir('data')) {
-            mkdir('data', 0755, true);
-        }
-        
-        file_put_contents($rssFile, json_encode($processedFeeds, JSON_PRETTY_PRINT));
-        error_log("DEBUG: Saved RSS feeds to file: " . json_encode($processedFeeds));
-    } else {
-        // No RSS feeds in POST data, save empty array
-        $rssFile = 'data/rss_feeds.json';
-        if (!is_dir('data')) {
-            mkdir('data', 0755, true);
-        }
-        file_put_contents($rssFile, json_encode([], JSON_PRETTY_PRINT));
-        error_log("DEBUG: No RSS feeds in POST data, saved empty array");
-    }
+    // RSS feeds disabled - no processing needed
     
     file_put_contents($settingsFile, json_encode($settings, JSON_PRETTY_PRINT));
     header('Location: settings.php?saved=1');
@@ -273,11 +253,8 @@ function isCategoryChecked($category) {
     return in_array($category, $settings['categories'] ?? []) ? 'checked' : '';
 }
 
-// Load RSS feeds
-$rssFeeds = getRssFeeds();
-if (!is_array($rssFeeds)) {
-    $rssFeeds = [];
-}
+// RSS feeds disabled for now
+$rssFeeds = [];
 
 ?>
 <!DOCTYPE html>
@@ -655,52 +632,13 @@ if (!is_array($rssFeeds)) {
 
                         <!-- RSS Sources Sub-tab -->
                         <div id="rss-feeds-subtab" class="rss-subtab-content">
-                            <div class="flex justify-between items-center">
-                                <h3 class="text-lg font-medium text-gray-800">RSS Feed Sources</h3>
-                                <button type="button" onclick="addRssFeed()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md">
-                                    <i class="fas fa-plus mr-2"></i>Add RSS Feed
-                                </button>
-                            </div>
-                            
-                            <div id="rss-feeds-container" class="space-y-4 mt-6">
-                                <?php foreach ($rssFeeds as $index => $feed): ?>
-                                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm" id="feed-<?= $index ?>">
-                                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                                            <div class="lg:col-span-3">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Feed Name</label>
-                                                <input type="text" name="rssFeeds[<?= $index ?>][name]" placeholder="Feed Name" value="<?= htmlspecialchars($feed['name'] ?? '') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
-                                            </div>
-                                            <div class="lg:col-span-5">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">RSS Feed URL</label>
-                                                <input type="url" name="rssFeeds[<?= $index ?>][url]" placeholder="https://example.com/feed.xml" value="<?= htmlspecialchars($feed['url'] ?? '') ?>" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
-                                            </div>
-                                            <div class="lg:col-span-3">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                                <select name="rssFeeds[<?= $index ?>][category]" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500">
-                                                    <option value="">Select Category</option>
-                                                    <option value="general" <?= strtolower($feed['category'] ?? '') === 'general' ? 'selected' : '' ?>>General</option>
-                                                    <option value="business" <?= strtolower($feed['category'] ?? '') === 'business' ? 'selected' : '' ?>>Business</option>
-                                                    <option value="technology" <?= strtolower($feed['category'] ?? '') === 'technology' ? 'selected' : '' ?>>Technology</option>
-                                                    <option value="science" <?= strtolower($feed['category'] ?? '') === 'science' ? 'selected' : '' ?>>Science</option>
-                                                    <option value="health" <?= strtolower($feed['category'] ?? '') === 'health' ? 'selected' : '' ?>>Health</option>
-                                                    <option value="entertainment" <?= strtolower($feed['category'] ?? '') === 'entertainment' ? 'selected' : '' ?>>Entertainment</option>
-                                                    <option value="sports" <?= strtolower($feed['category'] ?? '') === 'sports' ? 'selected' : '' ?>>Sports</option>
-                                                    <option value="gaming" <?= strtolower($feed['category'] ?? '') === 'gaming' ? 'selected' : '' ?>>Gaming</option>
-                                                </select>
-                                            </div>
-                                            <div class="lg:col-span-1">
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
-                                                <button type="button" onclick="removeRssFeed('feed-<?= $index ?>')" class="w-full bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                            
-                            <div class="text-center text-gray-500 text-sm" id="no-rss-message" style="<?= (is_array($rssFeeds) && count($rssFeeds) > 0) ? 'display: none;' : '' ?>">
-                                No RSS feeds configured. Click "Add RSS Feed" to get started.
+                            <div class="text-center py-12">
+                                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
+                                    <i class="fas fa-rss text-4xl text-gray-400 mb-4"></i>
+                                    <h3 class="text-lg font-medium text-gray-800 mb-2">RSS Feed Sources</h3>
+                                    <p class="text-gray-600 mb-4">Custom RSS feed integration coming in a future update.</p>
+                                    <p class="text-sm text-gray-500">This feature will allow you to add custom RSS feeds from your favorite news sources.</p>
+                                </div>
                             </div>
                         </div>
 
