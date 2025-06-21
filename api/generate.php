@@ -97,6 +97,9 @@ try {
     // Get selected categories
     $selectedCategories = $settings['categories'] ?? [];
     
+    // If no categories selected but other content enabled, continue
+    $hasOtherContent = ($settings['includeWeather'] ?? false) || ($settings['includeTV'] ?? false);
+    
     // Fetch news
     $newsItems = [];
     if (!empty($selectedCategories)) {
@@ -105,6 +108,8 @@ try {
             $settings['zipCode'] ?? null, 
             $settings['includeLocal'] ?? false
         );
+    } elseif (!$hasOtherContent) {
+        throw new Exception('No content categories selected. Please select at least one news category or enable weather/TV content in settings.');
     }
 
     // Add weather if enabled
@@ -134,9 +139,26 @@ try {
         }
     }
 
-    if (empty($newsItems)) {
-        throw new Exception('No content available. Please enable at least one news source or content type.');
+    if (empty($newsItems) && !$hasOtherContent) {
+        throw new Exception('No content available. Please enable at least one news source, select news categories, or enable weather/TV content in settings.');
     }
+    
+    // If we only have other content, create a simple briefing
+    if (empty($newsItems) && $hasOtherContent) {
+        $briefingContent = "Here's your content briefing for " . date('F j, Y') . ".\n\n";
+        
+        // Add weather/TV content as the briefing
+        if (!empty($newsItems)) {
+            foreach ($newsItems as $item) {
+                $briefingContent .= $item['content'] . "\n\n";
+            }
+        } else {
+            $briefingContent .= "No additional content available at this time.";
+        }
+        
+        // Skip story selection and AI generation for simple content
+        $selectedStories = $newsItems;
+    } else {
 
     // Update status
     $statusData['progress'] = 40;
@@ -153,11 +175,12 @@ try {
     $statusData['message'] = 'Generating briefing...';
     file_put_contents($statusFile, json_encode($statusData));
 
-    // Generate briefing content
-    $briefingContent = $aiService->generateBriefing($selectedStories, $settings);
-    
-    if (empty($briefingContent)) {
-        throw new Exception('Failed to generate briefing content');
+        // Generate briefing content with AI
+        $briefingContent = $aiService->generateBriefing($selectedStories, $settings);
+        
+        if (empty($briefingContent)) {
+            throw new Exception('Failed to generate briefing content');
+        }
     }
 
     // Save to history
