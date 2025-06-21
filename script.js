@@ -151,10 +151,14 @@ class NewsBriefApp {
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
             } else if (result.tts_job_id) {
-                // Handle async TTS (Chatterbox)
-                this.updateStatus('Audio generation queued...', 90);
-                this.addDebugLogEntry(`TTS job queued: ${result.tts_job_id}`, 'info');
-                await this.pollTtsStatus(result.tts_job_id, result.sessionId);
+                // Handle async TTS (Chatterbox) - show immediate completion for background processing
+                this.updateStatus('Audio queued for background processing', 100);
+                this.addDebugLogEntry('Audio generation started in background', 'success');
+                this.addDebugLogEntry('Check the History section in a few minutes for your completed briefing', 'info');
+                
+                // Show success immediately with briefing text
+                this.showSuccess(null, result.briefing_text, 
+                    'Audio generation started in background. Check History section when ready.');
             } else {
                 throw new Error(result.message || 'Generation failed');
             }
