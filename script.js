@@ -149,9 +149,7 @@ class NewsBriefApp {
                 this.startLogPolling(result.sessionId);
             }
 
-            if (result.status === 'processing') {
-                await this.pollStatus(result.sessionId);
-            } else if (result.status === 'success') {
+            if (result.success) {
                 this.showSuccess(result.downloadUrl, result.briefingText);
             } else {
                 throw new Error(result.message || 'Generation failed');

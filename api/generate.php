@@ -25,43 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Generate unique session ID
-$sessionId = uniqid('briefing_', true);
-
-// Create status file immediately
-$statusFile = "../downloads/status_{$sessionId}.json";
-if (!is_dir('../downloads')) {
-    mkdir('../downloads', 0777, true);
-}
-
-// Initial status
-$statusData = [
-    'status' => 'processing',
-    'progress' => 0,
-    'message' => 'Starting briefing generation...',
-    'complete' => false,
-    'sessionId' => $sessionId,
-    'created_at' => time()
-];
-file_put_contents($statusFile, json_encode($statusData));
-
-// Return ONLY the session ID - no other output
-echo json_encode([
-    'status' => 'processing',
-    'sessionId' => $sessionId
-]);
-
-// Flush and close connection to prevent any additional output
-if (function_exists('fastcgi_finish_request')) {
-    fastcgi_finish_request();
-} else {
-    if (ob_get_level()) {
-        ob_end_flush();
-    }
-    flush();
-}
-
-// Now run the background processing
 try {
     require_once '../includes/NewsAPI.php';
     require_once '../includes/AIService.php';
@@ -84,11 +47,6 @@ try {
     // Merge with posted settings
     $settings = array_merge($userSettings, $settings);
 
-    // Update status
-    $statusData['progress'] = 10;
-    $statusData['message'] = 'Fetching news...';
-    file_put_contents($statusFile, json_encode($statusData));
-
     // Initialize services
     $newsAPI = new NewsAPI($settings);
     $aiService = new AIService($settings);
@@ -97,9 +55,13 @@ try {
     // Get selected categories
     $selectedCategories = $settings['categories'] ?? [];
     
-    // If no categories selected but other content enabled, continue
+    // Check if any content is enabled
     $hasOtherContent = ($settings['includeWeather'] ?? false) || ($settings['includeTV'] ?? false);
     
+    if (empty($selectedCategories) && !$hasOtherContent) {
+        throw new Exception('No content categories selected. Please select at least one news category or enable weather/TV content in settings.');
+    }
+
     // Fetch news
     $newsItems = [];
     if (!empty($selectedCategories)) {
@@ -108,8 +70,6 @@ try {
             $settings['zipCode'] ?? null, 
             $settings['includeLocal'] ?? false
         );
-    } elseif (!$hasOtherContent) {
-        throw new Exception('No content categories selected. Please select at least one news category or enable weather/TV content in settings.');
     }
 
     // Add weather if enabled
@@ -139,47 +99,33 @@ try {
         }
     }
 
-    if (empty($newsItems) && !$hasOtherContent) {
-        throw new Exception('No content available. Please enable at least one news source, select news categories, or enable weather/TV content in settings.');
+    if (empty($newsItems)) {
+        throw new Exception('No content available from enabled sources. Please check your API keys and settings.');
     }
-    
-    // If we only have other content, create a simple briefing
-    if (empty($newsItems) && $hasOtherContent) {
-        $briefingContent = "Here's your content briefing for " . date('F j, Y') . ".\n\n";
-        
-        // Add weather/TV content as the briefing
-        if (!empty($newsItems)) {
-            foreach ($newsItems as $item) {
-                $briefingContent .= $item['content'] . "\n\n";
-            }
-        } else {
-            $briefingContent .= "No additional content available at this time.";
-        }
-        
-        // Skip story selection and AI generation for simple content
-        $selectedStories = $newsItems;
-    } else {
 
-    // Update status
-    $statusData['progress'] = 40;
-    $statusData['message'] = 'Selecting stories...';
-    file_put_contents($statusFile, json_encode($statusData));
-
-    // Select stories (simple selection for now)
+    // Select stories (simple selection)
     $audioLength = $settings['audioLength'] ?? '5-10';
     $storyCount = 10; // Default story count
     $selectedStories = array_slice($newsItems, 0, $storyCount);
 
-    // Update status
-    $statusData['progress'] = 60;
-    $statusData['message'] = 'Generating briefing...';
-    file_put_contents($statusFile, json_encode($statusData));
+    // Generate briefing content
+    $briefingContent = $aiService->generateBriefing($selectedStories, $settings);
+    
+    if (empty($briefingContent)) {
+        throw new Exception('Failed to generate briefing content');
+    }
 
-        // Generate briefing content with AI
-        $briefingContent = $aiService->generateBriefing($selectedStories, $settings);
-        
-        if (empty($briefingContent)) {
-            throw new Exception('Failed to generate briefing content');
+    // Check if audio generation is enabled
+    $generateMp3 = $settings['generateMp3'] ?? false;
+    $audioFile = null;
+    $downloadUrl = null;
+
+    if ($generateMp3) {
+        // Generate audio
+        $ttsService = new TTSService($settings);
+        $audioFile = $ttsService->generateAudio($briefingContent);
+        if ($audioFile) {
+            $downloadUrl = 'downloads/' . basename($audioFile);
         }
     }
 
@@ -198,37 +144,37 @@ try {
     $briefingId = $history->saveBriefing([
         'topics' => $sourcesData,
         'text' => $briefingContent,
-        'audio_file' => null,
+        'audio_file' => $audioFile ? basename($audioFile) : null,
         'duration' => 0,
-        'format' => 'text',
+        'format' => $generateMp3 ? 'mp3' : 'text',
         'sources' => $sourcesData
     ]);
 
-    // Final status update
-    $statusData = [
+    // Return response
+    $response = [
+        'success' => true,
         'status' => 'success',
-        'progress' => 100,
         'message' => 'Briefing generated successfully',
+        'progress' => 100,
         'complete' => true,
-        'sessionId' => $sessionId,
-        'briefingText' => $briefingContent,
-        'success' => true
+        'briefingText' => $briefingContent
     ];
-    file_put_contents($statusFile, json_encode($statusData));
+
+    if ($downloadUrl) {
+        $response['downloadUrl'] = $downloadUrl;
+    }
+
+    echo json_encode($response);
 
 } catch (Exception $e) {
     error_log("Briefing generation error: " . $e->getMessage());
     
-    // Error status update
-    $statusData = [
+    echo json_encode([
+        'success' => false,
         'status' => 'error',
+        'message' => $e->getMessage(),
         'progress' => 0,
-        'message' => 'Generation failed: ' . $e->getMessage(),
-        'complete' => true,
-        'sessionId' => $sessionId,
-        'error' => $e->getMessage(),
-        'success' => false
-    ];
-    file_put_contents($statusFile, json_encode($statusData));
+        'complete' => true
+    ]);
 }
 ?>
