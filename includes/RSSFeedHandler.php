@@ -100,14 +100,11 @@ class RSSFeedHandler {
             
             return [
                 'title' => $title,
-                'description' => $content,
                 'content' => $content,
-                'url' => $link,
+                'category' => ucfirst($category),
                 'source' => $feedConfig['name'],
-                'category' => strtolower($category),
                 'publishedAt' => $this->parseDate($pubDate),
-                'urlToImage' => $this->extractImageFromContent($description),
-                'isRss' => true
+                'url' => $link
             ];
         } catch (Exception $e) {
             error_log("RSS Item Parse Error: " . $e->getMessage());
@@ -149,14 +146,11 @@ class RSSFeedHandler {
             
             return [
                 'title' => $title,
-                'description' => $cleanContent,
                 'content' => $cleanContent,
-                'url' => $link,
+                'category' => ucfirst($category),
                 'source' => $feedConfig['name'],
-                'category' => strtolower($category),
                 'publishedAt' => $this->parseDate($updated),
-                'urlToImage' => $this->extractImageFromContent($content),
-                'isRss' => true
+                'url' => $link
             ];
         } catch (Exception $e) {
             error_log("Atom Entry Parse Error: " . $e->getMessage());
