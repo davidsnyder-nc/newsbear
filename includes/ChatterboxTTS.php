@@ -363,6 +363,11 @@ class ChatterboxTTS {
     }
     
     private function saveAudioFile($audioData, $jobId) {
+        // Ensure downloads directory exists
+        $downloadsDir = __DIR__ . '/../downloads';
+        if (!is_dir($downloadsDir)) {
+            mkdir($downloadsDir, 0755, true);
+        }
         $timeFrame = $this->getTimeFrame();
         $date = date('Y-m-d');
         $timestamp = date('His');

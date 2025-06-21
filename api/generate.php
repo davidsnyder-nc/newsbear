@@ -283,10 +283,12 @@ class BriefingGenerator {
                     // For async providers, return success immediately
                     echo json_encode([
                         'success' => true,
-                        'status' => 'success',
-                        'message' => 'Briefing generated successfully',
+                        'status' => 'success', 
+                        'message' => 'Audio generation queued - briefing text available now, audio will be ready in history shortly',
                         'progress' => 100,
                         'complete' => true,
+                        'briefingText' => $briefingContent,
+                        'isAsync' => true,
                         'tts_job_id' => $audioResult,
                         'estimated_duration' => $this->getEstimatedDuration($briefingContent),
                         'briefing_text' => $briefingContent,
@@ -336,7 +338,8 @@ class BriefingGenerator {
                     'message' => 'Briefing generated successfully',
                     'progress' => 100,
                     'complete' => true,
-                    'downloadUrl' => 'downloads/' . $audioFile
+                    'downloadUrl' => 'downloads/' . $audioFile,
+                    'briefingText' => $briefingContent
                 ]);
             } else {
                 // Extract source links for text-only briefings too
