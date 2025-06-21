@@ -181,7 +181,7 @@ class TTSService {
             // Generate unique filename with timestamp
             $timeFrame = $this->getTimeFrame();
             $date = date('Y-m-d');
-            $timestamp = date('His');
+            $timestamp = date('His') . '_' . mt_rand(1000, 9999);
             $filename = "ai-news-{$timeFrame}-{$date}-{$timestamp}.mp3";
             $filepath = __DIR__ . "/../downloads/{$filename}";
             
@@ -189,6 +189,7 @@ class TTSService {
             $downloadsDir = __DIR__ . "/../downloads";
             if (!is_dir($downloadsDir)) {
                 mkdir($downloadsDir, 0755, true);
+                error_log("TTS: Created downloads directory: $downloadsDir");
             }
             
             // Save audio file
@@ -196,13 +197,21 @@ class TTSService {
             error_log("TTS: Saved audio file to {$filepath} ({$bytesWritten} bytes)");
             
             // Verify file was created
-            if (!file_exists($filepath) || filesize($filepath) === 0) {
-                error_log("TTS: File verification failed - {$filepath}");
+            if (!file_exists($filepath)) {
+                error_log("TTS: File creation failed - {$filepath} does not exist");
                 return null;
             }
             
-            // Return relative path from web root
-            return "downloads/{$filename}";
+            if (filesize($filepath) === 0) {
+                error_log("TTS: File is empty - {$filepath}");
+                unlink($filepath);
+                return null;
+            }
+            
+            error_log("TTS: File verification successful - {$filepath}");
+            
+            // Return just the filename for database storage
+            return $filename;
         }
         
         return $audioData;

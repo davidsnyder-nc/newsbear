@@ -53,9 +53,10 @@ try {
         throw new Exception('Failed to generate audio file');
     }
     
-    // Update the briefing record with the audio file
+    // Update the briefing record with the audio file  
     $history = new BriefingHistory();
-    $success = $history->updateBriefingAudioFile($briefingId, basename($audioFile));
+    $audioPath = strpos($audioFile, 'downloads/') === 0 ? $audioFile : 'downloads/' . $audioFile;
+    $success = $history->updateBriefingAudioFile($briefingId, $audioPath);
     
     if (!$success) {
         throw new Exception('Failed to update briefing record with audio file');

@@ -1663,6 +1663,7 @@ async function generateHistoryAudio(briefingId) {
             // Refresh the page to show the new audio file
             location.reload();
         } else {
+            console.error('TTS Error Details:', ttsResult);
             alert('Failed to generate audio: ' + (ttsResult.message || 'Unknown error'));
             button.innerHTML = originalText;
             button.disabled = false;
@@ -1670,7 +1671,7 @@ async function generateHistoryAudio(briefingId) {
         
     } catch (error) {
         console.error('Audio generation error:', error);
-        alert('An error occurred while generating audio.');
+        alert('Network error during audio generation: ' + error.message);
         const button = event.target;
         button.innerHTML = '<i class="fas fa-microphone mr-1"></i>Create MP3';
         button.disabled = false;
