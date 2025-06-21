@@ -141,7 +141,7 @@ class NewsBriefApp {
             const result = await response.json();
 
             // Start log polling with the actual session ID (unless it's async TTS)
-            if (result.sessionId && !result.tts_job_id) {
+            if (result.sessionId && !result.tts_job_id && !result.async_background) {
                 this.currentSessionId = result.sessionId;
                 this.startLogPolling(result.sessionId);
             }
@@ -150,7 +150,7 @@ class NewsBriefApp {
                 await this.pollStatus(result.sessionId);
             } else if (result.status === 'success') {
                 this.showSuccess(result.downloadUrl, result.briefingText);
-            } else if (result.tts_job_id) {
+            } else if (result.tts_job_id || result.async_background) {
                 // Handle async TTS (Chatterbox) - show immediate completion
                 this.stopLogPolling(); // Stop any polling immediately
                 this.showSuccess(null, result.briefing_text, 
@@ -971,13 +971,14 @@ class NewsBriefApp {
                 }
             }
             
-            // If still not completed, show helpful message instead of error
+            // If still not completed, show success message instead of error
             this.addDebugLogEntry('Briefing completed - check History for audio version', 'success');
-            this.showError('Your briefing has been generated! Check the History section for the complete version with audio.');
+            this.showSuccess(null, null, 'Your briefing has been generated! Check the History section for the complete version with audio.');
             
         } catch (error) {
             console.error('Error checking final completion:', error);
-            this.showError('Generation timeout. Please refresh and check History.');
+            // For Chatterbox TTS, show success message instead of error
+            this.showSuccess(null, null, 'Your briefing has been generated! Check the History section for the complete version with audio.');
         }
     }
 

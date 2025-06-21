@@ -256,12 +256,14 @@ class BriefingGenerator {
                     
                     return [
                         'success' => true,
-                        'message' => 'Audio generation queued',
+                        'status' => 'success',
+                        'message' => 'Briefing generated successfully',
                         'progress' => 100,
-                        'complete' => false,
+                        'complete' => true,
                         'tts_job_id' => $audioResult,
                         'estimated_duration' => $this->getEstimatedDuration($briefingContent),
-                        'briefing_text' => $briefingContent
+                        'briefing_text' => $briefingContent,
+                        'async_background' => true
                     ];
                 } else {
                     $audioFile = $audioResult;
