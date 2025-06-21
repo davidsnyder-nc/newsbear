@@ -239,10 +239,9 @@ if (isset($_GET['saved']) && $_GET['saved'] == '1') {
             <?php else: ?>
                 <button 
                     id="generate-btn" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
+                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                    <i class="fas fa-microphone text-2xl"></i>
-                    <span>Create My News Brief</span>
+                    Create My News Brief
                 </button>
             <?php endif; ?>
         </div>

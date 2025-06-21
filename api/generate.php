@@ -61,6 +61,7 @@ class BriefingGenerator {
         // Check if this is an async TTS provider first
         $ttsService = new TTSService($this->settings);
         $isAsyncProvider = $ttsService->isAsyncProvider();
+        error_log("API: isAsyncProvider result: " . ($isAsyncProvider ? 'true' : 'false'));
         
         if (!$isAsyncProvider) {
             // Traditional flow: Return session ID immediately for polling

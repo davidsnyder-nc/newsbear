@@ -127,8 +127,18 @@ class NewsBriefApp {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const result = await response.json();
-            console.log('API Response:', result);
+            const responseText = await response.text();
+            console.log('Raw API Response:', responseText);
+            
+            let result;
+            try {
+                result = JSON.parse(responseText);
+                console.log('Parsed API Response:', result);
+            } catch (parseError) {
+                console.error('JSON Parse Error:', parseError);
+                console.error('Response text:', responseText);
+                throw new Error('Invalid response from server');
+            }
 
             // Chatterbox TTS - immediate success
             if (result.tts_job_id) {
@@ -418,7 +428,7 @@ class NewsBriefApp {
         const generateBtn = document.getElementById('generate-btn');
         if (generateBtn) {
             generateBtn.disabled = false;
-            generateBtn.textContent = '🎙️ Create My News Brief';
+            generateBtn.textContent = 'Create My News Brief';
             generateBtn.classList.remove('generate-processing', 'transform', 'scale-95');
             generateBtn.classList.add('hover:bg-blue-700', 'hover:scale-105');
             generateBtn.style.transform = '';
