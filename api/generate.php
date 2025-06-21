@@ -648,10 +648,18 @@ class BriefingGenerator {
             
             $selectedCategoryDistribution = [];
             $totalSelectedCategories = count($this->selectedCategories);
-            $baseStoriesPerCategory = max(1, floor($storyCount / $totalSelectedCategories));
-            $remainingStories = $storyCount - ($baseStoriesPerCategory * $totalSelectedCategories);
             
-            foreach ($this->selectedCategories as $i => $category) {
+            // Handle case where no categories are selected (weather/local/TV only)
+            if ($totalSelectedCategories == 0) {
+                // No category-based distribution needed - use all content
+                $finalSelectedStories = array_slice($newsItems, 0, $storyCount);
+                $this->debugLog("No categories selected - using " . count($finalSelectedStories) . " items without AI selection");
+                return $finalSelectedStories;
+            } else {
+                $baseStoriesPerCategory = max(1, floor($storyCount / $totalSelectedCategories));
+                $remainingStories = $storyCount - ($baseStoriesPerCategory * $totalSelectedCategories);
+            
+                foreach ($this->selectedCategories as $i => $category) {
                 $storiesForCategory = $baseStoriesPerCategory;
                 if ($i < $remainingStories) {
                     $storiesForCategory++; // Distribute remaining stories
@@ -685,7 +693,7 @@ class BriefingGenerator {
                      "• Include stories from different news organizations\n\n" .
                      $excludeTopicsText .
                      "Available stories:\n";
-        }
+            }
         
         foreach ($filteredItems as $i => $item) {
             $source = $item['source'] ?? 'Unknown';
