@@ -43,10 +43,10 @@ class BriefingGenerator {
         $this->settings = $settings;
         $this->statusFile = "../downloads/status_{$this->sessionId}.json";
         
-        // Initialize selected categories from settings
-        $this->selectedCategories = isset($settings['categories']) && is_array($settings['categories']) && !empty($settings['categories']) 
+        // Initialize selected categories from settings - don't default to general if only special content is wanted
+        $this->selectedCategories = isset($settings['categories']) && is_array($settings['categories']) 
             ? $settings['categories'] 
-            : ['general'];
+            : [];
         
         // Create downloads directory if it doesn't exist
         if (!is_dir('../downloads')) {
@@ -357,24 +357,34 @@ class BriefingGenerator {
         
         $allNews = [];
         
-        // Fetch from enabled news sources including local news
-        $this->debugLog("Fetching from news APIs (GNews, NewsAPI, Guardian, NYT, Local)...");
-        $newsItems = $newsAPI->fetchFromAllSources(
-            $this->selectedCategories, 
-            $this->settings['zipCode'] ?? null, 
-            $this->settings['includeLocal'] ?? false
-        );
-        $this->debugLog("News APIs returned " . count($newsItems) . " articles");
-        $allNews = array_merge($allNews, $newsItems);
+        // Only fetch news if categories are selected
+        if (!empty($this->selectedCategories)) {
+            $this->debugLog("Fetching from news APIs (GNews, NewsAPI, Guardian, NYT, Local)...");
+            $newsItems = $newsAPI->fetchFromAllSources(
+                $this->selectedCategories, 
+                $this->settings['zipCode'] ?? null, 
+                $this->settings['includeLocal'] ?? false
+            );
+            $this->debugLog("News APIs returned " . count($newsItems) . " articles");
+            $allNews = array_merge($allNews, $newsItems);
+            
+            // Fetch from RSS feeds
+            $this->debugLog("Fetching from configured RSS feeds...");
+            $rssItems = $this->fetchRSSNews();
+            $this->debugLog("RSS feeds returned " . count($rssItems) . " articles (unfiltered)");
+            $allNews = array_merge($allNews, $rssItems);
+        } else {
+            $this->debugLog("No news categories selected - skipping news API and RSS feeds");
+        }
         
-        // Fetch from RSS feeds
-        $this->debugLog("Fetching from configured RSS feeds...");
-        $rssItems = $this->fetchRSSNews();
-        $this->debugLog("RSS feeds returned " . count($rssItems) . " articles (unfiltered)");
-        $allNews = array_merge($allNews, $rssItems);
+
         
         // Apply unified category filtering BEFORE content filtering
         $this->debugLog("Applying unified category filtering...");
+        $this->debugLog("Selected categories: " . json_encode($this->selectedCategories));
+        $this->debugLog("Include weather: " . ($this->settings['includeWeather'] ? 'YES' : 'NO'));
+        $this->debugLog("Include local: " . ($this->settings['includeLocal'] ? 'YES' : 'NO'));
+        $this->debugLog("Include TV: " . ($this->settings['includeTV'] ? 'YES' : 'NO'));
         $allNews = $this->applyCategoryFilter($allNews);
         $this->debugLog("After category filtering: " . count($allNews) . " articles remain");
         
@@ -484,8 +494,8 @@ class BriefingGenerator {
                 continue;
             }
             
-            // Check if article category matches any selected category
-            if (in_array($articleCategory, $selectedCategories)) {
+            // Only include general news articles if categories are selected
+            if (!empty($selectedCategories) && in_array($articleCategory, $selectedCategories)) {
                 $filtered[] = $article;
                 $this->debugLog("Including article: '" . $article['title'] . "' (category: " . $articleCategory . ")");
             } else {
