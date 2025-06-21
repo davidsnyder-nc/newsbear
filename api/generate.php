@@ -51,40 +51,84 @@ try {
     $newsAPI = new NewsAPI($settings);
     $aiService = new AIService($settings);
     $history = new BriefingHistory();
+    
+    // Initialize debug logging
+    $sessionId = $input['session_id'] ?? 'briefing_' . time() . '_' . rand(1000, 9999);
+    $debugLogFile = "../data/debug_log_{$sessionId}.json";
+    
+    function debugLog($message, $sessionId) {
+        $logFile = "../data/debug_log_{$sessionId}.json";
+        $timestamp = date('Y-m-d H:i:s');
+        $logEntry = [
+            'timestamp' => $timestamp,
+            'message' => $message,
+            'type' => 'info'
+        ];
+        
+        $existingLogs = [];
+        if (file_exists($logFile)) {
+            $content = file_get_contents($logFile);
+            if ($content) {
+                $existingLogs = json_decode($content, true) ?: [];
+            }
+        }
+        
+        $existingLogs[] = $logEntry;
+        file_put_contents($logFile, json_encode($existingLogs, JSON_PRETTY_PRINT));
+        
+        // Also log to error log for console visibility
+        error_log("NewsBear Debug [$timestamp]: $message");
+    }
+    
+    debugLog("=== Starting briefing generation ===", $sessionId);
+    debugLog("Session ID: $sessionId", $sessionId);
 
     // Get selected categories
     $selectedCategories = $settings['categories'] ?? [];
+    debugLog("Selected categories: " . implode(', ', $selectedCategories), $sessionId);
     
     // Check if any content is enabled
     $hasOtherContent = ($settings['includeWeather'] ?? false) || ($settings['includeTV'] ?? false);
+    debugLog("Include weather: " . ($settings['includeWeather'] ? 'YES' : 'NO'), $sessionId);
+    debugLog("Include TV: " . ($settings['includeTV'] ? 'YES' : 'NO'), $sessionId);
+    debugLog("Include local news: " . ($settings['includeLocal'] ? 'YES' : 'NO'), $sessionId);
+    debugLog("ZIP code: " . ($settings['zipCode'] ?? 'none'), $sessionId);
     
     if (empty($selectedCategories) && !$hasOtherContent) {
         throw new Exception('No content categories selected. Please select at least one news category or enable weather/TV content in settings.');
     }
 
+    debugLog("=== STEP 1: FETCHING CONTENT ===", $sessionId);
+    
     // Collect priority content first (local weather, local news, TV/movies)
     $priorityItems = [];
     $regularNewsItems = [];
 
     // Add weather FIRST if enabled
     if ($settings['includeWeather'] ?? false) {
+        debugLog("Fetching weather for ZIP: " . ($settings['zipCode'] ?? 'none'), $sessionId);
         $weatherService = new WeatherService($settings);
         $weatherItems = $weatherService->getWeatherBriefing($settings['zipCode'] ?? null);
         if (!empty($weatherItems)) {
+            debugLog("Weather: Found " . count($weatherItems) . " weather items", $sessionId);
             foreach ($weatherItems as $item) {
                 $item['priority'] = 1; // Highest priority
                 $priorityItems[] = $item;
             }
+        } else {
+            debugLog("Weather: No weather data available", $sessionId);
         }
     }
 
     // Add TV/Movie content SECOND if enabled
     if ($settings['includeTV'] ?? false) {
+        debugLog("Fetching TV/movie content from TMDB", $sessionId);
         $tmdbService = new TMDBService($settings['tmdbApiKey'] ?? '');
         $tvContent = $tmdbService->getTVContent();
         if ($tvContent) {
             $tvBriefing = $tmdbService->formatForBriefing($tvContent);
             if (!empty($tvBriefing)) {
+                debugLog("TV/Movies: Generated entertainment briefing content", $sessionId);
                 $priorityItems[] = [
                     'title' => 'Entertainment & TV Today',
                     'content' => $tvBriefing,
@@ -93,39 +137,58 @@ try {
                     'publishedAt' => date('c'),
                     'priority' => 2
                 ];
+            } else {
+                debugLog("TV/Movies: No content generated from TMDB", $sessionId);
             }
+        } else {
+            debugLog("TV/Movies: No TV content available from TMDB", $sessionId);
         }
     }
 
     // Fetch regular news (including local news which gets priority = 3)
     if (!empty($selectedCategories)) {
+        debugLog("Fetching news from all sources for categories: " . implode(', ', $selectedCategories), $sessionId);
         $fetchedNews = $newsAPI->fetchFromAllSources(
             $selectedCategories, 
             $settings['zipCode'] ?? null, 
             $settings['includeLocal'] ?? false
         );
         
+        debugLog("Total articles fetched: " . count($fetchedNews), $sessionId);
+        
         // Separate local news from regular news
+        $localCount = 0;
+        $regularCount = 0;
         foreach ($fetchedNews as $item) {
             if (($item['category'] ?? '') === 'local') {
                 $item['priority'] = 3; // Third priority
                 $priorityItems[] = $item;
+                $localCount++;
             } else {
                 $item['priority'] = 4; // Regular news
                 $regularNewsItems[] = $item;
+                $regularCount++;
             }
         }
+        
+        debugLog("Local news articles: $localCount", $sessionId);
+        debugLog("Regular news articles: $regularCount", $sessionId);
     }
 
     // Combine priority items first, then regular news
     $newsItems = array_merge($priorityItems, $regularNewsItems);
+    debugLog("Total content items after priority sorting: " . count($newsItems), $sessionId);
 
     if (empty($newsItems)) {
+        debugLog("ERROR: No content available from enabled sources", $sessionId);
         throw new Exception('No content available from enabled sources. Please check your API keys and settings.');
     }
 
+    debugLog("=== STEP 2: STORY SELECTION ===", $sessionId);
+    
     // Select stories based on audio length setting
     $audioLength = $settings['audioLength'] ?? '5-10';
+    debugLog("Target audio length: $audioLength minutes", $sessionId);
     
     // Calculate story count based on audio length
     switch ($audioLength) {
@@ -150,6 +213,8 @@ try {
         default:
             $storyCount = 20;
     }
+    
+    debugLog("Target story count: $storyCount", $sessionId);
     
     // Filter out stories with insufficient content and prioritize longer descriptions
     $filteredStories = [];
@@ -189,6 +254,21 @@ try {
     // Select the best stories up to our target count
     $storyCount = min($storyCount, count($filteredStories));
     $selectedStories = array_slice($filteredStories, 0, $storyCount);
+    
+    debugLog("Stories after filtering: " . count($filteredStories), $sessionId);
+    debugLog("Final selected stories: " . count($selectedStories), $sessionId);
+    
+    // Log story details
+    foreach ($selectedStories as $index => $story) {
+        $priority = $story['priority'] ?? 4;
+        $priorityLabel = match($priority) {
+            1 => '[WEATHER]',
+            2 => '[TV/MOVIES]', 
+            3 => '[LOCAL NEWS]',
+            default => '[NEWS]'
+        };
+        debugLog("Story " . ($index + 1) . " $priorityLabel: " . ($story['title'] ?? 'Untitled') . " (Source: " . ($story['source'] ?? 'Unknown') . ")", $sessionId);
+    }
 
     // Generate briefing content with proper opening/closing
     $hour = intval(date('H'));
@@ -208,6 +288,10 @@ try {
         $greeting = "Good evening.";
         $closing = "That wraps up tonight's news. Stay safe, and we'll catch you tomorrow.";
     }
+    
+    debugLog("=== STEP 3: AI GENERATION ===", $sessionId);
+    debugLog("Using AI model: " . ($settings['aiSelection'] ?? 'gemini'), $sessionId);
+    debugLog("Target word count: " . (intval(substr($audioLength, 0, 2)) * 150), $sessionId);
     
     $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' 
 
@@ -255,23 +339,35 @@ STORIES TO USE (and ONLY these stories):\n\n";
 Remember: End with the exact closing: '$closing'";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
+    debugLog("Sending prompt to AI service...", $sessionId);
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
     
     if (empty($briefingContent)) {
+        debugLog("ERROR: AI service returned empty content", $sessionId);
         throw new Exception('Failed to generate briefing content');
     }
+    
+    $wordCount = str_word_count($briefingContent);
+    debugLog("AI generation complete - word count: $wordCount", $sessionId);
 
+    debugLog("=== STEP 4: AUDIO GENERATION ===", $sessionId);
+    
     // Check if audio generation is enabled
     $generateMp3 = $settings['generateMp3'] ?? false;
+    debugLog("Audio generation enabled: " . ($generateMp3 ? 'YES' : 'NO'), $sessionId);
+    
     $audioFile = null;
     $downloadUrl = null;
 
     if ($generateMp3) {
-        // Generate audio
+        debugLog("Starting TTS synthesis...", $sessionId);
         $ttsService = new TTSService($settings);
         $audioFile = $ttsService->synthesizeSpeech($briefingContent);
         if ($audioFile) {
             $downloadUrl = 'downloads/' . basename($audioFile);
+            debugLog("Audio file generated: " . basename($audioFile), $sessionId);
+        } else {
+            debugLog("ERROR: Audio generation failed", $sessionId);
         }
     }
 
