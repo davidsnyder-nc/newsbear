@@ -49,13 +49,19 @@ class NewsAPI {
             }
         }
         
-        // Then fetch from RSS feeds 
+        // Fetch from RSS feeds only if any are configured
         try {
             require_once __DIR__ . '/RSSFeedHandler.php';
             $rssHandler = new RSSFeedHandler();
-            $rssNews = $rssHandler->getAllRssArticles(10);
-            $allNews = array_merge($allNews, $rssNews);
-            error_log("RSS fetch: Found " . count($rssNews) . " articles from RSS feeds (added after local)");
+            $rssFeeds = $rssHandler->getRssFeeds();
+            
+            if (!empty($rssFeeds)) {
+                $rssNews = $rssHandler->getAllRssArticles(10);
+                $allNews = array_merge($allNews, $rssNews);
+                error_log("RSS fetch: Found " . count($rssNews) . " articles from " . count($rssFeeds) . " RSS feeds");
+            } else {
+                error_log("RSS fetch: No RSS feeds configured, skipping");
+            }
         } catch (Exception $e) {
             error_log("RSS feed fetch error: " . $e->getMessage());
         }
