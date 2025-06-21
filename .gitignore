@@ -1,53 +1,43 @@
-# User data and configuration
+# Sensitive configuration files
 config/user_settings.json
-data/
-downloads/
-.cache/
 
-# API Keys and sensitive files
-*.key
-*.pem
+# Data directories with user content
+data/history/
+data/debug/
+data/cache/
+data/schedules/
+
+# Generated audio files
+downloads/*.mp3
+downloads/*.wav
+
+# Log files
+*.log
+
+# Cache directories
+.cache/
+cache/
+
+# Environment files
 .env
 .env.local
 
-# Logs
-*.log
-error_log
-access_log
-
 # Temporary files
 *.tmp
+*.bak
 *~
+
+# System files
 .DS_Store
 Thumbs.db
 
 # IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# PHP cache
-opcache/
+# Screenshots and user uploads
+attached_assets/Screenshot*.png
+attached_assets/Screenshot*.jpg
 
-# Node modules (if any)
-node_modules/
-
-# Python files (if any)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-venv/
-env/
-
-# Audio files in data directories
-data/history/*.mp3
-data/history/*.wav
-downloads/*.mp3
-downloads/*.wav
-
-# User uploads and attachments
-attached_assets/Screenshot*
-attached_assets/Pasted*
+# API status tracking
+data/api_status.json
