@@ -146,15 +146,16 @@ class NewsBriefApp {
                 this.startLogPolling(result.sessionId);
             }
 
-            if (result.status === 'processing') {
-                await this.pollStatus(result.sessionId);
-            } else if (result.status === 'success') {
-                this.showSuccess(result.downloadUrl, result.briefingText);
-            } else if (result.tts_job_id || result.async_background) {
+            // Handle Chatterbox TTS first (before other status checks)
+            if (result.tts_job_id || result.async_background) {
                 // Handle async TTS (Chatterbox) - show immediate completion
                 this.stopLogPolling(); // Stop any polling immediately
                 this.showSuccess(null, result.briefing_text, 
                     'Your briefing is ready! Audio version processing in background.');
+            } else if (result.status === 'processing') {
+                await this.pollStatus(result.sessionId);
+            } else if (result.status === 'success') {
+                this.showSuccess(result.downloadUrl, result.briefingText);
             } else {
                 throw new Error(result.message || 'Generation failed');
             }
