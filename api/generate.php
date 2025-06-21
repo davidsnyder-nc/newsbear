@@ -1685,7 +1685,7 @@ class BriefingGenerator {
         $wordCount = str_word_count($content);
         // Estimate based on average speaking rate and processing time
         $speakingTime = ceil($wordCount / 150); // 150 words per minute
-        $processingTime = 60; // Base processing time for Chatterbox
+        $processingTime = 30; // Base processing time for TTS
         return $speakingTime + $processingTime;
     }
     

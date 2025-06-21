@@ -7,7 +7,7 @@ class TTSService {
     private $ttsProvider;
     private $googleApiKey;
     private $voiceSelection;
-    private $chatterboxTTS;
+
     
     public function __construct($settings = null) {
         $this->settings = $settings ?: [];

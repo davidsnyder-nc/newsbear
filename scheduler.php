@@ -46,10 +46,6 @@ try {
 }
 
 echo "Scheduler completed.\n";
-                                    'audio_file' => $result,
-                                    'duration' => $briefing['duration'] ?? 5,
-                                    'format' => 'mp3',
-                                    'sources' => $briefing['sources'] ?? []
                                 ]);
                                 
                                 // Update status file with completion

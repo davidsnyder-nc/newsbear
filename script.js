@@ -140,14 +140,7 @@ class NewsBriefApp {
                 throw new Error('Invalid response from server');
             }
 
-            // Chatterbox TTS - immediate success
-            if (result.tts_job_id) {
-                console.log('Chatterbox TTS detected - showing immediate success');
-                this.hideDebugLog();
-                this.showSuccess(null, result.briefing_text, 
-                    'Your briefing is ready! Audio version processing in background.');
-                return;
-            }
+
 
             // Traditional polling flow for other providers
             this.showDebugLog();

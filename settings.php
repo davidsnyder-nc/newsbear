@@ -2171,10 +2171,8 @@ function toggleTtsOptions() {
 
 
 
-    
-    button.disabled = true;
-    button.textContent = 'Testing TTS...';
-    resultDiv.innerHTML = '<div class="text-blue-600">Starting TTS test generation...</div>';
+</body>
+</html>
     
     try {
         const response = await fetch('api/test_chatterbox_tts.php', {
