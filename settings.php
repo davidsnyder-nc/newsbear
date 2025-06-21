@@ -245,7 +245,9 @@ function getValue($setting) {
 
 function isSelected($setting, $value) {
     global $settings;
-    return ($settings[$setting] ?? '') === $value ? 'selected' : '';
+    $currentValue = $settings[$setting] ?? '';
+    // Convert both to strings for comparison to handle numeric values
+    return (string)$currentValue === (string)$value ? 'selected' : '';
 }
 
 function isCategoryChecked($category) {
