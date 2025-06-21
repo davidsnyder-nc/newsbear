@@ -1514,6 +1514,12 @@ function confirmDeleteInSettings(briefingId) {
             console.error('Error deleting briefing:', error);
             alert('Error deleting briefing');
         });
+}
+
+function closeDeleteModalInSettings() {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.remove();
     }
 }
 
@@ -2117,6 +2123,12 @@ function confirmDeleteSchedule(scheduleId) {
             console.error('Error deleting schedule:', error);
             alert('Error deleting schedule');
         });
+}
+
+function closeDeleteScheduleModal() {
+    const modal = document.getElementById('deleteScheduleModal');
+    if (modal) {
+        modal.remove();
     }
 }
 
