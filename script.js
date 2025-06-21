@@ -333,14 +333,36 @@ class NewsBriefApp {
             // Initialize custom audio player for main page
             this.initializeMainAudioPlayer();
         } else if (briefingText && briefingTextSection) {
-            // Show text section when no MP3 is generated
+            // Show text section when no MP3 is generated OR for background processing
             const briefingTextElement = document.getElementById('briefing-text');
-            if (briefingTextElement) briefingTextElement.textContent = briefingText;
+            
+            // Check if this is background processing
+            if (customMessage && customMessage.includes('background')) {
+                // Background processing - show briefing text with special message
+                if (briefingTextElement) {
+                    briefingTextElement.innerHTML = `
+                        <div class="background-processing-notice">
+                            <h4>Audio generation started in background</h4>
+                            <p>Your briefing text is ready below. The audio version will appear in your History section when complete.</p>
+                            <a href="history.php" class="btn btn-primary" style="display: inline-block; margin: 10px 0; padding: 8px 16px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px;">View History</a>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <h4>Briefing Text:</h4>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; line-height: 1.6;">
+                                ${briefingText.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // Regular text display
+                if (briefingTextElement) briefingTextElement.textContent = briefingText;
+            }
             
             if (downloadSection) downloadSection.classList.add('hidden');
             briefingTextSection.classList.remove('hidden');
         } else if (customMessage && briefingTextSection) {
-            // Show custom message for background processing
+            // Show custom message for other cases
             const briefingTextElement = document.getElementById('briefing-text');
             if (briefingTextElement) briefingTextElement.textContent = customMessage;
             
