@@ -143,16 +143,24 @@ class NewsBriefApp {
         await this.checkDebugLogSettings();
         this.showDebugLog();
 
+        // Generate session ID for this generation
+        const sessionId = 'briefing_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
         try {
             this.addDebugLogEntry('Starting briefing generation...', 'info');
             this.startWittyMessages();
+            
+            // Start debug log polling immediately
+            if (this.debugLogEnabled) {
+                this.startLogPolling(sessionId);
+            }
             
             const response = await fetch('api/generate.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({})
+                body: JSON.stringify({ session_id: sessionId })
             });
 
             if (!response.ok) {
@@ -913,7 +921,7 @@ class NewsBriefApp {
         // Reset log tracking
         this.lastLogCount = 0;
         let pollCount = 0;
-        const maxPolls = 60; // Stop after 30 seconds (60 * 500ms) for testing
+        const maxPolls = 240; // Allow up to 2 minutes of polling (240 * 500ms)
         
         // Fetch logs immediately first
         this.fetchDebugLogs(sessionId);
@@ -923,16 +931,13 @@ class NewsBriefApp {
             
             // Stop polling after max attempts to prevent endless loops
             if (pollCount >= maxPolls) {
-                console.log('Log polling completed, checking final status');
+                console.log('Log polling timeout reached');
                 this.stopLogPolling();
-                
-                // For Chatterbox TTS, this is expected - check for completion
-                this.checkFinalCompletion(sessionId);
                 return;
             }
             
             this.fetchDebugLogs(sessionId);
-        }, 500); // Poll every 500ms to reduce server load
+        }, 500); // Poll every 500ms for real-time updates
     }
 
     async fetchDebugLogs(sessionId) {

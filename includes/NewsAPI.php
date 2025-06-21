@@ -184,6 +184,12 @@ class NewsAPI {
         }
         
         // Log comprehensive API status report
+        // Enhanced logging with session ID if available
+        $sessionId = $_POST['session_id'] ?? null;
+        
+        if ($sessionId) {
+            $this->debugLog("=== API STATUS REPORT ===", $sessionId);
+        }
         error_log("=== API STATUS REPORT ===");
         foreach ($apiStatus as $api => $status) {
             error_log("$api: $status");
