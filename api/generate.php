@@ -108,8 +108,16 @@ try {
     $storyCount = 10; // Default story count
     $selectedStories = array_slice($newsItems, 0, $storyCount);
 
-    // Generate briefing content
-    $briefingContent = $aiService->generateContent($selectedStories, $settings);
+    // Generate briefing content using simple text generation
+    $prompt = "Generate a professional news briefing from these stories:\n\n";
+    foreach ($selectedStories as $story) {
+        $prompt .= "Title: " . ($story['title'] ?? 'Untitled') . "\n";
+        $prompt .= "Content: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n\n";
+    }
+    $prompt .= "\nPlease create a cohesive news briefing script.";
+    
+    $aiSelection = $settings['aiSelection'] ?? 'gemini';
+    $briefingContent = $aiService->generateText($prompt, $aiSelection);
     
     if (empty($briefingContent)) {
         throw new Exception('Failed to generate briefing content');
