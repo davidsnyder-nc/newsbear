@@ -819,9 +819,24 @@ class NewsBriefApp {
             const response = await fetch(`api/debug_log.php?session=${sessionId}&_t=${Date.now()}`);
             
             if (response.status === 410) {
-                // Session expired, stop polling
+                // Session expired, stop polling and check for completion
                 console.log('Session expired, stopping debug log polling');
                 this.stopLogPolling();
+                
+                // Check if briefing completed while session expired
+                const statusResponse = await fetch('api/status.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                if (statusResponse.ok) {
+                    const statusData = await statusResponse.json();
+                    if (statusData.status === 'completed') {
+                        this.showSuccess(statusData.download_url, statusData.briefing_text);
+                        return;
+                    }
+                }
                 return;
             }
             
