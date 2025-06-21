@@ -153,17 +153,42 @@ try {
         $closing = "That wraps up tonight's news. Stay safe, and we'll catch you tomorrow.";
     }
     
-    $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' Write detailed, engaging content that will fill the requested time duration:\n\n";
+    $prompt = "Generate a comprehensive news briefing for a $audioLength minute broadcast. Start with '$greeting Here are today's top stories.' and end with '$closing' 
+
+NOTE: The content provided below are just brief headlines/descriptions. You must EXPAND each one into a full, detailed news story with context, analysis, and implications.\n\n";
     
     // Add story content with more detail for longer broadcasts
     foreach ($selectedStories as $index => $story) {
         $prompt .= "Story " . ($index + 1) . ":\n";
-        $prompt .= "Title: " . ($story['title'] ?? 'Untitled') . "\n";
-        $prompt .= "Content: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n";
-        $prompt .= "Source: " . ($story['source'] ?? 'Unknown') . "\n\n";
+        $prompt .= "Headline: " . ($story['title'] ?? 'Untitled') . "\n";
+        $prompt .= "Brief Description: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n";
+        $prompt .= "Source: " . ($story['source'] ?? 'Unknown') . "\n";
+        $prompt .= "URL: " . ($story['url'] ?? 'No URL') . "\n\n";
     }
     
-    $prompt .= "\nIMPORTANT: Create a $audioLength minute news briefing with comprehensive coverage. Include detailed analysis, context, and smooth transitions between stories. Write substantially more content for longer durations. Provide thorough coverage of each story with background information and implications. Do not include production instructions or music cues.";
+    $prompt .= "\nCRITICAL INSTRUCTIONS FOR $audioLength MINUTE BRIEFING:
+
+1. EXPAND EVERY STORY: The descriptions above are just headlines/summaries. Transform each into a full 3-5 sentence news story with:
+   - Background context and details
+   - Why this matters to listeners
+   - What led to this situation
+   - Potential implications or next steps
+
+2. STORY LENGTH: Each story should be 60-100 words minimum (not just 1-2 sentences)
+
+3. ADD PROFESSIONAL ANALYSIS: Include context like 'This comes after...' or 'Officials say this represents...' or 'The decision follows...'
+
+4. USE NATURAL TRANSITIONS: Connect stories with phrases like 'In related news...' or 'Turning to business...'
+
+5. TARGET LENGTH: Write approximately " . (intval(substr($audioLength, 0, 2)) * 150) . " words total
+
+6. CONVERSATIONAL TONE: Write as a professional news anchor would speak, with natural flow
+
+7. NO SHORTCUTS: Do not just repeat the brief descriptions - create full news coverage
+
+Example: If given 'Carson announces fireworks policy', expand to: 'The city of Carson has announced a strict new zero-tolerance policy on illegal fireworks, with fines reaching up to $5,000. This comes in response to growing complaints from residents about noise and safety concerns during holiday celebrations. City officials say the new enforcement measures will begin immediately and include both citations and confiscation of illegal fireworks. The policy represents one of the toughest stances in the region...'
+
+Write substantial, informative content for each story.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
