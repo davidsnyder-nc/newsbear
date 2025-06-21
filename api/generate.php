@@ -156,20 +156,36 @@ try {
         
         debugLog("Total articles fetched: " . count($fetchedNews), $sessionId);
         
-        // Filter articles to only include enabled categories BEFORE processing
-        $enabledCategories = array_merge($selectedCategories, ['local', 'entertainment', 'weather']);
+        // FIRST: Apply AI categorization to properly classify all articles
+        try {
+            require_once __DIR__ . '/../includes/CategoryClassifier.php';
+            $classifier = new CategoryClassifier($settings);
+            $fetchedNews = $classifier->classifyArticles($fetchedNews);
+            debugLog("AI categorization complete", $sessionId);
+        } catch (Exception $e) {
+            debugLog("Category classification error: " . $e->getMessage(), $sessionId);
+        }
+        
+        // THEN: Apply strict category filtering after categorization
+        $enabledCategories = $selectedCategories; // Only user-selected categories
         $filteredFetchedNews = [];
         
         foreach ($fetchedNews as $item) {
             $itemCategory = strtolower($item['category'] ?? '');
-            if (in_array($itemCategory, $enabledCategories)) {
+            
+            // Allow through if it matches selected categories OR is a special system category
+            $isSystemCategory = in_array($itemCategory, ['local', 'entertainment', 'weather']);
+            $isSelectedCategory = in_array($itemCategory, $enabledCategories);
+            
+            if ($isSelectedCategory || ($isSystemCategory && ($settings['includeLocal'] || $settings['includeTV'] || $settings['includeWeather']))) {
                 $filteredFetchedNews[] = $item;
+                debugLog("INCLUDED: Article '" . ($item['title'] ?? 'Untitled') . "' - category '$itemCategory'", $sessionId);
             } else {
-                debugLog("FILTERED: Article '" . ($item['title'] ?? 'Untitled') . "' excluded - category '$itemCategory' not enabled", $sessionId);
+                debugLog("FILTERED OUT: Article '" . ($item['title'] ?? 'Untitled') . "' - category '$itemCategory' not in selected categories", $sessionId);
             }
         }
         
-        debugLog("Articles after category filtering: " . count($filteredFetchedNews), $sessionId);
+        debugLog("Articles after AI categorization and filtering: " . count($filteredFetchedNews) . " (from " . count($fetchedNews) . ")", $sessionId);
         
         // Separate local news from regular news
         $localCount = 0;

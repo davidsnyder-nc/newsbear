@@ -80,13 +80,13 @@ class CategoryClassifier {
             foreach ($articles as $index => $article) {
                 $newCategory = strtolower($classifications[$index] ?? 'general');
                 
-                // Only include articles that match enabled categories
+                // Apply strict filtering - only include if category is explicitly enabled
                 if (in_array($newCategory, $enabledCategories)) {
                     $article['category'] = $newCategory;
                     $classifiedArticles[] = $article;
-                    error_log("Classified article '{$article['title']}' as category: $newCategory");
+                    error_log("ACCEPTED: Article '{$article['title']}' classified as category: $newCategory");
                 } else {
-                    error_log("FILTERED OUT article '{$article['title']}' - category '$newCategory' not in enabled categories: " . implode(', ', $enabledCategories));
+                    error_log("REJECTED: Article '{$article['title']}' - category '$newCategory' not in enabled categories: " . implode(', ', $enabledCategories));
                 }
             }
             

@@ -173,15 +173,7 @@ class NewsAPI {
             $apiStatus['nyt'] = !$this->nytKey ? 'no API key' : 'categories not supported';
         }
         
-        // Use AI to classify articles that came in as "general"
-        try {
-            require_once __DIR__ . '/CategoryClassifier.php';
-            $classifier = new CategoryClassifier($this->settings);
-            $allNews = $classifier->classifyArticles($allNews);
-            error_log("Applied AI categorization to news articles");
-        } catch (Exception $e) {
-            error_log("Category classification error: " . $e->getMessage());
-        }
+        // AI categorization is now handled in generate.php after all sources are fetched
         
         // Log comprehensive API status report
         // Enhanced logging with session ID if available
