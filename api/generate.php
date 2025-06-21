@@ -328,6 +328,16 @@ class BriefingGenerator {
                 $this->debugLog("Final result: MP3 audio file created successfully");
                 $this->debugLog("Total sources used: " . count($sourcesData) . " news sources");
                 $this->updateStatus('Complete!', 100, true, true, $audioFile);
+                
+                // Return success response to frontend
+                echo json_encode([
+                    'success' => true,
+                    'status' => 'success',
+                    'message' => 'Briefing generated successfully',
+                    'progress' => 100,
+                    'complete' => true,
+                    'downloadUrl' => 'downloads/' . $audioFile
+                ]);
             } else {
                 // Extract source links for text-only briefings too
                 $sourcesData = [];
@@ -359,6 +369,16 @@ class BriefingGenerator {
                 $this->debugLog("Final result: Text-only briefing created successfully");
                 $this->debugLog("Total sources used: " . count($sourcesData) . " news sources");
                 $this->updateStatus('Complete!', 100, true, true, null, $briefingContent);
+                
+                // Return success response to frontend
+                echo json_encode([
+                    'success' => true,
+                    'status' => 'success',
+                    'message' => 'Briefing generated successfully',
+                    'progress' => 100,
+                    'complete' => true,
+                    'briefingText' => $briefingContent
+                ]);
             }
             
         } catch (Exception $e) {
@@ -367,6 +387,15 @@ class BriefingGenerator {
             $this->debugLog("Error location: " . $e->getFile() . " line " . $e->getLine(), 'ERROR');
             error_log("Briefing generation error: " . $e->getMessage());
             $this->updateStatus('Error: ' . $e->getMessage(), 0, true, false);
+            
+            // Return error response to frontend
+            echo json_encode([
+                'success' => false,
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'progress' => 0,
+                'complete' => true
+            ]);
         }
     }
     
