@@ -277,7 +277,7 @@ class NewsAPI {
         return $news;
     }
     
-    private function fetchLocalNews($zipCode) {
+    public function fetchLocalNews($zipCode) {
         $news = [];
         
         // Convert zip code to city name for better search results
