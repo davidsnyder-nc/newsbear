@@ -45,42 +45,7 @@ try {
     error_log("TTS processing error: " . $e->getMessage());
 }
 
-// Process Chatterbox TTS queue
-try {
-    require_once __DIR__ . '/includes/ChatterboxTTS.php';
-    
-    $queueFile = __DIR__ . '/data/tts_queue.json';
-    if (file_exists($queueFile)) {
-        $queue = json_decode(file_get_contents($queueFile), true) ?: [];
-        $updated = false;
-        
-        foreach ($queue as $index => $job) {
-            if ($job['status'] === 'queued' || $job['status'] === 'failed') {
-                error_log("Processing Chatterbox job: " . $job['id'] . " (status: " . $job['status'] . ")");
-                
-                // Load settings for Chatterbox
-                $settingsFile = __DIR__ . '/config/user_settings.json';
-                $settings = [];
-                if (file_exists($settingsFile)) {
-                    $settings = json_decode(file_get_contents($settingsFile), true) ?: [];
-                }
-                
-                // Set unlimited execution time for audio processing
-                set_time_limit(0); // No time limit
-                ini_set('memory_limit', '1G');
-                
-                $chatterbox = new ChatterboxTTS($settings);
-                $result = $chatterbox->processJob($job['id']);
-                
-                if ($result) {
-                    error_log("Chatterbox job completed: " . $job['id']);
-                    // Complete the briefing immediately here
-                    require_once __DIR__ . '/includes/BriefingHistory.php';
-                    
-                    // Find and complete pending briefing
-                    $pendingFile = __DIR__ . '/data/pending_briefings.json';
-                    if (file_exists($pendingFile)) {
-                        $pending = json_decode(file_get_contents($pendingFile), true) ?: [];
+echo "Scheduler completed.\n";
                         
                         foreach ($pending as $index => $briefing) {
                             if (isset($briefing['tts_job_id']) && $briefing['tts_job_id'] === $job['id']) {

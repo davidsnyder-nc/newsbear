@@ -2166,102 +2166,12 @@ function toggleTtsOptions() {
     if (ttsProvider === 'google') {
         googleOptions.style.display = 'block';
         chatterboxOptions.style.display = 'none';
-    } else if (ttsProvider === 'chatterbox') {
-        googleOptions.style.display = 'none';
-        chatterboxOptions.style.display = 'block';
-    } else {
-        googleOptions.style.display = 'none';
-        chatterboxOptions.style.display = 'none';
     }
 }
 
-async function testChatterboxConnection() {
-    const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;
-    const resultDiv = document.getElementById('chatterbox-test-result');
-    const button = event.target;
-    
-    button.disabled = true;
-    button.textContent = 'Testing...';
-    resultDiv.innerHTML = '<div class="text-blue-600">Testing Gradio connection...</div>';
-    
-    try {
-        const response = await fetch('api/test_chatterbox.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ server_url: serverUrl })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            resultDiv.innerHTML = `
-                <div class="text-green-600 font-medium">${result.message}</div>
-                <div class="text-green-700 mt-1">${result.details}</div>
-            `;
-        } else {
-            resultDiv.innerHTML = `
-                <div class="text-red-600 font-medium">${result.message}</div>
-                <div class="text-red-700 mt-1">${result.details || result.error}</div>
-            `;
-        }
-    } catch (error) {
-        resultDiv.innerHTML = `
-            <div class="text-red-600 font-medium">Connection failed</div>
-            <div class="text-red-700 mt-1">Error: ${error.message}</div>
-        `;
-    } finally {
-        button.disabled = false;
-        button.textContent = 'Test Connection';
-    }
-}
 
-async function debugChatterboxEndpoints() {
-    const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;
-    const resultDiv = document.getElementById('chatterbox-test-result');
-    const button = event.target;
-    
-    button.disabled = true;
-    button.textContent = 'Debugging...';
-    resultDiv.innerHTML = '<div class="text-blue-600">Testing all endpoints...</div>';
-    
-    try {
-        const response = await fetch('api/chatterbox_debug.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ server_url: serverUrl })
-        });
-        
-        const result = await response.json();
-        
-        let html = `<div class="text-sm space-y-2">`;
-        html += `<div><strong>Server:</strong> ${result.server_url}</div>`;
-        html += `<div><strong>Working endpoints:</strong> ${result.working_endpoints}/${result.total_endpoints_tested}</div>`;
-        
-        if (result.working_endpoint_list.length > 0) {
-            html += `<div class="text-green-600"><strong>Available:</strong> ${result.working_endpoint_list.join(', ')}</div>`;
-        }
-        
-        if (result.tts_tests && result.tts_tests.length > 0) {
-            html += `<div class="mt-2"><strong>TTS Tests:</strong></div>`;
-            result.tts_tests.forEach(test => {
-                const status = test.accepts_tts ? 'text-green-600' : 'text-red-600';
-                html += `<div class="${status}">• ${test.endpoint}: HTTP ${test.http_code} (${test.content_type})</div>`;
-            });
-        }
-        
-        html += `</div>`;
-        resultDiv.innerHTML = html;
-        
-    } catch (error) {
-        resultDiv.innerHTML = `
-            <div class="text-red-600 font-medium">Debug failed</div>
-            <div class="text-red-700 mt-1">Error: ${error.message}</div>
-        `;
-    } finally {
-        button.disabled = false;
-        button.textContent = 'Debug Endpoints';
-    }
-}
+
+
 
 async function testChatterboxTTS() {
     const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;

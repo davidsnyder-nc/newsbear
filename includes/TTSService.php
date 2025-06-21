@@ -18,10 +18,8 @@ class TTSService {
             ($this->settings['googleTtsApiKey'] ?: getenv('GOOGLE_TTS_API_KEY')) : null;
         $this->voiceSelection = $this->settings['voiceSelection'] ?? 'en-US-Neural2-D';
         
-        // Chatterbox TTS setup
-        if ($this->ttsProvider === 'chatterbox') {
-            $this->chatterboxTTS = new ChatterboxTTS($this->settings);
-        }
+
+
     }
     
     public function synthesizeSpeech($ssmlText) {
