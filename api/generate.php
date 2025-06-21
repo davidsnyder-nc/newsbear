@@ -109,7 +109,7 @@ try {
     $selectedStories = array_slice($newsItems, 0, $storyCount);
 
     // Generate briefing content
-    $briefingContent = $aiService->generateBriefing($selectedStories, $settings);
+    $briefingContent = $aiService->generateContent($selectedStories, $settings);
     
     if (empty($briefingContent)) {
         throw new Exception('Failed to generate briefing content');
