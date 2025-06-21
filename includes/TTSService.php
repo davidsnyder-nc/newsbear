@@ -28,12 +28,6 @@ class TTSService {
         
         // Route to appropriate TTS provider
         switch ($this->ttsProvider) {
-            case 'chatterbox':
-                if (!$this->chatterboxTTS) {
-                    $this->chatterboxTTS = new ChatterboxTTS($this->settings);
-                }
-                return $this->chatterboxTTS->synthesizeSpeech($ssmlText);
-                
             case 'google':
             default:
                 return $this->synthesizeWithGoogle($ssmlText);

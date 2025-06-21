@@ -46,14 +46,6 @@ try {
 }
 
 echo "Scheduler completed.\n";
-                        
-                        foreach ($pending as $index => $briefing) {
-                            if (isset($briefing['tts_job_id']) && $briefing['tts_job_id'] === $job['id']) {
-                                // Save to history
-                                $history = new BriefingHistory();
-                                $briefingId = $history->saveBriefing([
-                                    'topics' => $briefing['topics'] ?? [],
-                                    'text' => $briefing['text'],
                                     'audio_file' => $result,
                                     'duration' => $briefing['duration'] ?? 5,
                                     'format' => 'mp3',

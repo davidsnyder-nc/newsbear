@@ -2161,11 +2161,8 @@ function populateScheduleForm(schedule) {
 function toggleTtsOptions() {
     const ttsProvider = document.querySelector('select[name="ttsProvider"]').value;
     const googleOptions = document.getElementById('google-voice-options');
-    const chatterboxOptions = document.getElementById('chatterbox-options');
-    
     if (ttsProvider === 'google') {
         googleOptions.style.display = 'block';
-        chatterboxOptions.style.display = 'none';
     }
 }
 
@@ -2173,11 +2170,7 @@ function toggleTtsOptions() {
 
 
 
-async function testChatterboxTTS() {
-    const serverUrl = document.querySelector('input[name="chatterboxServerUrl"]').value;
-    const sampleFile = document.querySelector('input[name="chatterboxSampleFile"]').value;
-    const resultDiv = document.getElementById('chatterbox-test-result');
-    const button = event.target;
+
     
     button.disabled = true;
     button.textContent = 'Testing TTS...';
