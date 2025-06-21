@@ -1642,9 +1642,51 @@ function toggleHistoryText(briefingId) {
     }
 }
 
-function generateHistoryAudio(briefingId) {
-    // Implementation for generating audio from existing briefing
-    alert('Audio generation for existing briefings will be implemented in the next update.');
+async function generateHistoryAudio(briefingId) {
+    try {
+        // Get the briefing text content first
+        const response = await fetch(`api/history.php?id=${briefingId}&action=get_text`);
+        const data = await response.json();
+        
+        if (!data.success || !data.text_content) {
+            alert('Unable to retrieve briefing text for audio generation.');
+            return;
+        }
+        
+        // Show loading state
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Generating...';
+        button.disabled = true;
+        
+        // Generate audio using TTS
+        const ttsResponse = await fetch('api/generate_audio.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                briefing_id: briefingId,
+                text_content: data.text_content
+            })
+        });
+        
+        const ttsResult = await ttsResponse.json();
+        
+        if (ttsResult.success && ttsResult.audio_file) {
+            // Refresh the page to show the new audio file
+            location.reload();
+        } else {
+            alert('Failed to generate audio: ' + (ttsResult.message || 'Unknown error'));
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+        
+    } catch (error) {
+        console.error('Audio generation error:', error);
+        alert('An error occurred while generating audio.');
+        const button = event.target;
+        button.innerHTML = '<i class="fas fa-microphone mr-1"></i>Create MP3';
+        button.disabled = false;
+    }
 }
 
 function initializeHistoryAudioPlayers() {

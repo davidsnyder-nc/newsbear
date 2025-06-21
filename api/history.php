@@ -25,6 +25,25 @@ try {
         $totalPages = ceil($totalBriefings / $perPage);
         $briefings = $history->getBriefings($perPage, $offset);
         
+        // Check for specific briefing text request
+        if (isset($_GET['id']) && isset($_GET['action']) && $_GET['action'] === 'get_text') {
+            $briefingId = $_GET['id'];
+            $textContent = $history->getBriefingText($briefingId);
+            
+            if ($textContent) {
+                echo json_encode([
+                    'success' => true,
+                    'text_content' => $textContent
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Briefing text not found'
+                ]);
+            }
+            exit;
+        }
+        
         // Format briefings for JSON response
         $formattedBriefings = [];
         foreach ($briefings as $briefing) {

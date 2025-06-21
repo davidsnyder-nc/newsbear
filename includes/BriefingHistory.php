@@ -445,4 +445,45 @@ class BriefingHistory {
             }
         }
     }
+    
+    public function updateBriefingAudioFile($briefingId, $audioFile) {
+        try {
+            $briefings = $this->getAllBriefings();
+            
+            // Find and update the briefing
+            foreach ($briefings as &$briefing) {
+                if ($briefing['id'] === $briefingId) {
+                    $briefing['audio_file'] = $audioFile;
+                    $briefing['format'] = 'mp3';
+                    break;
+                }
+            }
+            
+            // Save updated briefings
+            file_put_contents($this->briefingsFile, json_encode($briefings, JSON_PRETTY_PRINT));
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("Error updating briefing audio file: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function getBriefingText($briefingId) {
+        try {
+            $briefings = $this->getAllBriefings();
+            
+            foreach ($briefings as $briefing) {
+                if ($briefing['id'] === $briefingId) {
+                    return $briefing['text'] ?? null;
+                }
+            }
+            
+            return null;
+            
+        } catch (Exception $e) {
+            error_log("Error getting briefing text: " . $e->getMessage());
+            return null;
+        }
+    }
 }
