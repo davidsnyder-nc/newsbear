@@ -1,106 +1,120 @@
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-require_once __DIR__ . '/../includes/ChatterboxTTS.php';
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
 }
-
-$input = json_decode(file_get_contents('php://input'), true);
-$serverUrl = $input['server_url'] ?? 'http://localhost:8000';
-$sampleFile = $input['sample_file'] ?? '';
 
 try {
-    // Test settings
-    $testSettings = [
-        'chatterboxServerUrl' => $serverUrl,
-        'chatterboxVoice' => 'news_anchor',
-        'chatterboxSampleFile' => $sampleFile,
-        'ttsProvider' => 'chatterbox'
-    ];
-    
-    $chatterbox = new ChatterboxTTS($testSettings);
-    
-    // Short test text matching the API documentation example
-    $testText = "Hello!!";
-    
-    // Generate test audio directly (bypass queue for short text)
-    $startTime = microtime(true);
-    
-    // Use reflection to call sendToChatterbox directly for immediate results
-    $reflection = new ReflectionClass($chatterbox);
-    $sendMethod = $reflection->getMethod('sendToChatterbox');
-    $sendMethod->setAccessible(true);
-    
-    $audioData = $sendMethod->invoke($chatterbox, $testText, 'news_anchor');
-    $processingTime = round((microtime(true) - $startTime), 2);
-    
-    if ($audioData) {
-        // Save test audio file
-        $testFileName = 'chatterbox_test_' . time() . '.wav';
-        $testFilePath = __DIR__ . '/../downloads/' . $testFileName;
-        
-        if (file_put_contents($testFilePath, $audioData)) {
-            $fileSize = strlen($audioData);
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Chatterbox TTS test successful!',
-                'details' => [
-                    'processing_time' => $processingTime . ' seconds',
-                    'audio_size' => round($fileSize / 1024, 2) . ' KB',
-                    'test_file' => $testFileName,
-                    'download_url' => 'downloads/' . $testFileName
-                ],
-                'test_text' => $testText,
-                'server_url' => $serverUrl
-            ]);
-        } else {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Audio generated but failed to save file',
-                'details' => 'Check file permissions in downloads folder',
-                'debug_info' => [
-                    'audio_size' => strlen($audioData),
-                    'file_path' => $testFilePath,
-                    'downloads_writable' => is_writable(__DIR__ . '/../downloads/')
-                ]
-            ]);
-        }
-    } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'TTS generation failed',
-            'details' => 'No audio data received from Chatterbox server',
-            'debug_info' => [
-                'server_url' => $serverUrl,
-                'test_text_length' => strlen($testText),
-                'processing_time' => $processingTime . 's'
-            ],
-            'suggestions' => [
-                'Verify Chatterbox server is running at: ' . $serverUrl,
-                'Check if server accepts the API format',
-                'Review Chatterbox server logs for errors',
-                'Try the Debug Endpoints button for more details'
-            ]
-        ]);
+    // Load settings
+    $settingsFile = __DIR__ . '/../config/user_settings.json';
+    if (!file_exists($settingsFile)) {
+        throw new Exception('Settings file not found');
     }
     
+    $settings = json_decode(file_get_contents($settingsFile), true);
+    if (!$settings) {
+        throw new Exception('Invalid settings file');
+    }
+    
+    $serverUrl = $settings['chatterboxServerUrl'] ?? 'http://127.0.0.1:8000';
+    
+    // Test TTS generation with a simple request
+    $testUrl = rtrim($serverUrl, '/') . '/generate';
+    
+    $testData = [
+        'text' => 'This is a test of the Chatterbox TTS system.',
+        'voice' => $settings['chatterboxVoice'] ?? 'default'
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $testUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($testData));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json'
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'NewsBear/2.0');
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($error) {
+        throw new Exception("Connection error: $error");
+    }
+    
+    if ($httpCode !== 200) {
+        throw new Exception("Server returned HTTP $httpCode. Response: " . substr($response, 0, 200));
+    }
+    
+    // Parse response
+    $data = json_decode($response, true);
+    if (!$data) {
+        throw new Exception("Invalid JSON response from server: " . substr($response, 0, 200));
+    }
+    
+    if (!isset($data['job_id'])) {
+        throw new Exception("No job_id in response: " . json_encode($data));
+    }
+    
+    // Wait a moment for processing to start
+    sleep(2);
+    
+    // Check job status
+    $statusUrl = rtrim($serverUrl, '/') . '/status/' . $data['job_id'];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $statusUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'NewsBear/2.0');
+    
+    $statusResponse = curl_exec($ch);
+    $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $statusError = curl_error($ch);
+    curl_close($ch);
+    
+    if ($statusError) {
+        throw new Exception("Status check error: $statusError");
+    }
+    
+    if ($statusCode !== 200) {
+        throw new Exception("Status check failed with HTTP $statusCode");
+    }
+    
+    $statusData = json_decode($statusResponse, true);
+    if (!$statusData) {
+        throw new Exception("Invalid status response");
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'TTS generation test successful',
+        'job_id' => $data['job_id'],
+        'status' => $statusData['status'] ?? 'unknown',
+        'progress' => $statusData['progress'] ?? 0,
+        'server_url' => $serverUrl
+    ]);
+    
 } catch (Exception $e) {
+    http_response_code(400);
     echo json_encode([
         'success' => false,
-        'message' => 'TTS test failed',
-        'error' => $e->getMessage(),
-        'suggestions' => [
-            'Check Chatterbox server status',
-            'Verify network connectivity',
-            'Review server configuration'
-        ]
+        'error' => $e->getMessage()
     ]);
 }
+?>

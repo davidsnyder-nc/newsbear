@@ -210,35 +210,27 @@ class ChatterboxTTS {
     }
     
     private function sendToChatterbox($text, $voiceStyle) {
-        // Try standard Gradio API format first
-        $apiEndpoint = 'api/predict';
+        // Use direct TTS API endpoint
+        $apiEndpoint = 'generate';
         
-        // Standard Gradio API payload
-        $gradioData = [
-            'data' => [
-                $text, // Text to synthesize
-                null,  // Reference audio (optional)
-                0.7,   // Voice similarity
-                0.7,   // Text temperature
-                42,    // Random seed
-                1.0,   // Speed
-                true   // Use enhanced processing
-            ],
-            'fn_index' => 0 // Usually the first function
+        // Simple TTS API payload
+        $ttsData = [
+            'text' => $text,
+            'voice' => $voiceStyle ?: 'default'
         ];
         
-        // POST request to Gradio API
+        // POST request to TTS API
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, rtrim($this->serverUrl, '/') . '/' . $apiEndpoint);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($gradioData));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($ttsData));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Accept: application/json'
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 0); // No timeout for long audio generation
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Initial request timeout
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         $response = curl_exec($ch);
