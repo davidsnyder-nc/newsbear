@@ -61,10 +61,19 @@ try {
                 'text_content' => null
             ];
             
-            // Check if audio file actually exists
-            if ($formattedBriefing['audio_file'] && !file_exists('../' . $formattedBriefing['audio_file'])) {
-                $formattedBriefing['audio_file'] = null;
-                $formattedBriefing['format'] = 'text';
+            // Check if audio file actually exists and fix path
+            if ($formattedBriefing['audio_file']) {
+                $audioPath = '../' . $formattedBriefing['audio_file'];
+                if (!file_exists($audioPath)) {
+                    // Try alternative path structure
+                    $altPath = '../downloads/' . basename($formattedBriefing['audio_file']);
+                    if (file_exists($altPath)) {
+                        $formattedBriefing['audio_file'] = 'downloads/' . basename($formattedBriefing['audio_file']);
+                    } else {
+                        $formattedBriefing['audio_file'] = null;
+                        $formattedBriefing['format'] = 'text';
+                    }
+                }
             }
             
             // Load topics from briefing data

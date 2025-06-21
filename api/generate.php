@@ -108,13 +108,31 @@ try {
     $storyCount = 10; // Default story count
     $selectedStories = array_slice($newsItems, 0, $storyCount);
 
-    // Generate briefing content using simple text generation
-    $prompt = "Generate a clean, professional news briefing text from these stories. Write ONLY the news content that should be read aloud - no production notes, music cues, or stage directions. Just the news text:\n\n";
+    // Generate briefing content with proper opening/closing
+    $hour = intval(date('H'));
+    $greeting = '';
+    $closing = '';
+    
+    if ($hour >= 5 && $hour < 12) {
+        $greeting = "Good morning.";
+        $closing = "That's your morning news update. We'll be back with more throughout the day.";
+    } elseif ($hour >= 12 && $hour < 17) {
+        $greeting = "Good afternoon.";
+        $closing = "That concludes your afternoon news briefing. Stay informed, and we'll see you later.";
+    } elseif ($hour >= 17 && $hour < 22) {
+        $greeting = "Good evening.";
+        $closing = "That's all for your evening news update. Have a great rest of your evening.";
+    } else {
+        $greeting = "Good evening.";
+        $closing = "That wraps up tonight's news. Stay safe, and we'll catch you tomorrow.";
+    }
+    
+    $prompt = "Generate a clean, professional news briefing text from these stories. Start with '$greeting Here are today's top stories.' and end with '$closing' Write ONLY the news content that should be read aloud - no production notes, music cues, or stage directions:\n\n";
     foreach ($selectedStories as $story) {
         $prompt .= "Title: " . ($story['title'] ?? 'Untitled') . "\n";
         $prompt .= "Content: " . ($story['content'] ?? $story['description'] ?? 'No content') . "\n\n";
     }
-    $prompt .= "\nCreate a cohesive news briefing with clean, readable text suitable for text-to-speech. Do not include any production instructions, music cues, or formatting beyond basic paragraph breaks.";
+    $prompt .= "\nCreate a cohesive news briefing with clean, readable text suitable for text-to-speech. Include proper transitions between stories. Do not include any production instructions, music cues, or formatting beyond basic paragraph breaks.";
     
     $aiSelection = $settings['aiSelection'] ?? 'gemini';
     $briefingContent = $aiService->generateText($prompt, $aiSelection);
