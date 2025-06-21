@@ -807,6 +807,7 @@ class BriefingGenerator {
         $selectedStories = $this->enforceSourceDiversity($selectedStories, $filteredItems, $storyCount);
         
         return $selectedStories;
+        } // Close the else block
     }
     
     private function enforceSourceDiversity($selectedStories, $allStories, $targetCount) {
