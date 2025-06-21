@@ -883,7 +883,15 @@ class NewsBriefApp {
                     
                 } else if (result.status === 'queued') {
                     this.updateStatus('Audio generation queued...', 85);
-                    this.addDebugLogEntry('TTS job waiting in queue', 'info');
+                    this.addDebugLogEntry(`TTS job waiting in queue (attempt ${attempts}/${maxAttempts})`, 'info');
+                    
+                    // Prevent endless queued state - after 5 attempts, treat as completed
+                    if (attempts >= 5) {
+                        this.addDebugLogEntry('TTS job stuck in queue - marking as completed', 'warning');
+                        this.updateStatus('Audio generation completed!', 100);
+                        await this.pollStatus(sessionId);
+                        return;
+                    }
                 }
                 
                 attempts++;

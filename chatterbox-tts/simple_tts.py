@@ -36,9 +36,9 @@ def simulate_tts_generation(job):
     try:
         job.status = "processing"
         
-        # Simulate processing time with progress updates
+        # Simulate processing time with progress updates (much faster for testing)
         for i in range(1, 11):
-            time.sleep(0.5)  # Quick for testing
+            time.sleep(0.1)  # Very quick for testing
             job.progress = i * 10
             if job.status == "cancelled":
                 return
