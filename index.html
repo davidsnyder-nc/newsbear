@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <title>briefnews</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Hide scrollbar for the description and episode list */
+        .custom-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        /* Animation for the play button when audio is playing */
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .is-playing-animation-red {
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+        }
+
+        .is-playing-animation-blue {
+            animation: pulse-blue 2s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 flex items-center justify-center h-screen py-2 sm:py-8">
+
+    <div class="container mx-auto p-2 sm:p-4 w-full h-full sm:w-[90vw] sm:h-[90vh] max-w-3xl flex flex-col">
+        <!-- Pill Tab Switcher -->
+        <div class="flex justify-center mb-4 sm:mb-6 flex-shrink-0">
+            <div id="tab-container" class="relative flex bg-gray-200 p-1 rounded-full w-full">
+                <div id="tab-slider" class="absolute top-1 bottom-1 bg-blue-500 rounded-full transition-all duration-300 ease-in-out"></div>
+                <button id="tab-1" class="tab-btn py-2 text-base font-semibold flex items-center justify-center sm:space-x-3 flex-1 relative z-10 text-white transition-colors duration-300">
+                    <div class="icon-container w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                    </div>
+                    <span class="whitespace-nowrap hidden sm:inline">News</span>
+                </button>
+                <button id="tab-2" class="tab-btn py-2 text-base font-semibold flex items-center justify-center sm:space-x-3 flex-1 relative z-10 text-gray-600 transition-colors duration-300">
+                     <div class="icon-container w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    </div>
+                    <span class="whitespace-nowrap hidden sm:inline">On</span>
+                </button>
+                <button id="tab-3" class="tab-btn py-2 text-base font-semibold flex items-center justify-center sm:space-x-3 flex-1 relative z-10 text-gray-600 transition-colors duration-300">
+                    <div class="icon-container w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                       <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    </div>
+                    <span class="whitespace-nowrap hidden sm:inline">Lovecast</span>
+                </button>
+                 <button id="tab-4" class="tab-btn py-2 text-base font-semibold flex items-center justify-center sm:space-x-3 flex-1 relative z-10 text-gray-600 transition-colors duration-300">
+                    <div class="icon-container w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                    </div>
+                    <span class="whitespace-nowrap hidden sm:inline">More</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Podcast Player 1: News -->
+        <div id="player-1" class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg podcast-player flex flex-col flex-grow min-h-0" data-theme="blue">
+            <div class="flex-shrink-0">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover podcast-artwork" src="https://placehold.co/100x100/3b82f6/ffffff?text=News" alt="Podcast Artwork">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-lg font-bold podcast-title truncate">News Feed</p>
+                        <p class="text-md font-semibold text-gray-800 mt-1 episode-title">Loading Episode...</p>
+                        <div class="text-sm text-gray-500 mt-2">
+                            <span class="episode-date">...</span>
+                        </div>
+                        <div class="episode-description text-sm text-gray-600 mt-2 prose prose-sm"></div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <audio class="hidden-audio" preload="metadata" 
+                           data-feed-url="https://feeds.acast.com/public/shows/dth"
+                           data-secondary-feed-url="https://feeds.megaphone.fm/techcrunch-daily-crunch"
+                           data-tertiary-feed-url="https://feeds.npr.org/500005/podcast.xml" 
+                           data-quaternary-feed-url="https://podcast.voice.api.bbci.co.uk/rss/audio/p002vsmz?api_key=Wbek5zSqxz0Hk1blo5IBqbd9SCWIfNbT"
+                           data-quinary-feed-url="https://feeds.megaphone.fm/reutersworldnews">
+                    </audio>
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <button class="play-pause-btn p-3 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2">
+                            <svg class="w-8 h-8 play-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                            </svg>
+                            <svg class="w-8 h-8 pause-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div class="w-full flex items-center space-x-2">
+                            <span class="current-time text-sm font-mono">00:00</span>
+                            <div class="progress-container bg-gray-200 rounded-full h-3 w-full cursor-pointer">
+                                <div class="progress-bar rounded-full h-3" style="width: 0%;"></div>
+                            </div>
+                            <span class="duration text-sm font-mono">00:00</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center mt-4 space-x-2">
+                        <button class="skip-back-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38" />
+                            </svg>
+                            <span>30s</span>
+                        </button>
+                        <button class="skip-forward-60-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <span>1m</span>
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                            </svg>
+                        </button>
+                        <button class="skip-forward-180-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <span>3m</span>
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                            </svg>
+                        </button>
+                         <a href="#" class="download-btn text-white font-bold p-3 rounded-full flex items-center transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-grow mt-4 border-t pt-4 flex flex-col min-h-0">
+                <h3 class="text-sm font-semibold text-gray-500 mb-2 flex-shrink-0">Recent Episodes</h3>
+                <div class="episode-list space-y-2 overflow-y-auto custom-scrollbar">
+                    <!-- Episode list will be populated here -->
+                </div>
+            </div>
+            <div class="loading-spinner text-center p-4 absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-2xl">
+                <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Podcast Player 2: On with Kara Swisher -->
+        <div id="player-2" class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg podcast-player flex flex-col flex-grow min-h-0 hidden" data-theme="blue">
+            <div class="flex-shrink-0">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover podcast-artwork" src="https://placehold.co/100x100/3b82f6/ffffff?text=Loading..." alt="Podcast Artwork">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-lg font-bold podcast-title truncate">Loading Podcast...</p>
+                        <p class="text-md font-semibold text-gray-800 mt-1 episode-title">Loading Episode...</p>
+                        <div class="text-sm text-gray-500 mt-2">
+                            <span class="episode-date">...</span>
+                        </div>
+                        <div class="episode-description text-sm text-gray-600 mt-2 prose prose-sm"></div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <audio class="hidden-audio" preload="metadata" data-feed-url="https://feeds.megaphone.fm/VMP1684715893"></audio>
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <button class="play-pause-btn p-3 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2">
+                            <svg class="w-8 h-8 play-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                            </svg>
+                            <svg class="w-8 h-8 pause-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div class="w-full flex items-center space-x-2">
+                            <span class="current-time text-sm font-mono">00:00</span>
+                            <div class="progress-container bg-gray-200 rounded-full h-3 w-full cursor-pointer">
+                                <div class="progress-bar rounded-full h-3" style="width: 0%;"></div>
+                            </div>
+                            <span class="duration text-sm font-mono">00:00</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center mt-4 space-x-2">
+                        <button class="skip-back-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38" />
+                            </svg>
+                            <span>30s</span>
+                        </button>
+                        <button class="skip-forward-60-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <span>1m</span>
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                            </svg>
+                        </button>
+                        <button class="skip-forward-180-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <span>3m</span>
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                            </svg>
+                        </button>
+                        <a href="#" class="download-btn text-white font-bold p-3 rounded-full flex items-center transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-grow mt-4 border-t pt-4 flex flex-col min-h-0">
+                <h3 class="text-sm font-semibold text-gray-500 mb-2 flex-shrink-0">Recent Episodes</h3>
+                <div class="episode-list space-y-2 overflow-y-auto custom-scrollbar">
+                    <!-- Episode list will be populated here -->
+                </div>
+            </div>
+            <div class="loading-spinner text-center p-4 absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-2xl">
+                <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Podcast Player 3: Savage Lovecast -->
+        <div id="player-3" class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg podcast-player flex flex-col flex-grow min-h-0 hidden" data-theme="blue">
+            <div class="flex-shrink-0">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover podcast-artwork" src="https://placehold.co/100x100/3b82f6/ffffff?text=Loading..." alt="Podcast Artwork">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-lg font-bold podcast-title truncate">Loading Podcast...</p>
+                        <p class="text-md font-semibold text-gray-800 mt-1 episode-title">Loading Episode...</p>
+                        <div class="text-sm text-gray-500 mt-2">
+                            <span class="episode-date">...</span>
+                        </div>
+                        <div class="episode-description text-sm text-gray-600 mt-2 prose prose-sm"></div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <audio class="hidden-audio" preload="metadata" data-feed-url="https://index.supportingcast.fm/content/eyJ0IjoicCIsImMiOiIxMzIyIiwidSI6IjM5NTI5NSIsImQiOiIxNjI4NjE5NTI4IiwiayI6MTYxfXxjYzgzYTUzZGFhNWVlZDA4OGRlOGJjNTg0ZjllNTVjNTNkMDkwZDk0NDBiNjVkYjAxMTNiYWJmN2ZjODRkNTVi.rss?t=1755446448198"></audio>
+                    <div class="flex items-center space-x-2 sm:space-x-4">
+                        <button class="play-pause-btn p-3 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2">
+                            <svg class="w-8 h-8 play-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                            </svg>
+                            <svg class="w-8 h-8 pause-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                        <div class="w-full flex items-center space-x-2">
+                            <span class="current-time text-sm font-mono">00:00</span>
+                            <div class="progress-container bg-gray-200 rounded-full h-3 w-full cursor-pointer">
+                                <div class="progress-bar rounded-full h-3" style="width: 0%;"></div>
+                            </div>
+                            <span class="duration text-sm font-mono">00:00</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center mt-4 space-x-2">
+                        <button class="skip-back-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38" />
+                            </svg>
+                            <span>30s</span>
+                        </button>
+                        <button class="skip-forward-60-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <span>1m</span>
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                            </svg>
+                        </button>
+                        <button class="skip-forward-180-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                            <span>3m</span>
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                            </svg>
+                        </button>
+                         <a href="#" class="download-btn text-white font-bold p-3 rounded-full flex items-center transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-grow mt-4 border-t pt-4 flex flex-col min-h-0">
+                <h3 class="text-sm font-semibold text-gray-500 mb-2 flex-shrink-0">Recent Episodes</h3>
+                <div class="episode-list space-y-2 overflow-y-auto custom-scrollbar">
+                    <!-- Episode list will be populated here -->
+                </div>
+            </div>
+            <div class="loading-spinner text-center p-4 absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-2xl">
+                <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- More Section -->
+        <div id="more-section" class="hidden flex-grow min-h-0 flex-col">
+            <div id="more-podcast-list" class="space-y-4 p-4">
+                 <button data-player-target="player-4" class="more-podcast-btn w-full flex items-center p-4 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors">
+                    <div class="icon-container w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mr-4">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <span class="font-semibold text-lg">The Daily</span>
+                </button>
+                <button data-player-target="player-5" class="more-podcast-btn w-full flex items-center p-4 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors">
+                    <div class="icon-container w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center flex-shrink-0 mr-4">
+                       <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <span class="font-semibold text-lg">Wirecutter</span>
+                </button>
+            </div>
+            
+            <div id="back-to-more-list-container" class="hidden p-4 flex-shrink-0">
+                 <button id="back-to-more-list-btn" class="flex items-center text-blue-500 font-semibold hover:underline">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to list
+                 </button>
+            </div>
+
+            
+            <!-- Podcast Player 4: The Daily (Moved) -->
+            <div id="player-4" class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg podcast-player flex-col flex-grow min-h-0 hidden" data-theme="blue">
+                 <div class="flex-shrink-0">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover podcast-artwork" src="https://placehold.co/100x100/3b82f6/ffffff?text=Loading..." alt="Podcast Artwork">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-lg font-bold podcast-title truncate">Loading Podcast...</p>
+                            <p class="text-md font-semibold text-gray-800 mt-1 episode-title">Loading Episode...</p>
+                            <div class="text-sm text-gray-500 mt-2">
+                                <span class="episode-date">...</span>
+                            </div>
+                            <div class="episode-description text-sm text-gray-600 mt-2 prose prose-sm"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <audio class="hidden-audio" preload="metadata" data-feed-url="https://feeds.simplecast.com/54nAGcIl"></audio>
+                        <div class="flex items-center space-x-2 sm:space-x-4">
+                            <button class="play-pause-btn p-3 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2">
+                                <svg class="w-8 h-8 play-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                                </svg>
+                                <svg class="w-8 h-8 pause-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                            <div class="w-full flex items-center space-x-2">
+                                <span class="current-time text-sm font-mono">00:00</span>
+                                <div class="progress-container bg-gray-200 rounded-full h-3 w-full cursor-pointer">
+                                    <div class="progress-bar rounded-full h-3" style="width: 0%;"></div>
+                                </div>
+                                <span class="duration text-sm font-mono">00:00</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-center items-center mt-4 space-x-2">
+                            <button class="skip-back-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38" />
+                                </svg>
+                                <span>30s</span>
+                            </button>
+                            <button class="skip-forward-60-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                                <span>1m</span>
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                                </svg>
+                            </button>
+                            <button class="skip-forward-180-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                                <span>3m</span>
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                                </svg>
+                            </button>
+                             <a href="#" class="download-btn text-white font-bold p-3 rounded-full flex items-center transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-grow mt-4 border-t pt-4 flex flex-col min-h-0">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-2 flex-shrink-0">Recent Episodes</h3>
+                    <div class="episode-list space-y-2 overflow-y-auto custom-scrollbar">
+                        <!-- Episode list will be populated here -->
+                    </div>
+                </div>
+                <div class="loading-spinner text-center p-4 absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-2xl">
+                    <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Podcast Player 5: Wirecutter -->
+            <div id="player-5" class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg podcast-player flex-col flex-grow min-h-0 hidden" data-theme="blue">
+                 <div class="flex-shrink-0">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <img class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover podcast-artwork" src="https://placehold.co/100x100/3b82f6/ffffff?text=Loading..." alt="Podcast Artwork">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-lg font-bold podcast-title truncate">Loading Podcast...</p>
+                            <p class="text-md font-semibold text-gray-800 mt-1 episode-title">Loading Episode...</p>
+                            <div class="text-sm text-gray-500 mt-2">
+                                <span class="episode-date">...</span>
+                            </div>
+                            <div class="episode-description text-sm text-gray-600 mt-2 prose prose-sm"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <audio class="hidden-audio" preload="metadata" data-feed-url="https://feeds.simplecast.com/tI57z_LN"></audio>
+                        <div class="flex items-center space-x-2 sm:space-x-4">
+                            <button class="play-pause-btn p-3 rounded-full text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2">
+                                <svg class="w-8 h-8 play-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                                </svg>
+                                <svg class="w-8 h-8 pause-icon hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                            <div class="w-full flex items-center space-x-2">
+                                <span class="current-time text-sm font-mono">00:00</span>
+                                <div class="progress-container bg-gray-200 rounded-full h-3 w-full cursor-pointer">
+                                    <div class="progress-bar rounded-full h-3" style="width: 0%;"></div>
+                                </div>
+                                <span class="duration text-sm font-mono">00:00</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-center items-center mt-4 space-x-2">
+                            <button class="skip-back-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38" />
+                                </svg>
+                                <span>30s</span>
+                            </button>
+                            <button class="skip-forward-60-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                                <span>1m</span>
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                                </svg>
+                            </button>
+                            <button class="skip-forward-180-btn text-white font-bold py-2 px-3 sm:py-3 sm:px-4 rounded-full flex items-center space-x-2 transition-colors text-sm">
+                                <span>3m</span>
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38" />
+                                </svg>
+                            </button>
+                             <a href="#" class="download-btn text-white font-bold p-3 rounded-full flex items-center transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-grow mt-4 border-t pt-4 flex flex-col min-h-0">
+                    <h3 class="text-sm font-semibold text-gray-500 mb-2 flex-shrink-0">Recent Episodes</h3>
+                    <div class="episode-list space-y-2 overflow-y-auto custom-scrollbar">
+                        <!-- Episode list will be populated here -->
+                    </div>
+                </div>
+                <div class="loading-spinner text-center p-4 absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-2xl">
+                    <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description Modal -->
+    <div id="description-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center flex-shrink-0">
+                <h3 class="text-lg font-semibold text-gray-800">Episode Description</h3>
+                <button id="modal-close-btn" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+            </div>
+            <div id="modal-content" class="p-6 overflow-y-auto custom-scrollbar prose prose-base">
+                <!-- Full description will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = [
+                document.getElementById('tab-1'),
+                document.getElementById('tab-2'),
+                document.getElementById('tab-3'),
+                document.getElementById('tab-4')
+            ];
+            const players = [
+                document.getElementById('player-1'),
+                document.getElementById('player-2'),
+                document.getElementById('player-3'),
+                document.getElementById('more-section')
+            ];
+            const modal = document.getElementById('description-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const slider = document.getElementById('tab-slider');
+            
+            const morePodcastList = document.getElementById('more-podcast-list');
+            const morePodcastBtns = document.querySelectorAll('.more-podcast-btn');
+            const backToMoreListBtn = document.getElementById('back-to-more-list-btn');
+            const backToMoreListContainer = document.getElementById('back-to-more-list-container');
+
+            const morePlayers = [
+                document.getElementById('player-4'),
+                document.getElementById('player-5')
+            ];
+            
+            // Set initial slider position
+            moveSlider(tabs[0], slider);
+
+            players.forEach((player, index) => {
+                // Initialize the first 3 players immediately. The "More" section players are initialized on demand.
+                if(index < 3) initializePlayer(player)
+            });
+            morePlayers.forEach((player) => initializePlayer(player));
+
+
+            // --- Global Modal Logic ---
+            modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+
+            // --- Tab Switching Logic ---
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', () => switchTab(index));
+            });
+            
+            morePodcastBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetPlayerId = btn.dataset.playerTarget;
+                    const targetPlayer = document.getElementById(targetPlayerId);
+                    
+                    morePodcastList.classList.add('hidden');
+                    backToMoreListContainer.classList.remove('hidden');
+                    targetPlayer.classList.remove('hidden');
+                    targetPlayer.classList.add('flex');
+                });
+            });
+            
+            backToMoreListBtn.addEventListener('click', () => {
+                morePlayers.forEach(player => {
+                    player.classList.add('hidden');
+                    player.classList.remove('flex');
+                    const audio = player.querySelector('audio');
+                    if (!audio.paused) {
+                        player.querySelector('.play-pause-btn').click();
+                    }
+                });
+                backToMoreListContainer.classList.add('hidden');
+                morePodcastList.classList.remove('hidden');
+            });
+
+
+            function moveSlider(targetTab, sliderElement) {
+                const {
+                    offsetLeft,
+                    offsetWidth
+                } = targetTab;
+                sliderElement.style.left = `${offsetLeft}px`;
+                sliderElement.style.width = `${offsetWidth}px`;
+            }
+
+            function switchTab(activeIndex) {
+                moveSlider(tabs[activeIndex], slider);
+
+                tabs.forEach((tab, index) => {
+                    const iconContainer = tab.querySelector('.icon-container');
+                    const iconSvg = iconContainer.querySelector('svg');
+
+                    if (index === activeIndex) {
+                        tab.classList.add('text-white');
+                        tab.classList.remove('text-gray-600');
+                        iconContainer.classList.remove('bg-blue-200');
+                        iconContainer.classList.add('bg-white', 'bg-opacity-20');
+                        if (iconSvg) {
+                            iconSvg.classList.add('text-white');
+                            iconSvg.classList.remove('text-gray-600');
+                        }
+                    } else {
+                        tab.classList.add('text-gray-600');
+                        tab.classList.remove('text-white');
+                        iconContainer.classList.add('bg-blue-200');
+                        iconContainer.classList.remove('bg-white', 'bg-opacity-20');
+                         if (iconSvg) {
+                            iconSvg.classList.add('text-gray-600');
+                            iconSvg.classList.remove('text-white');
+                        }
+                    }
+                });
+
+                players.forEach((player, index) => {
+                    if (index === activeIndex) {
+                        player.classList.remove('hidden');
+                        player.classList.add('flex');
+                    } else {
+                        player.classList.add('hidden');
+                        player.classList.remove('flex');
+                        const audios = player.querySelectorAll('audio');
+                        audios.forEach(audio => {
+                            if (!audio.paused) {
+                                audio.closest('.podcast-player').querySelector('.play-pause-btn').click();
+                            }
+                        });
+                    }
+                });
+                
+                if (activeIndex !== 3) {
+                     morePlayers.forEach(player => {
+                        const audio = player.querySelector('audio');
+                        if (!audio.paused) {
+                            player.querySelector('.play-pause-btn').click();
+                        }
+                    });
+                }
+            }
+        });
+
+        function initializePlayer(playerElement) {
+            // Prevent re-initialization
+            if (playerElement.dataset.initialized) return;
+            playerElement.dataset.initialized = 'true';
+
+            const elements = {
+                artwork: playerElement.querySelector('.podcast-artwork'),
+                podcastTitle: playerElement.querySelector('.podcast-title'),
+                episodeTitle: playerElement.querySelector('.episode-title'),
+                episodeDate: playerElement.querySelector('.episode-date'),
+                episodeDescription: playerElement.querySelector('.episode-description'),
+                audio: playerElement.querySelector('.hidden-audio'),
+                playPauseBtn: playerElement.querySelector('.play-pause-btn'),
+                playIcon: playerElement.querySelector('.play-icon'),
+                pauseIcon: playerElement.querySelector('.pause-icon'),
+                progressContainer: playerElement.querySelector('.progress-container'),
+                progressBar: playerElement.querySelector('.progress-bar'),
+                currentTime: playerElement.querySelector('.current-time'),
+                duration: playerElement.querySelector('.duration'),
+                loadingSpinner: playerElement.querySelector('.loading-spinner'),
+                episodeList: playerElement.querySelector('.episode-list'),
+                skipForward60Btn: playerElement.querySelector('.skip-forward-60-btn'),
+                skipForward180Btn: playerElement.querySelector('.skip-forward-180-btn'),
+                skipBackBtn: playerElement.querySelector('.skip-back-btn'),
+                downloadBtn: playerElement.querySelector('.download-btn'),
+            };
+            const feedUrl = elements.audio.dataset.feedUrl;
+            const secondaryFeedUrl = elements.audio.dataset.secondaryFeedUrl;
+            const tertiaryFeedUrl = elements.audio.dataset.tertiaryFeedUrl;
+            const quaternaryFeedUrl = elements.audio.dataset.quaternaryFeedUrl;
+            const quinaryFeedUrl = elements.audio.dataset.quinaryFeedUrl;
+            const theme = playerElement.dataset.theme || 'red';
+            let lastSaveTime = 0;
+            const proxyUrl = 'https://corsproxy.io/?';
+
+            // --- Apply Theme Colors ---
+            const themeColor = theme === 'blue' ? 'blue' : 'red';
+            if (elements.podcastTitle) elements.podcastTitle.classList.add(`text-${themeColor}-600`);
+            elements.playPauseBtn.classList.add(`bg-${themeColor}-500`, `hover:bg-${themeColor}-600`, `focus:ring-${themeColor}-500`);
+            elements.progressBar.classList.add(`bg-${themeColor}-500`);
+            [elements.skipBackBtn, elements.skipForward60Btn, elements.skipForward180Btn, elements.downloadBtn].forEach(btn => {
+                if (btn) btn.classList.add(`bg-${themeColor}-500`, `hover:bg-${themeColor}-600`);
+            });
+            elements.loadingSpinner.querySelector('svg').classList.add(`text-${themeColor}-500`);
+
+
+            if (secondaryFeedUrl && tertiaryFeedUrl && quaternaryFeedUrl && quinaryFeedUrl) { // Special logic for News player
+                Promise.all([
+                    fetch(proxyUrl + encodeURIComponent(feedUrl)).then(res => res.text()),
+                    fetch(proxyUrl + encodeURIComponent(secondaryFeedUrl)).then(res => res.text()),
+                    fetch(proxyUrl + encodeURIComponent(tertiaryFeedUrl)).then(res => res.text()),
+                    fetch(proxyUrl + encodeURIComponent(quaternaryFeedUrl)).then(res => res.text()),
+                    fetch(proxyUrl + encodeURIComponent(quinaryFeedUrl)).then(res => res.text())
+                ]).then(([feed1Str, feed2Str, feed3Str, feed4Str, feed5Str]) => {
+                    const data1 = new window.DOMParser().parseFromString(feed1Str, "text/xml");
+                    const data2 = new window.DOMParser().parseFromString(feed2Str, "text/xml");
+                    const data3 = new window.DOMParser().parseFromString(feed3Str, "text/xml");
+                    const data4 = new window.DOMParser().parseFromString(feed4Str, "text/xml");
+                    const data5 = new window.DOMParser().parseFromString(feed5Str, "text/xml");
+                    
+                    // --- FIX 1 START: Store channel artwork for newsfeed ---
+                    const channelArtworks = {
+                        'FT': data1.querySelector('channel image url')?.textContent,
+                        'TechCrunch': data2.querySelector('channel image url')?.textContent,
+                        'NPR': data3.querySelector('channel image url')?.textContent,
+                        'BBC': data4.querySelector('channel image url')?.textContent,
+                        'Reuters': data5.querySelector('channel image url')?.textContent
+                    };
+                    // --- FIX 1 END ---
+
+                    const latestFT = Array.from(data1.querySelectorAll('item, entry')).filter(getAudioUrlFromItem).slice(0, 1).map(item => ({ item, source: 'FT' }));
+                    const latestTechCrunch = Array.from(data2.querySelectorAll('item, entry')).filter(getAudioUrlFromItem).slice(0, 1).map(item => ({ item, source: 'TechCrunch' }));
+                    const latestNPR = Array.from(data3.querySelectorAll('item, entry')).filter(getAudioUrlFromItem).slice(0, 1).map(item => ({ item, source: 'NPR' }));
+                    const latestBBC = Array.from(data4.querySelectorAll('item, entry')).filter(getAudioUrlFromItem).slice(0, 1).map(item => ({ item, source: 'BBC' }));
+                    const latestReuters = Array.from(data5.querySelectorAll('item, entry')).filter(getAudioUrlFromItem).slice(0, 1).map(item => ({ item, source: 'Reuters' }));
+                    const episodeItems = [...latestFT, ...latestTechCrunch, ...latestNPR, ...latestBBC, ...latestReuters];
+
+                    renderEpisodeList(episodeItems, playerElement, elements, channelArtworks); // Pass artworks
+                    if (episodeItems.length > 0) {
+                        loadEpisodeIntoPlayer(episodeItems[0], playerElement, elements, channelArtworks); // Pass artworks
+                    }
+                    elements.loadingSpinner.classList.add('hidden');
+                }).catch(err => {
+                    console.error('Error fetching or parsing RSS feed:', err);
+                    if (elements.podcastTitle) elements.podcastTitle.textContent = 'Error loading feed';
+                    if (elements.episodeTitle) elements.episodeTitle.textContent = 'Please try again later.';
+                    elements.loadingSpinner.classList.add('hidden');
+                });
+            } else { // Standard logic for other players
+                fetch(proxyUrl + encodeURIComponent(feedUrl))
+                    .then(response => response.ok ? response.text() : Promise.reject('Network response was not ok'))
+                    .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+                    .then(data => {
+                        const channel = data.querySelector('channel');
+                        if (!channel) {
+                           throw new Error("Could not find channel in RSS feed.");
+                        }
+                        elements.podcastTitle.textContent = channel.querySelector('title').textContent;
+                        const artworkUrl = channel.querySelector('image > url')?.textContent || elements.artwork.src;
+
+                        elements.artwork.src = artworkUrl;
+                        elements.artwork.onerror = () => {
+                            elements.artwork.src = 'https://placehold.co/100x100/ef4444/ffffff?text=Error';
+                        };
+
+                        const episodeItems = Array.from(data.querySelectorAll('item, entry')).slice(0, 10);
+                        renderEpisodeList(episodeItems, playerElement, elements);
+                        if (episodeItems.length > 0) {
+                            loadEpisodeIntoPlayer(episodeItems[0], playerElement, elements);
+                        }
+                        elements.loadingSpinner.classList.add('hidden');
+                    })
+                    .catch(err => {
+                        console.error('Error fetching or parsing RSS feed:', err);
+                        elements.podcastTitle.textContent = 'Error loading feed';
+                        elements.episodeTitle.textContent = 'Please try again later.';
+                        elements.loadingSpinner.classList.add('hidden');
+                    });
+            }
+
+            // --- Player Event Listeners ---
+            elements.playPauseBtn.addEventListener('click', () => {
+                const isPlaying = playerElement.classList.contains('playing');
+                isPlaying ? pauseAudio(playerElement, elements) : playAudio(playerElement, elements);
+            });
+
+            if (elements.skipForward60Btn) {
+                elements.skipForward60Btn.addEventListener('click', () => {
+                    elements.audio.currentTime = Math.min(elements.audio.duration, elements.audio.currentTime + 60);
+                });
+            }
+            if (elements.skipForward180Btn) {
+                elements.skipForward180Btn.addEventListener('click', () => {
+                    elements.audio.currentTime = Math.min(elements.audio.duration, elements.audio.currentTime + 180);
+                });
+            }
+            if (elements.skipBackBtn) {
+                elements.skipBackBtn.addEventListener('click', () => {
+                    elements.audio.currentTime = Math.max(0, elements.audio.currentTime - 30);
+                });
+            }
+
+
+            elements.audio.addEventListener('timeupdate', () => {
+                updateProgress(elements);
+                const now = Date.now();
+                if (now - lastSaveTime > 5000 && elements.audio.currentEpisodeGuid) {
+                    localStorage.setItem(elements.audio.currentEpisodeGuid, elements.audio.currentTime);
+                    lastSaveTime = now;
+                }
+            });
+
+            elements.audio.addEventListener('loadedmetadata', () => updateProgress(elements));
+            elements.progressContainer.addEventListener('click', (e) => setProgress(e, elements));
+
+            elements.audio.addEventListener('ended', () => {
+                pauseAudio(playerElement, elements);
+                elements.audio.currentTime = 0;
+                if (elements.audio.currentEpisodeGuid) {
+                    localStorage.removeItem(elements.audio.currentEpisodeGuid);
+                }
+
+                const theme = playerElement.dataset.theme || 'red';
+                const highlightColor = theme === 'blue' ? 'blue' : 'red';
+                const currentEpisodeButton = playerElement.querySelector(`.episode-list .bg-${highlightColor}-100`);
+
+                if (currentEpisodeButton && currentEpisodeButton.nextElementSibling) {
+                    currentEpisodeButton.nextElementSibling.click();
+                    
+                    if (!playerElement.classList.contains('hidden')) {
+                        setTimeout(() => {
+                            playAudio(playerElement, elements);
+                        }, 150);
+                    }
+                }
+            });
+            
+            elements.audio.addEventListener('error', () => {
+                console.error('Error loading audio:', elements.audio.src);
+                
+                const theme = playerElement.dataset.theme || 'red';
+                const highlightColor = theme === 'blue' ? 'blue' : 'red';
+                const currentEpisodeButton = playerElement.querySelector(`.episode-list .bg-${highlightColor}-100`);
+
+                if (currentEpisodeButton) {
+                    currentEpisodeButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    currentEpisodeButton.disabled = true;
+                }
+
+                if (currentEpisodeButton && currentEpisodeButton.nextElementSibling) {
+                    currentEpisodeButton.nextElementSibling.click();
+                    if (!playerElement.classList.contains('hidden')) {
+                        setTimeout(() => {
+                            playAudio(playerElement, elements);
+                        }, 150);
+                    }
+                }
+            });
+        }
+
+        function getAudioUrlFromItem(item) {
+            const enclosure = item.querySelector('enclosure');
+            if (enclosure && enclosure.getAttribute('url')) {
+                return enclosure.getAttribute('url');
+            }
+            const mediaContent = item.querySelector('media\\:content, content');
+            if (mediaContent && mediaContent.getAttribute('url')) {
+                return mediaContent.getAttribute('url');
+            }
+            return null;
+        }
+
+        function renderEpisodeList(episodeItems, playerElement, elements, channelArtworks = null) {
+            elements.episodeList.innerHTML = '';
+            const feedUrl = elements.audio.dataset.feedUrl;
+            const theme = playerElement.dataset.theme || 'red';
+            const highlightColor = theme === 'blue' ? 'blue' : 'red';
+            const isNewsPlayer = !!channelArtworks;
+
+            episodeItems.forEach((episodeData, index) => {
+                // --- FIX 2 START: Correctly identify the episode item for all player types ---
+                const item = isNewsPlayer ? episodeData.item : episodeData;
+                if (!item) {
+                    console.warn('Skipping invalid episode data:', episodeData);
+                    return; 
+                }
+                // --- FIX 2 END ---
+                const source = isNewsPlayer ? episodeData.source : null;
+
+                const originalTitle = item.querySelector('title').textContent;
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-3 rounded-lg text-sm transition-colors duration-200 flex justify-between items-center';
+
+                let displayTitle = originalTitle;
+
+                if (source === 'FT') {
+                    displayTitle = 'FT News Briefing';
+                } else if (source === 'TechCrunch') {
+                    displayTitle = 'TechCrunch Daily Crunch';
+                } else if (source === 'NPR') {
+                    const timeMatch = originalTitle.match(/\d{1,2}(AM|PM)/);
+                    displayTitle = timeMatch ? `NPR ${timeMatch[0]} Update` : 'NPR News Update';
+                } else if (source === 'BBC') {
+                    displayTitle = 'BBC News Update';
+                } else if (source === 'Reuters') {
+                    displayTitle = 'Reuters World News';
+                } else if (feedUrl && feedUrl.includes('supportingcast')) {
+                    const match = originalTitle.match(/\d+/);
+                    const episodeNumber = match ? match[0] : null;
+
+                    const descriptionNode = item.querySelector('description');
+                    const fullDescription = descriptionNode ? descriptionNode.textContent : '';
+                    const plainTextDescription = new DOMParser().parseFromString(fullDescription, 'text/html').body.textContent || "";
+
+                    const sentences = plainTextDescription.split('.').map(s => s.trim()).filter(Boolean);
+                    let titleSentence = sentences.length > 0 ? sentences[0] : '';
+
+                    if (titleSentence.length < 40 && sentences.length > 1) {
+                        titleSentence += '. ' + sentences[1];
+                    }
+
+                    if (episodeNumber && titleSentence) {
+                        displayTitle = `${episodeNumber}: ${titleSentence}`;
+                    } else if (titleSentence) {
+                        displayTitle = titleSentence;
+                    }
+                }
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'truncate pr-4';
+                titleSpan.textContent = displayTitle;
+                
+                const rightSideSpan = document.createElement('span');
+                rightSideSpan.className = 'text-xs text-gray-500 font-mono flex-shrink-0 flex items-center space-x-2';
+
+                if (isNewsPlayer) {
+                    const pubDate = new Date(item.querySelector('pubDate').textContent);
+                    const dateSpan = document.createElement('span');
+                    dateSpan.textContent = pubDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+                    rightSideSpan.appendChild(dateSpan);
+                }
+
+                const durationNode = item.querySelector('itunes\\:duration, duration');
+                const durationText = durationNode ? durationNode.textContent : '';
+                const durationInSeconds = parseDuration(durationText);
+                const formattedDuration = formatTime(durationInSeconds);
+
+                const durationSpan = document.createElement('span');
+                durationSpan.textContent = formattedDuration;
+                rightSideSpan.appendChild(durationSpan);
+
+                button.appendChild(titleSpan);
+                button.appendChild(rightSideSpan);
+
+
+                if (index === 0) {
+                    button.classList.add(`bg-${highlightColor}-100`, `text-${highlightColor}-800`, 'font-semibold');
+                } else {
+                    button.classList.add('hover:bg-gray-100');
+                }
+
+                button.addEventListener('click', () => {
+                    // Pass the whole episodeData object for news, or the item for standard players
+                    loadEpisodeIntoPlayer(episodeData, playerElement, elements, channelArtworks);
+                    elements.episodeList.querySelectorAll('button').forEach(btn => {
+                        btn.classList.remove(`bg-${highlightColor}-100`, `text-${highlightColor}-800`, 'font-semibold');
+                        btn.classList.add('hover:bg-gray-100');
+                    });
+                    button.classList.add(`bg-${highlightColor}-100`, `text-${highlightColor}-800`, 'font-semibold');
+                    button.classList.remove('hover:bg-gray-100');
+                });
+                elements.episodeList.appendChild(button);
+            });
+        }
+
+        function loadEpisodeIntoPlayer(episodeData, playerElement, elements, channelArtworks = null) {
+            const isNewsPlayer = !!channelArtworks;
+            const item = isNewsPlayer ? episodeData.item : episodeData;
+            const source = isNewsPlayer ? episodeData.source : null;
+
+            const audioUrl = getAudioUrlFromItem(item);
+
+            if (!audioUrl) {
+                console.error('No audio enclosure or media:content found for this episode.', item);
+                if (elements.episodeTitle) elements.episodeTitle.textContent = "Error: Audio not found.";
+                return;
+            }
+            
+            // --- FIX 1 START: Artwork fallback logic ---
+            const artworkNode = item.querySelector('itunes\\:image, image');
+            let itemArtworkUrl = null;
+            if (artworkNode) {
+                itemArtworkUrl = artworkNode.getAttribute('href') || artworkNode.querySelector('url')?.textContent;
+            }
+
+            if (itemArtworkUrl) {
+                elements.artwork.src = itemArtworkUrl;
+            } else if (isNewsPlayer && source && channelArtworks[source]) {
+                // Fallback to the channel's artwork for news items
+                elements.artwork.src = channelArtworks[source];
+            }
+            // For non-news players, if itemArtworkUrl is null, the src remains the main channel artwork, which is correct.
+            // --- FIX 1 END ---
+
+
+            pauseAudio(playerElement, elements);
+            elements.audio.currentTime = 0;
+
+            const guidNode = item.querySelector('guid');
+            const feedUrl = elements.audio.dataset.feedUrl;
+            const uniqueId = guidNode ? guidNode.textContent : audioUrl;
+            elements.audio.currentEpisodeGuid = `podcast-progress-${feedUrl}-${uniqueId}`;
+
+            if (elements.episodeTitle) elements.episodeTitle.textContent = item.querySelector('title').textContent;
+            if (elements.episodeDate) {
+                const pubDate = new Date(item.querySelector('pubDate').textContent);
+                elements.episodeDate.textContent = pubDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+
+            const descriptionNode = item.querySelector('description');
+            const fullDescription = descriptionNode ? descriptionNode.textContent : 'No description available.';
+            const plainTextDescription = new DOMParser().parseFromString(fullDescription, 'text/html').body.textContent || "";
+
+            if (elements.episodeDescription) {
+                elements.episodeDescription.innerHTML = '';
+                if (plainTextDescription.length > 120) {
+                    const snippet = plainTextDescription.substring(0, 120) + '...';
+                    const snippetNode = document.createTextNode(snippet);
+                    const moreButton = document.createElement('button');
+                    moreButton.textContent = 'More';
+                    const theme = playerElement.dataset.theme || 'red';
+                    moreButton.className = `text-${theme === 'blue' ? 'blue' : 'red'}-500 font-semibold hover:underline ml-1`;
+                    moreButton.addEventListener('click', () => {
+                        document.getElementById('modal-content').innerHTML = fullDescription;
+                        document.getElementById('description-modal').classList.remove('hidden');
+                    });
+                    elements.episodeDescription.appendChild(snippetNode);
+                    elements.episodeDescription.appendChild(moreButton);
+                } else {
+                    elements.episodeDescription.innerHTML = fullDescription;
+                }
+            }
+
+            elements.audio.src = audioUrl;
+            elements.audio.load();
+
+            const savedTime = localStorage.getItem(elements.audio.currentEpisodeGuid);
+            if (savedTime) {
+                elements.audio.addEventListener('loadedmetadata', () => {
+                    elements.audio.currentTime = parseFloat(savedTime);
+                }, {
+                    once: true
+                });
+            }
+            
+            if (elements.downloadBtn) {
+                elements.downloadBtn.href = audioUrl;
+                elements.downloadBtn.download = item.querySelector('title').textContent + '.mp3';
+            }
+        }
+
+        function playAudio(playerElement, elements) {
+            document.querySelectorAll('audio').forEach(otherAudio => {
+                if (otherAudio !== elements.audio && !otherAudio.paused) {
+                    const otherPlayer = otherAudio.closest('.podcast-player');
+                    if (otherPlayer) {
+                        const otherElements = {
+                            playIcon: otherPlayer.querySelector('.play-icon'),
+                            pauseIcon: otherPlayer.querySelector('.pause-icon'),
+                            audio: otherAudio,
+                            playPauseBtn: otherPlayer.querySelector('.play-pause-btn'),
+                        };
+                        pauseAudio(otherPlayer, otherElements);
+                    }
+                }
+            });
+            const theme = playerElement.dataset.theme || 'red';
+            playerElement.classList.add('playing');
+            elements.playPauseBtn.classList.add(`is-playing-animation-${theme}`);
+            elements.audio.play().catch(error => {
+                console.warn("Autoplay was prevented by the browser.", error);
+                pauseAudio(playerElement, elements);
+            });
+            elements.playIcon.classList.add('hidden');
+            elements.pauseIcon.classList.remove('hidden');
+        }
+
+        function pauseAudio(playerElement, elements) {
+            playerElement.classList.remove('playing');
+            elements.playPauseBtn.classList.remove('is-playing-animation-red', 'is-playing-animation-blue');
+            elements.audio.pause();
+            elements.playIcon.classList.remove('hidden');
+            elements.pauseIcon.classList.add('hidden');
+        }
+
+        function updateProgress(elements) {
+            const {
+                currentTime,
+                duration
+            } = elements.audio;
+            if (duration) {
+                elements.progressBar.style.width = `${(currentTime / duration) * 100}%`;
+                elements.currentTime.textContent = formatTime(currentTime);
+                elements.duration.textContent = formatTime(duration);
+            }
+        }
+
+        function setProgress(e, elements) {
+            const width = elements.progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = elements.audio.duration;
+            if (duration) {
+                elements.audio.currentTime = (clickX / width) * duration;
+            }
+        }
+
+        function parseDuration(durationStr) {
+            if (!durationStr) return 0;
+            if (!isNaN(durationStr)) {
+                return parseInt(durationStr, 10);
+            }
+            const parts = durationStr.split(':').map(Number).reverse();
+            let seconds = 0;
+            if (parts[0]) seconds += parts[0];
+            if (parts[1]) seconds += parts[1] * 60;
+            if (parts[2]) seconds += parts[2] * 3600;
+            return seconds;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '00:00';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+
+</body>
+
+</html>
