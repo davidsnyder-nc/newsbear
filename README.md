@@ -2,9 +2,6 @@
 
 Newsbear is a clean, responsive, single-page podcast player web application built with vanilla HTML, CSS (Tailwind CSS), and JavaScript. It fetches and parses public RSS feeds to create an elegant and easy-to-use listening experience right in your browser.
 
-![Newsbear Screenshot](https://i.imgur.com/your-screenshot-url.png)
-*(Replace the URL above with a screenshot of your application)*
-
 ## ✨ Features
 
 -   **Multi-Feed Support**: Easily switch between different podcasts using a sleek, animated tab bar.
