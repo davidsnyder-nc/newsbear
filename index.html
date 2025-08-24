@@ -21,6 +21,10 @@
         body {
             font-family: 'Roboto Flex', sans-serif;
             overscroll-behavior: none; /* Prevents pull-to-refresh */
+            --glow-color-rgb: 103, 80, 164; /* Corresponds to primary-light */
+        }
+        .dark body {
+            --glow-color-rgb: 208, 188, 255; /* Corresponds to primary-dark */
         }
         
         /* Material Symbols styling */
@@ -52,6 +56,12 @@
         .podcast-btn {
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            /* Prevent context menu on long press on touch devices */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         
         /* Modal styles */
@@ -60,16 +70,16 @@
         }
 
         /* Glowing image effect */
-        @keyframes red-glow {
+        @keyframes theme-glow {
             0%, 100% {
-                filter: drop-shadow(0 0 5px rgba(220, 38, 38, 0.6));
+                filter: drop-shadow(0 0 5px rgba(var(--glow-color-rgb), 0.6));
             }
             50% {
-                filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.9));
+                filter: drop-shadow(0 0 15px rgba(var(--glow-color-rgb), 0.9));
             }
         }
         .glowing-image {
-            animation: red-glow 2.5s infinite ease-in-out;
+            animation: theme-glow 2.5s infinite ease-in-out;
         }
 
 
@@ -246,7 +256,8 @@
                      e.stopPropagation();
                     if(audioPlayer.duration){
                         const rect = progressBar.getBoundingClientRect();
-                        const clickX = e.clientX - rect.left;
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clickX = clientX - rect.left;
                         const newTime = (clickX / rect.width) * audioPlayer.duration;
                         audioPlayer.currentTime = newTime;
                     }
@@ -266,7 +277,6 @@
                 // Long press logic for modal
                 if (button.dataset.allowModal) {
                     const startPress = (e) => {
-                        e.preventDefault(); // Prevent context menu on touch devices
                         longPressTriggered = false;
                         pressTimer = setTimeout(() => {
                             longPressTriggered = true;
@@ -276,6 +286,8 @@
                     const cancelPress = () => {
                         clearTimeout(pressTimer);
                     };
+
+                    button.addEventListener('contextmenu', e => e.preventDefault());
                     button.addEventListener('mousedown', startPress);
                     button.addEventListener('touchstart', startPress);
                     button.addEventListener('mouseup', cancelPress);
@@ -359,7 +371,12 @@
                 if (!state.activeButton) return;
                 const currentIndex = buttonOrder.indexOf(state.activeButton);
                 const nextIndex = (currentIndex + 1) % buttonOrder.length;
-                setTimeout(() => buttonOrder[nextIndex].click(), 500);
+                setTimeout(() => {
+                    const nextButton = buttonOrder[nextIndex];
+                    // We need to simulate a clean click, not a long press continuation
+                    longPressTriggered = false; 
+                    handleButtonClick(nextButton);
+                }, 500);
             }
 
             // --- MODAL FUNCTIONS ---
