@@ -1,1 +1,513 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>newsbear.app</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        /* Base styles to ensure full viewport height */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+        body {
+            font-family: 'Roboto Flex', sans-serif;
+            overscroll-behavior: none; /* Prevents pull-to-refresh */
+        }
+        
+        /* Material Symbols styling */
+        .material-symbols-rounded {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 48
+        }
+        
+        /* Ripple effect for buttons */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+        }
 
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Clean button styles */
+        .podcast-btn {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        /* Modal styles */
+        #episode-modal.hidden {
+            display: none;
+        }
+
+        /* Glowing image effect */
+        @keyframes red-glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 5px rgba(220, 38, 38, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.9));
+            }
+        }
+        .glowing-image {
+            animation: red-glow 2.5s infinite ease-in-out;
+        }
+
+
+    </style>
+    <script>
+        // Tailwind CSS configuration for Material You colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Light Theme
+                        'primary-light': '#6750A4',
+                        'on-primary-light': '#FFFFFF',
+                        'primary-container-light': '#EADDFF',
+                        'on-primary-container-light': '#21005D',
+                        'secondary-light': '#625B71',
+                        'on-secondary-light': '#FFFFFF',
+                        'secondary-container-light': '#E8DEF8',
+                        'on-secondary-container-light': '#1D192B',
+                        'tertiary-light': '#7D5260',
+                        'on-tertiary-light': '#FFFFFF',
+                        'tertiary-container-light': '#FFD8E4',
+                        'on-tertiary-container-light': '#31111D',
+                        'surface-light': '#FFFBFE',
+                        'on-surface-light': '#1C1B1F',
+                        'surface-variant-light': '#E7E0EC',
+                        'on-surface-variant-light': '#49454F',
+                        'background-light': '#FFFBFE',
+                        'on-background-light': '#1C1B1F',
+                        
+                        // Dark Theme
+                        'primary-dark': '#D0BCFF',
+                        'on-primary-dark': '#381E72',
+                        'primary-container-dark': '#4F378B',
+                        'on-primary-container-dark': '#EADDFF',
+                        'secondary-dark': '#CCC2DC',
+                        'on-secondary-dark': '#332D41',
+                        'secondary-container-dark': '#4A4458',
+                        'on-secondary-container-dark': '#E8DEF8',
+                        'tertiary-dark': '#EFB8C8',
+                        'on-tertiary-dark': '#492532',
+                        'tertiary-container-dark': '#633B48',
+                        'on-tertiary-container-dark': '#FFD8E4',
+                        'surface-dark': '#1C1B1F',
+                        'on-surface-dark': '#E6E1E5',
+                        'surface-variant-dark': '#49454F',
+                        'on-surface-variant-dark': '#CAC4D0',
+                        'background-dark': '#1C1B1F',
+                        'on-background-dark': '#E6E1E5',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-variant-light dark:bg-surface-dark text-on-background-light dark:text-on-background-dark transition-colors duration-500">
+
+    <!-- Main grid container, takes up full screen with a small gap -->
+    <div id="podcast-grid" class="grid grid-cols-2 grid-rows-3 h-full w-full gap-3 p-3">
+        
+        <!-- Button 1: News -->
+        <button class="podcast-btn group" data-feeds="https://feeds.npr.org/500005/podcast.xml,https://podcast.voice.api.bbci.co.uk/rss/audio/p002vsmz?api_key=Wbek5zSqxz0Hk1blo5IBqbd9SCWIfNbT,https://feeds.megaphone.fm/reutersworldnews">
+            <img src="images/news.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/14573efa03022eb1145114f2951ce83da92a208d/images/news.png';" alt="News" class="button-image h-2/3 object-contain transition-opacity duration-300">
+            <div class="button-player-ui"></div>
+        </button>
+
+        <!-- Button 2: Tech -->
+        <button class="podcast-btn group" data-feeds="https://feeds.acast.com/public/shows/dth,https://feeds.megaphone.fm/techcrunch-daily-crunch">
+            <img src="images/tech.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/refs/heads/main/images/tech.png';" alt="Tech" class="button-image h-2/3 object-contain transition-opacity duration-300">
+            <div class="button-player-ui"></div>
+        </button>
+
+        <!-- Button 3: Kara -->
+        <button class="podcast-btn group" data-allow-modal="true" data-feeds="https://feeds.megaphone.fm/VMP1684715893">
+            <img src="images/kara.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/14573efa03022eb1145114f2951ce83da92a208d/images/kara.png';" alt="Kara" class="button-image h-2/3 object-contain transition-opacity duration-300">
+            <div class="button-player-ui"></div>
+        </button>
+
+        <!-- Button 4: Lovecast -->
+        <button class="podcast-btn group" data-allow-modal="true" data-feeds="https://index.supportingcast.fm/content/eyJ0IjoicCIsImMiOiIxMzIyIiwidSI6IjM5NTI5NSIsImQiOiIxNjI4NjE5NTI4IiwiayI6MTYxfXxjYzgzYTUzZGFhNWVlZDA4OGRlOGJjNTg0ZjllNTVjNTNkMDkwZDk0NDBiNjVkYjAxMTNiYWJmN2ZjODRkNTVi.rss">
+            <img src="images/lovecast.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/14573efa03022eb1145114f2951ce83da92a208d/images/lovecast.png';" alt="Lovecast" class="button-image h-2/3 object-contain transition-opacity duration-300">
+            <div class="button-player-ui"></div>
+        </button>
+
+        <!-- Button 5: Daily -->
+        <button class="podcast-btn group" data-allow-modal="true" data-feeds="https://feeds.simplecast.com/54nAGcIl">
+            <img src="images/daily.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/14573efa03022eb1145114f2951ce83da92a208d/images/daily.png';" alt="Daily" class="button-image h-2/3 object-contain transition-opacity duration-300">
+            <div class="button-player-ui"></div>
+        </button>
+
+        <!-- Button 6: Wirecutter -->
+        <button class="podcast-btn group" data-allow-modal="true" data-feeds="https://feeds.simplecast.com/tI57z_LN">
+            <img src="images/wirecutter.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/refs/heads/main/images/wirecutter.png';" alt="Wirecutter" class="button-image h-2/3 object-contain transition-opacity duration-300">
+            <div class="button-player-ui"></div>
+        </button>
+
+    </div>
+
+    <!-- Episode Selection Modal -->
+    <div id="episode-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+        <div id="modal-panel" class="bg-surface-light dark:bg-surface-dark rounded-3xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-surface-variant-light dark:border-surface-variant-dark flex justify-between items-center">
+                <h2 id="modal-title" class="text-xl font-medium text-on-surface-light dark:text-on-surface-dark">Recent Episodes</h2>
+                <button id="modal-close-btn" class="text-on-surface-variant-light dark:text-on-surface-variant-dark">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div id="modal-episode-list" class="p-2 overflow-y-auto">
+                <!-- Episodes will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Audio Element -->
+    <audio id="audio-player" class="hidden"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- THEME SETUP ---
+            const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
+            const htmlElement = document.documentElement;
+
+            function applyTheme(isDark) {
+                if (isDark) htmlElement.classList.add('dark');
+                else htmlElement.classList.remove('dark');
+            }
+            applyTheme(themeMatcher.matches);
+            themeMatcher.addEventListener('change', e => applyTheme(e.matches));
+
+            // --- PLAYER LOGIC ---
+            const audioPlayer = document.getElementById('audio-player');
+            const CORS_PROXY = 'https://corsproxy.io/?';
+            const buttonOrder = Array.from(document.querySelectorAll('.podcast-btn'));
+            const episodeModal = document.getElementById('episode-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const modalEpisodeList = document.getElementById('modal-episode-list');
+            const podcastGrid = document.getElementById('podcast-grid');
+
+            let state = {
+                activeButton: null,
+                playlist: [],
+                currentTrackIndex: 0,
+                isPlaying: false,
+            };
+
+            let pressTimer = null;
+            let longPressTriggered = false;
+
+            // --- EVENT LISTENERS ---
+            
+            // Delegated event listener for all player controls
+            podcastGrid.addEventListener('click', (e) => {
+                const button = e.target.closest('.podcast-btn');
+                if (!button) return;
+
+                const controlBtn = e.target.closest('.control-btn');
+                const progressBar = e.target.closest('.progress-bar-container');
+
+                if (controlBtn) {
+                    e.stopPropagation();
+                    const skipTime = controlBtn.dataset.skip;
+                    const action = controlBtn.dataset.action;
+                    if (skipTime) {
+                        const newTime = audioPlayer.currentTime + parseInt(skipTime, 10);
+                        audioPlayer.currentTime = Math.max(0, Math.min(audioPlayer.duration, newTime));
+                    } else if (action === 'play-pause') {
+                        if (audioPlayer.paused) audioPlayer.play();
+                        else audioPlayer.pause();
+                    }
+                    return;
+                }
+                
+                if(progressBar){
+                     e.stopPropagation();
+                    if(audioPlayer.duration){
+                        const rect = progressBar.getBoundingClientRect();
+                        const clickX = e.clientX - rect.left;
+                        const newTime = (clickX / rect.width) * audioPlayer.duration;
+                        audioPlayer.currentTime = newTime;
+                    }
+                    return;
+                }
+
+                if (longPressTriggered) {
+                    longPressTriggered = false;
+                    return;
+                }
+                createRipple(e);
+                handleButtonClick(button);
+            });
+
+
+            buttonOrder.forEach(button => {
+                // Long press logic for modal
+                if (button.dataset.allowModal) {
+                    const startPress = (e) => {
+                        e.preventDefault(); // Prevent context menu on touch devices
+                        longPressTriggered = false;
+                        pressTimer = setTimeout(() => {
+                            longPressTriggered = true;
+                            openEpisodeModal(button);
+                        }, 500);
+                    };
+                    const cancelPress = () => {
+                        clearTimeout(pressTimer);
+                    };
+                    button.addEventListener('mousedown', startPress);
+                    button.addEventListener('touchstart', startPress);
+                    button.addEventListener('mouseup', cancelPress);
+                    button.addEventListener('mouseleave', cancelPress);
+                    button.addEventListener('touchend', cancelPress);
+                }
+            });
+
+            audioPlayer.addEventListener('timeupdate', handleTimeUpdate);
+            audioPlayer.addEventListener('ended', handleTrackEnd);
+            audioPlayer.addEventListener('play', () => { state.isPlaying = true; updateActiveButtonUI(); });
+            audioPlayer.addEventListener('pause', () => { state.isPlaying = false; updateActiveButtonUI(); });
+            audioPlayer.addEventListener('error', handlePlayerError);
+
+            // Modal listeners
+            modalCloseBtn.addEventListener('click', () => episodeModal.classList.add('hidden'));
+            episodeModal.addEventListener('click', (e) => {
+                if (e.target.id === 'episode-modal') {
+                    episodeModal.classList.add('hidden');
+                }
+            });
+
+            // --- CORE FUNCTIONS ---
+            async function handleButtonClick(clickedButton) {
+                if (clickedButton === state.activeButton) {
+                    if (state.isPlaying) audioPlayer.pause();
+                    else audioPlayer.play().catch(e => console.error("Play failed:", e));
+                    return;
+                }
+                if (state.activeButton) resetButtonUI(state.activeButton);
+                state.activeButton = clickedButton;
+                showLoadingUI(clickedButton);
+                try {
+                    const feedUrls = clickedButton.dataset.feeds.split(',');
+                    const latestEpisodes = await fetchLatestEpisodes(feedUrls);
+                    if (latestEpisodes.length === 0) throw new Error("No episodes found.");
+                    state.playlist = latestEpisodes.map(ep => ep.url);
+                    state.currentTrackIndex = 0;
+                    playCurrentTrack();
+                } catch (error) {
+                    console.error('Error fetching or playing podcast:', error);
+                    showErrorUI(clickedButton, 'Failed');
+                }
+            }
+
+            async function fetchLatestEpisodes(feedUrls, count = 1) {
+                const fetchPromises = feedUrls.map(url =>
+                    fetch(CORS_PROXY + encodeURIComponent(url))
+                    .then(response => response.ok ? response.text() : Promise.reject(`Network error for ${url}`))
+                    .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+                    .then(data => {
+                        const items = Array.from(data.querySelectorAll('item')).slice(0, count);
+                        return items.map(item => ({
+                            title: item.querySelector('title')?.textContent || 'Untitled Episode',
+                            url: item.querySelector('enclosure')?.getAttribute('url')
+                        })).filter(ep => ep.url);
+                    })
+                    .catch(err => { console.warn(`Failed feed: ${url}`, err); return []; })
+                );
+                const results = await Promise.all(fetchPromises);
+                return results.flat(); // Flatten array of arrays
+            }
+            
+            function playCurrentTrack() {
+                if (!state.playlist || state.currentTrackIndex >= state.playlist.length) {
+                    playNextButtonGroup();
+                    return;
+                }
+                const trackUrl = state.playlist[state.currentTrackIndex];
+                audioPlayer.src = trackUrl;
+                const savedTime = localStorage.getItem(trackUrl);
+                audioPlayer.addEventListener('loadedmetadata', () => {
+                    if (savedTime) audioPlayer.currentTime = parseFloat(savedTime);
+                    audioPlayer.play().catch(e => console.error("Play failed:", e));
+                    updateActiveButtonUI();
+                }, { once: true });
+                audioPlayer.load();
+            }
+
+            function playNextButtonGroup() {
+                if (!state.activeButton) return;
+                const currentIndex = buttonOrder.indexOf(state.activeButton);
+                const nextIndex = (currentIndex + 1) % buttonOrder.length;
+                setTimeout(() => buttonOrder[nextIndex].click(), 500);
+            }
+
+            // --- MODAL FUNCTIONS ---
+            async function openEpisodeModal(button) {
+                modalEpisodeList.innerHTML = `<div class="p-4 text-center">Loading...</div>`;
+                episodeModal.classList.remove('hidden');
+                
+                try {
+                    const feedUrl = button.dataset.feeds.split(',')[0]; // Only use first feed for single podcasts
+                    const episodes = await fetchLatestEpisodes([feedUrl], 5);
+                    
+                    modalEpisodeList.innerHTML = '';
+                    if (episodes.length === 0) {
+                        modalEpisodeList.innerHTML = `<div class="p-4 text-center">Could not load episodes.</div>`;
+                        return;
+                    }
+
+                    episodes.forEach(episode => {
+                        const episodeButton = document.createElement('button');
+                        episodeButton.className = 'w-full text-left p-4 rounded-lg hover:bg-surface-variant-light dark:hover:bg-surface-variant-dark transition-colors';
+                        episodeButton.textContent = episode.title;
+                        episodeButton.addEventListener('click', () => {
+                            episodeModal.classList.add('hidden');
+                            if (state.activeButton) resetButtonUI(state.activeButton);
+                            state.activeButton = button;
+                            state.playlist = [episode.url];
+                            state.currentTrackIndex = 0;
+                            playCurrentTrack();
+                        });
+                        modalEpisodeList.appendChild(episodeButton);
+                    });
+                } catch (error) {
+                     modalEpisodeList.innerHTML = `<div class="p-4 text-center">Error loading episodes.</div>`;
+                }
+            }
+
+            // --- EVENT HANDLERS ---
+            function handleTimeUpdate() {
+                if (!state.isPlaying || !state.activeButton || isNaN(audioPlayer.duration)) return;
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                const progressBar = state.activeButton.querySelector('.progress-bar');
+                if (progressBar) progressBar.style.width = `${progress}%`;
+                localStorage.setItem(audioPlayer.src, audioPlayer.currentTime);
+            }
+
+            function handleTrackEnd() {
+                localStorage.removeItem(audioPlayer.src);
+                state.currentTrackIndex++;
+                playCurrentTrack();
+            }
+            
+            function handlePlayerError() {
+                console.error("Audio player error:", audioPlayer.error);
+                handleTrackEnd();
+            }
+
+            // --- UI MANIPULATION ---
+            function resetButtonUI(button) {
+                if (button) {
+                    button.querySelector('.button-player-ui').innerHTML = '';
+                    const img = button.querySelector('.button-image');
+                    if(img) {
+                        img.classList.remove('opacity-0', 'glowing-image');
+                    }
+                }
+            }
+
+            function updateActiveButtonUI() {
+                if (!state.activeButton) return;
+                const playerUI = state.activeButton.querySelector('.button-player-ui');
+                const image = state.activeButton.querySelector('.button-image');
+                
+                image.classList.remove('opacity-0'); // Make sure image is visible
+
+                if (state.isPlaying) {
+                    image.classList.add('glowing-image');
+                } else {
+                    image.classList.remove('glowing-image');
+                }
+
+                const playIcon = state.isPlaying ? 'pause' : 'play_arrow';
+                
+                playerUI.innerHTML = `
+                    <div class="absolute inset-0 p-4 text-slate-700 dark:text-slate-300 pointer-events-none">
+                        <!-- Corner Controls -->
+                        <button class="control-btn absolute top-2 left-2 text-xl sm:text-2xl font-bold pointer-events-auto p-2" data-skip="-30"><span>-30s</span></button>
+                        <button class="control-btn absolute top-2 right-2 text-xl sm:text-2xl font-bold pointer-events-auto p-2" data-skip="60"><span>+1m</span></button>
+                        <button class="control-btn absolute bottom-2 left-2 pointer-events-auto p-2" data-action="play-pause"><span class="material-symbols-rounded text-4xl sm:text-5xl">${playIcon}</span></button>
+                        <button class="control-btn absolute bottom-2 right-2 text-xl sm:text-2xl font-bold pointer-events-auto p-2" data-skip="180"><span>+3m</span></button>
+                    </div>
+                    <div class="absolute bottom-14 left-2 right-2 p-2 z-10">
+                        <div class="progress-bar-container w-full h-3 bg-primary-container-light/80 dark:bg-primary-container-dark/50 rounded-full overflow-hidden cursor-pointer">
+                            <div class="progress-bar h-full bg-primary-light dark:bg-primary-dark" style="width: ${audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function showLoadingUI(button) {
+                 const playerUI = button.querySelector('.button-player-ui');
+                 button.querySelector('.button-image').classList.add('opacity-0');
+                 playerUI.innerHTML = `
+                    <div class="absolute inset-0 flex items-center justify-center z-10">
+                        <svg class="animate-spin h-12 w-12 sm:h-16 sm:w-16 text-primary-light dark:text-primary-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                 `;
+            }
+
+            function showErrorUI(button, message) {
+                resetButtonUI(button);
+                const image = button.querySelector('.button-image');
+                image.classList.add('opacity-0'); // Hide image on error
+                
+                const playerUI = button.querySelector('.button-player-ui');
+                playerUI.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-red-500 font-bold">${message}</div>`;
+
+                setTimeout(() => { 
+                    playerUI.innerHTML = '';
+                    image.classList.remove('opacity-0');
+                }, 2000);
+            }
+
+            function createRipple(event) {
+                const button = event.currentTarget;
+                const circle = document.createElement("span");
+                const diameter = Math.max(button.clientWidth, button.clientHeight);
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${event.clientX - button.offsetLeft - (diameter / 2)}px`;
+                circle.style.top = `${event.clientY - button.offsetTop - (diameter / 2)}px`;
+                circle.classList.add("ripple");
+                button.querySelector(".ripple")?.remove();
+                button.appendChild(circle);
+            }
+
+            // --- Apply base styles to buttons ---
+            buttonOrder.forEach(btn => {
+                btn.classList.add(
+                    'relative', 'flex', 'items-center', 'justify-center', 'overflow-hidden',
+                    'bg-surface-light', 'dark:bg-secondary-container-dark',
+                    'transition-colors', 'duration-300', 'ease-in-out',
+                    'focus:outline-none', 'focus-visible:ring-4', 'focus-visible:ring-primary-light',
+                    'text-center', 'p-4', 'rounded-3xl'
+                );
+            });
+        });
+    </script>
+</body>
+</html>
