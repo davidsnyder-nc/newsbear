@@ -69,7 +69,15 @@
             display: none;
         }
 
-        /* Glowing image effect */
+        /* White outline for images in dark mode */
+        .dark .button-image {
+            filter: drop-shadow(1px 1px 0 rgb(255 255 255 / 70%)) 
+                    drop-shadow(-1px -1px 0 rgb(255 255 255 / 70%)) 
+                    drop-shadow(1px -1px 0 rgb(255 255 255 / 70%)) 
+                    drop-shadow(-1px 1px 0 rgb(255 255 255 / 70%));
+        }
+
+        /* Light mode glow animation */
         @keyframes theme-glow {
             0%, 100% {
                 filter: drop-shadow(0 0 5px rgba(var(--glow-color-rgb), 0.6));
@@ -78,8 +86,30 @@
                 filter: drop-shadow(0 0 15px rgba(var(--glow-color-rgb), 0.9));
             }
         }
+
+        /* Dark mode glow animation (combines glow and stroke) */
+        @keyframes theme-glow-dark {
+            0%, 100% {
+                filter: drop-shadow(0 0 5px rgba(var(--glow-color-rgb), 0.6)) 
+                        drop-shadow(1px 1px 0 rgb(255 255 255 / 70%)) 
+                        drop-shadow(-1px -1px 0 rgb(255 255 255 / 70%)) 
+                        drop-shadow(1px -1px 0 rgb(255 255 255 / 70%)) 
+                        drop-shadow(-1px 1px 0 rgb(255 255 255 / 70%));
+            }
+            50% {
+                filter: drop-shadow(0 0 15px rgba(var(--glow-color-rgb), 0.9)) 
+                        drop-shadow(1px 1px 0 rgb(255 255 255 / 70%)) 
+                        drop-shadow(-1px -1px 0 rgb(255 255 255 / 70%)) 
+                        drop-shadow(1px -1px 0 rgb(255 255 255 / 70%)) 
+                        drop-shadow(-1px 1px 0 rgb(255 255 255 / 70%));
+            }
+        }
+
         .glowing-image {
             animation: theme-glow 2.5s infinite ease-in-out;
+        }
+        .dark .glowing-image {
+            animation-name: theme-glow-dark;
         }
 
 
