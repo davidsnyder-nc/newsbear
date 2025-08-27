@@ -73,13 +73,8 @@
             display: none;
         }
 
-        /* White outline for images in dark mode */
-        .dark .button-image {
-            filter: drop-shadow(1px 1px 0 rgb(255 255 255 / 70%)) 
-                    drop-shadow(-1px -1px 0 rgb(255 255 255 / 70%)) 
-                    drop-shadow(1px -1px 0 rgb(255 255 255 / 70%)) 
-                    drop-shadow(-1px 1px 0 rgb(255 255 255 / 70%));
-        }
+        /* Dark mode: outer-only white stroke around transparent artwork */
+        .dark .button-image { filter: url(#outer-stroke); }
 
         /* Light mode glow animation */
         @keyframes theme-glow {
@@ -168,6 +163,19 @@
     </script>
 </head>
 <body class="bg-surface-variant-light dark:bg-surface-dark text-on-background-light dark:text-on-background-dark transition-colors duration-500">
+
+    <!-- Hidden SVG filter defs for outer stroke on artwork in dark mode -->
+    <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
+        <defs>
+            <filter id="outer-stroke" x="-5%" y="-5%" width="110%" height="110%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="dilated"/>
+                <feComposite in="dilated" in2="SourceAlpha" operator="out" result="stroke"/>
+                <feFlood flood-color="#FFFFFF" result="flood"/>
+                <feComposite in="flood" in2="stroke" operator="in" result="colored-stroke"/>
+                <feComposite in="SourceGraphic" in2="colored-stroke" operator="over"/>
+            </filter>
+        </defs>
+    </svg>
 
     <!-- Live region for announcements -->
     <div id="aria-status" class="sr-only" aria-live="polite"></div>
