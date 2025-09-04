@@ -663,8 +663,18 @@
 
             audioPlayer.addEventListener('timeupdate', handleTimeUpdate);
             audioPlayer.addEventListener('ended', handleTrackEnd);
-            audioPlayer.addEventListener('play', () => { state.isPlaying = true; updateActiveButtonUI(); navigator.vibrate?.(10); });
-            audioPlayer.addEventListener('pause', () => { state.isPlaying = false; updateActiveButtonUI(); navigator.vibrate?.(6); });
+            audioPlayer.addEventListener('play', () => {
+                state.isPlaying = true;
+                updateActiveButtonUI();
+                try { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; } catch {}
+                navigator.vibrate?.(10);
+            });
+            audioPlayer.addEventListener('pause', () => {
+                state.isPlaying = false;
+                updateActiveButtonUI();
+                try { if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused'; } catch {}
+                navigator.vibrate?.(6);
+            });
             audioPlayer.addEventListener('error', handlePlayerError);
 
             // Modal listeners
@@ -703,7 +713,8 @@
                     const feedUrls = clickedButton.dataset.feeds.split(',');
                     const latestEpisodes = await fetchLatestEpisodes(feedUrls);
                     if (latestEpisodes.length === 0) throw new Error("No episodes found.");
-                    state.playlist = latestEpisodes.map(ep => ep.url);
+                    // Keep title and podcastTitle for better media metadata
+                    state.playlist = latestEpisodes;
                     state.currentTrackIndex = 0;
                     playCurrentTrack();
                 } catch (error) {
@@ -737,13 +748,18 @@
                     playNextButtonGroup();
                     return;
                 }
-                const trackUrl = state.playlist[state.currentTrackIndex];
+                const track = state.playlist[state.currentTrackIndex];
+                const trackUrl = typeof track === 'string' ? track : track.url;
+                const trackTitle = typeof track === 'string' ? undefined : track.title;
+                const podcastTitle = typeof track === 'string' ? undefined : track.podcastTitle;
                 audioPlayer.src = trackUrl;
                 const savedTime = localStorage.getItem(trackUrl);
                 audioPlayer.addEventListener('loadedmetadata', () => {
                     if (savedTime) audioPlayer.currentTime = parseFloat(savedTime);
                     audioPlayer.play().catch(e => console.error("Play failed:", e));
                     updateActiveButtonUI();
+                    // Update lock screen / system media metadata
+                    updateMediaSession(trackTitle, podcastTitle);
                 }, { once: true });
                 audioPlayer.load();
             }
@@ -801,7 +817,8 @@
                             episodeModal.classList.add('hidden');
                             if (state.activeButton) resetButtonUI(state.activeButton);
                             state.activeButton = button;
-                            state.playlist = [episode.url];
+                            // Keep full episode object so we can show better metadata/artwork
+                            state.playlist = [episode];
                             state.currentTrackIndex = 0;
                             playCurrentTrack();
                         });
@@ -819,6 +836,16 @@
                 const bars = state.activeButton.querySelectorAll('.progress-bar');
                 bars.forEach(bar => { bar.style.width = `${progress}%`; });
                 localStorage.setItem(audioPlayer.src, audioPlayer.currentTime);
+                // Update position state for system scrubber if supported
+                try {
+                    if ('mediaSession' in navigator && navigator.mediaSession.setPositionState) {
+                        navigator.mediaSession.setPositionState({
+                            duration: isFinite(audioPlayer.duration) ? audioPlayer.duration : 0,
+                            playbackRate: audioPlayer.playbackRate || 1,
+                            position: isFinite(audioPlayer.currentTime) ? audioPlayer.currentTime : 0,
+                        });
+                    }
+                } catch {}
             }
 
             function handleTrackEnd() {
@@ -841,6 +868,70 @@
                         img.classList.remove('opacity-0', 'glowing-image');
                     }
                 }
+            }
+
+            // --- MEDIA SESSION INTEGRATION (Lock screen artwork/controls) ---
+            function getActiveTileLabel() {
+                if (!state.activeButton) return 'NewsBear';
+                const alt = state.activeButton.querySelector('img')?.alt?.trim().toLowerCase() || '';
+                if (alt === 'news') return 'News';
+                if (alt === 'tech') return 'Tech News';
+                if (alt) return alt.charAt(0).toUpperCase() + alt.slice(1);
+                return 'NewsBear';
+            }
+
+            function getActiveTileArtwork() {
+                const img = state.activeButton?.querySelector('img');
+                const src = img?.currentSrc || img?.src || 'logo.png';
+                // Provide multiple declared sizes (Chrome picks best); actual file can be larger
+                return [
+                    { src,   sizes: '512x512', type: 'image/png' },
+                    { src,   sizes: '256x256', type: 'image/png' },
+                    { src,   sizes: '128x128', type: 'image/png' }
+                ];
+            }
+
+            function updateMediaSession(trackTitle, podcastTitle) {
+                if (!('mediaSession' in navigator)) return;
+                const title = trackTitle || getActiveTileLabel();
+                const artist = podcastTitle || 'NewsBear';
+                const album = 'NewsBear';
+                try {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title,
+                        artist,
+                        album,
+                        artwork: getActiveTileArtwork(),
+                    });
+                } catch {}
+                // Update playback state immediately
+                try { navigator.mediaSession.playbackState = audioPlayer.paused ? 'paused' : 'playing'; } catch {}
+            }
+
+            // Set up action handlers once
+            if ('mediaSession' in navigator) {
+                try {
+                    navigator.mediaSession.setActionHandler('play', async () => { try { await audioPlayer.play(); } catch {} });
+                    navigator.mediaSession.setActionHandler('pause', () => { try { audioPlayer.pause(); } catch {} });
+                    navigator.mediaSession.setActionHandler('seekbackward', (e) => {
+                        const amount = e?.seekOffset || 10;
+                        audioPlayer.currentTime = Math.max(0, (audioPlayer.currentTime || 0) - amount);
+                    });
+                    navigator.mediaSession.setActionHandler('seekforward', (e) => {
+                        const amount = e?.seekOffset || 30;
+                        const dur = isFinite(audioPlayer.duration) ? audioPlayer.duration : Infinity;
+                        audioPlayer.currentTime = Math.min(dur, (audioPlayer.currentTime || 0) + amount);
+                    });
+                    navigator.mediaSession.setActionHandler('seekto', (e) => {
+                        if (e?.fastSeek && 'fastSeek' in audioPlayer) {
+                            try { audioPlayer.fastSeek(e.seekTime); return; } catch {}
+                        }
+                        if (typeof e?.seekTime === 'number') audioPlayer.currentTime = e.seekTime;
+                    });
+                    navigator.mediaSession.setActionHandler('nexttrack', () => { try { playNextButtonGroup(); } catch {} });
+                    // Optional: restart track on previous
+                    navigator.mediaSession.setActionHandler('previoustrack', () => { try { audioPlayer.currentTime = 0; } catch {} });
+                } catch {}
             }
 
             function updateActiveButtonUI() {
