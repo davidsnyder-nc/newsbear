@@ -183,6 +183,13 @@
         .swatch-head { padding: 8px; color: white; font-weight: 600; }
         .swatch-body { padding: 8px; font-size: 12px; }
 
+        /* Themed skip buttons: only override in accent color mode */
+        [data-accent-mode="color"] .themed-skip-btn {
+            background-color: var(--accent-pill-bg) !important;
+            color: var(--accent-pill-contrast) !important;
+            border: 1px solid var(--accent-pill-border) !important;
+        }
+
 
     </style>
     <script>
@@ -414,6 +421,7 @@
             function applyThemeFromAccent() {
                 const aKey = themeState.accent;
                 if (aKey === 'light') {
+                    htmlElement.setAttribute('data-accent-mode', 'light');
                     htmlElement.classList.remove('dark');
                     setBaseTheme('light');
                     // For original light theme: use transparent gray pill background
@@ -422,6 +430,7 @@
                     root.style.setProperty('--accent-pill-border', 'rgba(0, 0, 0, 0.35)');
                     root.style.setProperty('--accent-pill-contrast', '#FFFFFF');
                 } else {
+                    htmlElement.setAttribute('data-accent-mode', 'color');
                     // Color accents use light theme
                     htmlElement.classList.remove('dark');
                     const a = ACCENTS[aKey] || ACCENTS.indigo;
@@ -976,17 +985,17 @@
                                 <div class="progress-bar h-full bg-primary-light dark:bg-primary-dark" style="width: ${audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0}%"></div>
                             </div>
                             <div class="flex items-center justify-between">
-                                <button class="control-btn text-base font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
-                                <button class="control-btn text-base font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
+                                <button class="control-btn themed-skip-btn text-base font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
+                                <button class="control-btn themed-skip-btn text-base font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
                             </div>
                         </div>
                         <!-- Desktop layout: buttons and progress inline -->
                         <div class="hidden sm:grid sm:grid-cols-[auto,1fr,auto] items-center gap-3">
-                            <button class="control-btn text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
+                            <button class="control-btn themed-skip-btn text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
                             <div class="progress-bar-container w-full h-2 bg-primary-container-light/80 dark:bg-primary-container-dark/50 rounded-full overflow-hidden cursor-pointer pointer-events-auto">
                                 <div class="progress-bar h-full bg-primary-light dark:bg-primary-dark" style="width: ${audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0}%"></div>
                             </div>
-                            <button class="control-btn text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
+                            <button class="control-btn themed-skip-btn text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
                         </div>
                     </div>
                 `;
