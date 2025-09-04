@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>newsbear.app</title>
+    <!-- Ensure Tailwind uses class-based dark mode before it loads -->
+    <script>
+      window.tailwind = window.tailwind || {};
+      window.tailwind.config = Object.assign({}, window.tailwind.config || {}, { darkMode: 'class' });
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +31,70 @@
         .dark body {
             --glow-color-rgb: 208, 188, 255; /* Corresponds to primary-dark */
         }
-        
+
+        /* Theme variables (override-able by Settings) */
+        :root {
+            /* Primary tokens */
+            --primary-light: #6750A4;
+            --on-primary-light: #FFFFFF;
+            --primary-container-light: #EADDFF;
+            --primary-contrast-light: #21005D;
+
+            --primary-dark: #D0BCFF;
+            --on-primary-dark: #381E72;
+            --primary-container-dark: #4F378B;
+            --primary-contrast-dark: #EADDFF;
+
+            /* Surface/Background tokens */
+            --surface-light: #FFFBFE;
+            --on-surface-light: #1C1B1F;
+            --surface-variant-light: #E7E0EC;
+            --on-surface-variant-light: #49454F;
+            --background-light: #FFFBFE;
+            --on-background-light: #1C1B1F;
+
+            --surface-dark: #1C1B1F;
+            --on-surface-dark: #E6E1E5;
+            --surface-variant-dark: #49454F;
+            --on-surface-variant-dark: #CAC4D0;
+            --background-dark: #1C1B1F;
+            --on-background-dark: #E6E1E5;
+        }
+
+        /* Override Tailwind token classes with variables */
+        .bg-primary-light { background-color: var(--primary-light) !important; }
+        .text-primary-light { color: var(--primary-light) !important; }
+        .text-on-primary-light { color: var(--on-primary-light) !important; }
+        .bg-primary-container-light { background-color: var(--primary-container-light) !important; }
+
+        .bg-primary-dark { background-color: var(--primary-dark) !important; }
+        .text-primary-dark { color: var(--primary-dark) !important; }
+        .text-on-primary-dark { color: var(--on-primary-dark) !important; }
+        .bg-primary-container-dark { background-color: var(--primary-container-dark) !important; }
+
+        .bg-surface-light { background-color: var(--surface-light) !important; }
+        .bg-surface-dark { background-color: var(--surface-dark) !important; }
+        .bg-surface-variant-light { background-color: var(--surface-variant-light) !important; }
+        .bg-surface-variant-dark { background-color: var(--surface-variant-dark) !important; }
+        .text-on-surface-light { color: var(--on-surface-light) !important; }
+        .text-on-surface-dark { color: var(--on-surface-dark) !important; }
+        .text-on-surface-variant-light { color: var(--on-surface-variant-light) !important; }
+        .text-on-surface-variant-dark { color: var(--on-surface-variant-dark) !important; }
+        .bg-background-light { background-color: var(--background-light) !important; }
+        .bg-background-dark { background-color: var(--background-dark) !important; }
+        .text-on-background-light { color: var(--on-background-light) !important; }
+        .text-on-background-dark { color: var(--on-background-dark) !important; }
+        .border-surface-variant-light { border-color: var(--surface-variant-light) !important; }
+        .border-surface-variant-dark { border-color: var(--surface-variant-dark) !important; }
+
+        .focus-visible\:ring-primary-light:focus-visible { --tw-ring-color: var(--primary-light) !important; }
+
+        /* Additional token helpers */
+        .text-primary-contrast-light { color: var(--primary-contrast-light) !important; }
+        .bg-accent-pill { background-color: var(--accent-pill-bg) !important; }
+        .border-accent-pill { border-color: var(--accent-pill-border) !important; }
+        .text-accent-pill { color: var(--accent-pill-contrast) !important; }
+
         /* Material Symbols styling */
         .material-symbols-rounded {
           font-variation-settings:
@@ -109,11 +177,18 @@
             animation-name: theme-glow-dark;
         }
 
+        /* Settings Modal styles */
+        #settings-modal.hidden { display: none; }
+        .swatch-card { border-radius: 14px; overflow: hidden; border: 1px solid rgb(0 0 0 / 0.1); }
+        .swatch-head { padding: 8px; color: white; font-weight: 600; }
+        .swatch-body { padding: 8px; font-size: 12px; }
+
 
     </style>
     <script>
         // Tailwind CSS configuration for Material You colors
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -162,7 +237,7 @@
         }
     </script>
 </head>
-<body class="bg-surface-variant-light dark:bg-surface-dark text-on-background-light dark:text-on-background-dark transition-colors duration-500">
+<body class="bg-background-light text-on-background-light transition-colors duration-500">
 
     <!-- Hidden SVG filter defs for outer stroke on artwork in dark mode -->
     <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
@@ -184,13 +259,13 @@
     <div id="podcast-grid" class="grid grid-cols-2 grid-rows-3 h-[100dvh] w-full gap-4 p-4" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1rem)">
         
         <!-- Button 1: News -->
-        <button class="podcast-btn group" data-feeds="https://feeds.npr.org/500005/podcast.xml,https://podcast.voice.api.bbci.co.uk/rss/audio/p002vsmz?api_key=Wbek5zSqxz0Hk1blo5IBqbd9SCWIfNbT,https://feeds.megaphone.fm/reutersworldnews">
+        <button class="podcast-btn group" data-allow-modal="true" data-feeds="https://feeds.npr.org/500005/podcast.xml,https://podcast.voice.api.bbci.co.uk/rss/audio/p002vsmz?api_key=Wbek5zSqxz0Hk1blo5IBqbd9SCWIfNbT,https://feeds.megaphone.fm/reutersworldnews">
             <img src="images/news.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/14573efa03022eb1145114f2951ce83da92a208d/images/news.png';" alt="News" class="button-image h-2/3 object-contain transition-opacity duration-300">
             <div class="button-player-ui"></div>
         </button>
 
         <!-- Button 2: Tech -->
-        <button class="podcast-btn group" data-feeds="https://feeds.acast.com/public/shows/dth,https://feeds.megaphone.fm/techcrunch-daily-crunch">
+        <button class="podcast-btn group" data-allow-modal="true" data-feeds="https://feeds.acast.com/public/shows/dth,https://feeds.megaphone.fm/techcrunch-daily-crunch">
             <img src="images/tech.png" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/davidsnyder-nc/newsbear/refs/heads/main/images/tech.png';" alt="Tech" class="button-image h-2/3 object-contain transition-opacity duration-300">
             <div class="button-player-ui"></div>
         </button>
@@ -239,17 +314,250 @@
     <!-- Global Audio Element -->
     <audio id="audio-player" class="hidden"></audio>
 
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div id="settings-panel" class="bg-surface-light dark:bg-surface-dark rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl scale-95 opacity-0 transition pointer-events-auto">
+            <div class="p-4 border-b border-surface-variant-light dark:border-surface-variant-dark flex justify-between items-center">
+                <h2 class="text-xl font-medium text-on-surface-light dark:text-on-surface-dark">Settings</h2>
+                <button id="settings-close-btn" class="text-on-surface-variant-light dark:text-on-surface-variant-dark p-2 rounded-full hover:bg-surface-variant-light/60 dark:hover:bg-surface-variant-dark/60">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div id="settings-content" class="p-4 space-y-6 overflow-y-auto">
+                <!-- Theme mode controls removed per new spec -->
+                <section>
+                    <h3 class="text-on-surface-light dark:text-on-surface-dark font-medium mb-2">Accent Color</h3>
+                    <div id="accent-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- THEME SETUP --- (system only, no manual toggle)
-            const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
             const htmlElement = document.documentElement;
-            function applyTheme(isDark) {
-                if (isDark) htmlElement.classList.add('dark');
-                else htmlElement.classList.remove('dark');
+            const themeState = {
+                accent: localStorage.getItem('theme-accent') || 'light' // 'light' | color name
+            };
+
+            // Accent color presets (always used with light mode)
+            const ACCENTS = {
+                indigo:  { light:'#6750A4', dark:'#B69DF8', onLight:'#FFFFFF', onDark:'#1A1033', containerLight:'#EADDFF', containerDark:'#4F378B' },
+                blue:    { light:'#3B82F6', dark:'#93C5FD', onLight:'#FFFFFF', onDark:'#0B1B3B', containerLight:'#DBEAFE', containerDark:'#1E3A8A' },
+                teal:    { light:'#14B8A6', dark:'#5EEAD4', onLight:'#072522', onDark:'#062521', containerLight:'#CCFBF1', containerDark:'#134E4A' },
+                green:   { light:'#22C55E', dark:'#86EFAC', onLight:'#05210F', onDark:'#0A1F10', containerLight:'#DCFCE7', containerDark:'#14532D' },
+                lime:    { light:'#84CC16', dark:'#BEF264', onLight:'#142003', onDark:'#121F06', containerLight:'#ECFCCB', containerDark:'#365314' },
+                amber:   { light:'#F59E0B', dark:'#FDE68A', onLight:'#291A00', onDark:'#1F1500', containerLight:'#FEF3C7', containerDark:'#7C2D12' },
+                orange:  { light:'#FB923C', dark:'#FDBA74', onLight:'#2A1404', onDark:'#1F1307', containerLight:'#FFEDD5', containerDark:'#7C2D12' },
+                red:     { light:'#EF4444', dark:'#FCA5A5', onLight:'#2D0707', onDark:'#2B0B0B', containerLight:'#FEE2E2', containerDark:'#7F1D1D' },
+                pink:    { light:'#EC4899', dark:'#F9A8D4', onLight:'#31061B', onDark:'#2B0A18', containerLight:'#FCE7F3', containerDark:'#831843' },
+                purple:  { light:'#A855F7', dark:'#D8B4FE', onLight:'#2A0839', onDark:'#1E0F2F', containerLight:'#F3E8FF', containerDark:'#581C87' }
+            };
+
+            // Sanitize any legacy saved value like 'dark'
+            if (themeState.accent !== 'light' && !ACCENTS[themeState.accent]) {
+                themeState.accent = 'light';
+                localStorage.setItem('theme-accent', 'light');
             }
-            applyTheme(themeMatcher.matches);
-            themeMatcher.addEventListener('change', e => applyTheme(e.matches));
+
+            const BASE_LIGHT = {
+                primary:'#6750A4', onPrimary:'#FFFFFF', primaryContainer:'#EADDFF',
+                surface:'#FFFBFE', onSurface:'#1C1B1F', surfaceVariant:'#E7E0EC', onSurfaceVariant:'#49454F',
+                background:'#FFFBFE', onBackground:'#1C1B1F'
+            };
+            const BASE_DARK = {
+                primary:'#D0BCFF', onPrimary:'#381E72', primaryContainer:'#4F378B',
+                surface:'#1C1B1F', onSurface:'#E6E1E5', surfaceVariant:'#49454F', onSurfaceVariant:'#CAC4D0',
+                background:'#1C1B1F', onBackground:'#E6E1E5'
+            };
+
+            function setBaseTheme(mode) {
+                const base = mode === 'dark' ? BASE_DARK : BASE_LIGHT;
+                const root = document.documentElement;
+                root.style.setProperty('--primary-light', BASE_LIGHT.primary);
+                root.style.setProperty('--on-primary-light', BASE_LIGHT.onPrimary);
+                root.style.setProperty('--primary-container-light', BASE_LIGHT.primaryContainer);
+                root.style.setProperty('--primary-contrast-light', bestTextColor(BASE_LIGHT.primaryContainer));
+                root.style.setProperty('--primary-dark', BASE_DARK.primary);
+                root.style.setProperty('--on-primary-dark', BASE_DARK.onPrimary);
+                root.style.setProperty('--primary-container-dark', BASE_DARK.primaryContainer);
+
+                // Derive accent pill from the chosen primary (light theme intent)
+                const p = BASE_LIGHT.primary;
+                const pillBg = mixHex(p, '#000000', 0.2);
+                const pillBorder = mixHex(p, '#000000', 0.35);
+                const pillContrast = bestTextColor(pillBg);
+                root.style.setProperty('--accent-pill-bg', pillBg);
+                root.style.setProperty('--accent-pill-border', pillBorder);
+                root.style.setProperty('--accent-pill-contrast', pillContrast);
+
+                root.style.setProperty('--surface-light', BASE_LIGHT.surface);
+                root.style.setProperty('--on-surface-light', BASE_LIGHT.onSurface);
+                root.style.setProperty('--surface-variant-light', BASE_LIGHT.surfaceVariant);
+                root.style.setProperty('--on-surface-variant-light', BASE_LIGHT.onSurfaceVariant);
+                root.style.setProperty('--background-light', BASE_LIGHT.background);
+                root.style.setProperty('--on-background-light', BASE_LIGHT.onBackground);
+
+                root.style.setProperty('--surface-dark', BASE_DARK.surface);
+                root.style.setProperty('--on-surface-dark', BASE_DARK.onSurface);
+                root.style.setProperty('--surface-variant-dark', BASE_DARK.surfaceVariant);
+                root.style.setProperty('--on-surface-variant-dark', BASE_DARK.onSurfaceVariant);
+                root.style.setProperty('--background-dark', BASE_DARK.background);
+                root.style.setProperty('--on-background-dark', BASE_DARK.onBackground);
+
+                const glowHex = mode === 'dark' ? BASE_DARK.primary : BASE_LIGHT.primary;
+                const glowRgb = hexToRgb(glowHex);
+                if (glowRgb) document.body.style.setProperty('--glow-color-rgb', glowRgb.join(', '));
+            }
+
+            function applyThemeFromAccent() {
+                const aKey = themeState.accent;
+                if (aKey === 'light') {
+                    htmlElement.classList.remove('dark');
+                    setBaseTheme('light');
+                    // For original light theme: use transparent gray pill background
+                    const root = document.documentElement;
+                    root.style.setProperty('--accent-pill-bg', 'rgba(0, 0, 0, 0.25)');
+                    root.style.setProperty('--accent-pill-border', 'rgba(0, 0, 0, 0.35)');
+                    root.style.setProperty('--accent-pill-contrast', '#FFFFFF');
+                } else {
+                    // Color accents use light theme
+                    htmlElement.classList.remove('dark');
+                    const a = ACCENTS[aKey] || ACCENTS.indigo;
+                    const root = document.documentElement;
+                    root.style.setProperty('--primary-light', a.light);
+                    root.style.setProperty('--on-primary-light', a.onLight);
+                    root.style.setProperty('--primary-container-light', a.containerLight);
+                    root.style.setProperty('--primary-contrast-light', bestTextColor(a.containerLight));
+                    root.style.setProperty('--primary-dark', a.dark);
+                    root.style.setProperty('--on-primary-dark', a.onDark);
+                    root.style.setProperty('--primary-container-dark', a.containerDark);
+
+                    // Derive accent pill from selected accent primary
+                    const p = a.light;
+                    const pillBg = mixHex(p, '#000000', 0.2);
+                    const pillBorder = mixHex(p, '#000000', 0.35);
+                    const pillContrast = bestTextColor(pillBg);
+                    root.style.setProperty('--accent-pill-bg', pillBg);
+                    root.style.setProperty('--accent-pill-border', pillBorder);
+                    root.style.setProperty('--accent-pill-contrast', pillContrast);
+
+                    const lightSurface = a.containerLight;
+                    const lightVariant = mixHex(a.containerLight, '#000000', 0.1);
+                    const onLightSurface = bestTextColor(lightSurface);
+                    const onLightVariant = bestTextColor(lightVariant);
+
+                    root.style.setProperty('--surface-light', lightSurface);
+                    root.style.setProperty('--on-surface-light', onLightSurface);
+                    root.style.setProperty('--surface-variant-light', lightVariant);
+                    root.style.setProperty('--on-surface-variant-light', onLightVariant);
+                    root.style.setProperty('--background-light', lightSurface);
+                    root.style.setProperty('--on-background-light', onLightSurface);
+
+                    // Keep dark tokens at base values (unused since dark mode is removed)
+                    root.style.setProperty('--surface-dark', BASE_DARK.surface);
+                    root.style.setProperty('--on-surface-dark', BASE_DARK.onSurface);
+                    root.style.setProperty('--surface-variant-dark', BASE_DARK.surfaceVariant);
+                    root.style.setProperty('--on-surface-variant-dark', BASE_DARK.onSurfaceVariant);
+                    root.style.setProperty('--background-dark', BASE_DARK.background);
+                    root.style.setProperty('--on-background-dark', BASE_DARK.onBackground);
+
+                    const glowRgb = hexToRgb(a.light);
+                    if (glowRgb) document.body.style.setProperty('--glow-color-rgb', glowRgb.join(', '));
+                }
+                updateAccentHighlight();
+            }
+
+            function hexToRgb(hex) {
+                const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return m ? [parseInt(m[1],16), parseInt(m[2],16), parseInt(m[3],16)] : null;
+            }
+
+            function rgbToHex(r,g,b){
+                return '#' + [r,g,b].map(v => {
+                    const h = Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2,'0');
+                    return h;
+                }).join('');
+            }
+
+            function mixHex(hex1, hex2, t){
+                const a = hexToRgb(hex1) || [0,0,0];
+                const b = hexToRgb(hex2) || [0,0,0];
+                const r = a[0]*(1-t) + b[0]*t;
+                const g = a[1]*(1-t) + b[1]*t;
+                const bl = a[2]*(1-t) + b[2]*t;
+                return rgbToHex(r,g,bl);
+            }
+
+            function bestTextColor(hex){
+                const rgb = hexToRgb(hex) || [255,255,255];
+                const [r,g,b] = rgb.map(v => v/255);
+                // relative luminance
+                const srgb = [r,g,b].map(c => c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
+                const L = 0.2126*srgb[0] + 0.7152*srgb[1] + 0.0722*srgb[2];
+                return L > 0.5 ? '#000000' : '#FFFFFF';
+            }
+
+            function renderAccentGrid() {
+                const grid = document.getElementById('accent-grid');
+                grid.innerHTML = '';
+
+                const baseOptions = [
+                    { key: 'light', title: 'Light', head: 'transparent', desc1: 'Original light theme', desc2: 'No accent' },
+                ];
+                baseOptions.forEach(opt => {
+                    const card = document.createElement('button');
+                    card.className = 'swatch-card text-left';
+                    card.setAttribute('data-accent', opt.key);
+                    const headStyle = `background:${opt.head};${opt.key==='light' ? 'color:inherit' : 'color:white'}`;
+                    card.innerHTML = `
+                        <div class="swatch-head" style="${headStyle}">${opt.title}</div>
+                        <div class="swatch-body text-on-surface-light dark:text-on-surface-dark">
+                            <div class="text-xs">${opt.desc1}</div>
+                            <div class="text-xs opacity-70">${opt.desc2}</div>
+                        </div>`;
+                    card.addEventListener('click', () => {
+                        themeState.accent = opt.key;
+                        localStorage.setItem('theme-accent', opt.key);
+                        applyThemeFromAccent();
+                    });
+                    grid.appendChild(card);
+                });
+
+                Object.entries(ACCENTS).forEach(([name, vals]) => {
+                    const card = document.createElement('button');
+                    card.className = 'swatch-card text-left';
+                    card.setAttribute('data-accent', name);
+                    card.innerHTML = `
+                        <div class="swatch-head" style="background:${vals.light}">${name[0].toUpperCase()+name.slice(1)}</div>
+                        <div class="swatch-body">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-block w-4 h-4 rounded-full" style="background:${vals.light}"></span>
+                                <span>Primary (light)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-4 h-4 rounded-full" style="background:${vals.dark}"></span>
+                                <span>Primary (dark)</span>
+                            </div>
+                        </div>`;
+                    card.addEventListener('click', () => {
+                        themeState.accent = name;
+                        localStorage.setItem('theme-accent', name);
+                        applyThemeFromAccent();
+                    });
+                    grid.appendChild(card);
+                });
+            }
+
+            function updateAccentHighlight() {
+                document.querySelectorAll('#accent-grid .swatch-card').forEach(card => {
+                    if (card.getAttribute('data-accent') === themeState.accent) card.style.outline = '2px solid var(--primary-light)';
+                    else card.style.outline = 'none';
+                });
+            }
+
+            applyThemeFromAccent();
 
             // --- PLAYER LOGIC ---
             const audioPlayer = document.getElementById('audio-player');
@@ -259,6 +567,8 @@
             const modalCloseBtn = document.getElementById('modal-close-btn');
             const modalEpisodeList = document.getElementById('modal-episode-list');
             const podcastGrid = document.getElementById('podcast-grid');
+            const settingsModal = document.getElementById('settings-modal');
+            const settingsCloseBtn = document.getElementById('settings-close-btn');
 
             let state = {
                 activeButton: null,
@@ -269,6 +579,7 @@
 
             let pressTimer = null;
             let longPressTriggered = false;
+            let settingsPressTimer = null;
 
             // --- EVENT LISTENERS ---
             
@@ -293,6 +604,8 @@
                         else audioPlayer.pause();
                     } else if (action === 'open-modal') {
                         openEpisodeModal(button);
+                    } else if (action === 'open-settings') {
+                        openSettingsModal();
                     }
                     return;
                 }
@@ -318,11 +631,13 @@
                     longPressTriggered = false;
                     return;
                 }
-                createRipple(e);
+                createRipple(button, e);
                 handleButtonClick(button);
             });
 
+            // Settings now opens via a dedicated icon on the first card
 
+            
             buttonOrder.forEach(button => {
                 // Long press logic for modal
                 if (button.dataset.allowModal) {
@@ -364,6 +679,12 @@
                 }
             });
 
+            // Settings modal listeners
+            settingsCloseBtn.addEventListener('click', closeSettingsModal);
+            settingsModal.addEventListener('click', (e) => { if (e.target.id === 'settings-modal') closeSettingsModal(); });
+            renderAccentGrid();
+            updateAccentHighlight();
+
             // --- CORE FUNCTIONS ---
             async function handleButtonClick(clickedButton) {
                 if (clickedButton === state.activeButton) {
@@ -397,10 +718,12 @@
                     .then(response => response.ok ? response.text() : Promise.reject(`Network error for ${url}`))
                     .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
                     .then(data => {
+                        const podcastTitle = data.querySelector('channel > title')?.textContent || 'Podcast';
                         const items = Array.from(data.querySelectorAll('item')).slice(0, count);
                         return items.map(item => ({
                             title: item.querySelector('title')?.textContent || 'Untitled Episode',
-                            url: item.querySelector('enclosure')?.getAttribute('url')
+                            url: item.querySelector('enclosure')?.getAttribute('url'),
+                            podcastTitle
                         })).filter(ep => ep.url);
                     })
                     .catch(err => { console.warn(`Failed feed: ${url}`, err); return []; })
@@ -445,8 +768,13 @@
                 requestAnimationFrame(() => panel.classList.add('!scale-100','!opacity-100'));
                 
                 try {
-                    const feedUrl = button.dataset.feeds.split(',')[0]; // Only use first feed for single podcasts
-                    const episodes = await fetchLatestEpisodes([feedUrl], 5);
+                    const feedUrls = button.dataset.feeds.split(',');
+                    const isMultiFeed = feedUrls.length > 1;
+                    // For multi-feed tiles, show the actual playlist (1 ep per feed).
+                    // For single-feed tiles, show the 5 most recent from that feed.
+                    const episodes = isMultiFeed
+                        ? await fetchLatestEpisodes(feedUrls, 1)
+                        : await fetchLatestEpisodes([feedUrls[0]], 5);
                     
                     modalEpisodeList.innerHTML = '';
                     if (episodes.length === 0) {
@@ -454,13 +782,19 @@
                         return;
                     }
 
+                    // Update modal title depending on context
+                    const titleEl = document.getElementById('modal-title');
+                    titleEl.textContent = isMultiFeed ? 'Playlist' : 'Recent Episodes';
+
                     episodes.forEach(episode => {
                         const episodeButton = document.createElement('button');
                         episodeButton.className = 'w-full text-left p-4 rounded-xl hover:bg-surface-variant-light dark:hover:bg-surface-variant-dark transition-colors';
+                        const primary = isMultiFeed ? (episode.podcastTitle || 'Podcast') : episode.title;
+                        const secondary = isMultiFeed ? episode.title : 'Tap to play this episode';
                         episodeButton.innerHTML = `
                             <div class="flex flex-col gap-1">
-                                <div class="font-medium">${episode.title}</div>
-                                <div class="text-sm text-on-surface-variant-light dark:text-on-surface-variant-dark">Tap to play this episode</div>
+                                <div class="font-medium">${primary}</div>
+                                <div class="text-sm text-on-surface-variant-light dark:text-on-surface-variant-dark">${secondary}</div>
                             </div>
                         `;
                         episodeButton.addEventListener('click', () => {
@@ -482,8 +816,8 @@
             function handleTimeUpdate() {
                 if (!state.isPlaying || !state.activeButton || isNaN(audioPlayer.duration)) return;
                 const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-                const progressBar = state.activeButton.querySelector('.progress-bar');
-                if (progressBar) progressBar.style.width = `${progress}%`;
+                const bars = state.activeButton.querySelectorAll('.progress-bar');
+                bars.forEach(bar => { bar.style.width = `${progress}%`; });
                 localStorage.setItem(audioPlayer.src, audioPlayer.currentTime);
             }
 
@@ -538,27 +872,30 @@
                         </button>
                 ` : '';
 
-                const podcastName = state.activeButton.querySelector('img')?.alt || '';
-                const topPill = state.isPlaying && podcastName ? `
-                        <div class="absolute top-2 left-1/2 -translate-x-1/2 pointer-events-none">
-                            <div class="px-3 py-1 rounded-full text-sm font-medium bg-black/60 text-white backdrop-blur-sm border border-white/10">
-                                ${podcastName}
-                            </div>
-                        </div>
-                ` : '';
-
                 playerUI.innerHTML = `
                     <div class="absolute inset-0 p-4 text-slate-700 dark:text-slate-300 pointer-events-none">
-                        ${topPill}
                         <!-- Center Play/Pause FAB (only while playing) -->
                         ${centerFab}
-                        <!-- Corner Skips -->
-                        <button class="control-btn absolute bottom-3 left-3 text-base sm:text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
-                        <button class="control-btn absolute bottom-3 right-3 text-base sm:text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
                     </div>
-                    <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-                        <div class="progress-bar-container w-full h-2 bg-primary-container-light/80 dark:bg-primary-container-dark/50 rounded-full overflow-hidden cursor-pointer">
-                            <div class="progress-bar h-full bg-primary-light dark:bg-primary-dark" style="width: ${audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0}%"></div>
+                    <!-- Bottom controls: Mobile (stacked) and Desktop (inline) -->
+                    <div class="absolute bottom-0 left-0 right-0 p-3 z-10 pointer-events-none">
+                        <!-- Mobile layout: progress above, buttons below -->
+                        <div class="flex flex-col gap-2 sm:hidden">
+                            <div class="progress-bar-container w-full h-3 bg-primary-container-light/90 dark:bg-primary-container-dark/60 rounded-full overflow-hidden cursor-pointer pointer-events-auto">
+                                <div class="progress-bar h-full bg-primary-light dark:bg-primary-dark" style="width: ${audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0}%"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <button class="control-btn text-base font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
+                                <button class="control-btn text-base font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
+                            </div>
+                        </div>
+                        <!-- Desktop layout: buttons and progress inline -->
+                        <div class="hidden sm:grid sm:grid-cols-[auto,1fr,auto] items-center gap-3">
+                            <button class="control-btn text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="-30"><span>-30s</span></button>
+                            <div class="progress-bar-container w-full h-2 bg-primary-container-light/80 dark:bg-primary-container-dark/50 rounded-full overflow-hidden cursor-pointer pointer-events-auto">
+                                <div class="progress-bar h-full bg-primary-light dark:bg-primary-dark" style="width: ${audioPlayer.duration ? (audioPlayer.currentTime / audioPlayer.duration) * 100 : 0}%"></div>
+                            </div>
+                            <button class="control-btn text-lg font-bold pointer-events-auto px-3 py-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60" data-skip="60"><span>+1m</span></button>
                         </div>
                     </div>
                 `;
@@ -591,20 +928,24 @@
                 }, 2000);
             }
 
-            function createRipple(event) {
-                const button = event.currentTarget;
+            function createRipple(button, event) {
                 const circle = document.createElement("span");
                 const diameter = Math.max(button.clientWidth, button.clientHeight);
                 circle.style.width = circle.style.height = `${diameter}px`;
-                circle.style.left = `${event.clientX - button.offsetLeft - (diameter / 2)}px`;
-                circle.style.top = `${event.clientY - button.offsetTop - (diameter / 2)}px`;
+                const rect = button.getBoundingClientRect();
+                const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+                const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                circle.style.left = `${x - (diameter / 2)}px`;
+                circle.style.top = `${y - (diameter / 2)}px`;
                 circle.classList.add("ripple");
                 button.querySelector(".ripple")?.remove();
                 button.appendChild(circle);
             }
 
             // --- Apply base styles to buttons ---
-            buttonOrder.forEach(btn => {
+            buttonOrder.forEach((btn, idx) => {
                 btn.classList.add(
                     'relative', 'flex', 'items-center', 'justify-center', 'overflow-hidden',
                     'bg-surface-light', 'dark:bg-surface-dark', 'border', 'border-surface-variant-light', 'dark:border-surface-variant-dark',
@@ -617,12 +958,38 @@
                 btn.setAttribute('aria-pressed', 'false');
                 // Add visible 'more' icon for tiles with modal capability
                 if (btn.dataset.allowModal) {
+                    // Corner container with label + hamburger
+                    const corner = document.createElement('div');
+                    corner.className = 'absolute top-2 right-2 flex items-center gap-1.5 pointer-events-none';
+
+                    // Tiny label themed to current accent (darker variant)
+                    const label = document.createElement('div');
+                    label.className = 'pointer-events-none h-7 flex items-center px-2 rounded-full text-[10px] leading-none bg-accent-pill text-accent-pill';
+                    const alt = btn.querySelector('img')?.alt?.trim().toLowerCase() || '';
+                    let labelText = btn.querySelector('img')?.alt || '';
+                    if (alt === 'news') labelText = 'News';
+                    if (alt === 'tech') labelText = 'Tech News';
+                    label.textContent = labelText;
+
+                    // Hamburger affordance
                     const afford = document.createElement('button');
-                    afford.className = 'control-btn absolute top-2 right-2 pointer-events-auto p-2 rounded-full bg-surface-light/70 dark:bg-surface-dark/60';
+                    afford.className = 'control-btn pointer-events-auto w-7 h-7 flex items-center justify-center rounded-full bg-transparent text-base';
                     afford.setAttribute('data-action', 'open-modal');
                     afford.setAttribute('aria-label', 'More episodes');
-                    afford.innerHTML = '<span class="material-symbols-rounded">more_horiz</span>';
-                    btn.appendChild(afford);
+                    afford.innerHTML = '<span class="material-symbols-rounded">menu</span>';
+
+                    corner.appendChild(label);
+                    corner.appendChild(afford);
+                    btn.appendChild(corner);
+                }
+                // Add Settings icon to the first card (News)
+                if (idx === 0) {
+                    const settingsBtn = document.createElement('button');
+                    settingsBtn.className = 'control-btn absolute top-2 left-2 pointer-events-auto p-2 rounded-full bg-transparent';
+                    settingsBtn.setAttribute('data-action', 'open-settings');
+                    settingsBtn.setAttribute('aria-label', 'Open settings');
+                    settingsBtn.innerHTML = '<span class="material-symbols-rounded">settings</span>';
+                    btn.appendChild(settingsBtn);
                 }
                 // No tile labels
             });
@@ -647,9 +1014,15 @@
                 }
             });
 
-            // Keep progress bar visible even when paused by updating UI when selecting a tile
-            const originalHandleButtonClick = handleButtonClick;
-            // No override of function, but ensure aria state updates in updateActiveButtonUI
+            function openSettingsModal() {
+                const panel = document.getElementById('settings-panel');
+                settingsModal.classList.remove('hidden');
+                requestAnimationFrame(() => panel.classList.add('!scale-100','!opacity-100'));
+            }
+            function closeSettingsModal() {
+                settingsModal.classList.add('hidden');
+                document.getElementById('settings-panel').classList.remove('!scale-100','!opacity-100');
+            }
         });
     </script>
 </body>
